@@ -96,9 +96,12 @@ namespace cppsas7bdat {
 	}
 	
 	BYTES operator()(const BYTES& _values) noexcept {
+	  constexpr uint8_t ONE{1}, FOUR{4}, EIGHT{8};
+	  constexpr uint8_t THREE{3}, SIXTEEN{16}, NINETEEN{19};
+	  
 	  reset();
 
-	  using T = uint16_t;
+	  using T = int32_t;
 	  SRC_VALUES src(_values);
 	  T ctrl_mask{0};
 	  T ctrl_bits{0};
@@ -106,11 +109,11 @@ namespace cppsas7bdat {
 	  while(src.check(2) && check_dst()) {
 	    //fmt::print(stderr, "RDC({}/{},{}/{})\n", i_src, n_src, i_dst, n_dst);
 	    // get new load of control bits if needed
-	    ctrl_mask >>= 1;
+	    ctrl_mask >>= ONE;
 	    if(ctrl_mask == 0) {
 	      // The 2 next lines must be performed in that order
-	      ctrl_bits  = ((T)(src.pop())) << 8;
-	      ctrl_bits += ((T)(src.pop()));
+	      ctrl_bits  = (static_cast<T>(src.pop())) << EIGHT;
+	      ctrl_bits += (static_cast<T>(src.pop()));
 	      ctrl_mask = 0x8000;
 	    }
 	    // just copy this char if control bit is zero
@@ -120,20 +123,20 @@ namespace cppsas7bdat {
 	    }
 	    // undo the compression code
 	    const auto val = src.pop();
-	    const uint8_t cmd = (val >> 4) & 0x0F;
+	    const uint8_t cmd = (val >> FOUR) & 0x0F;
 	    size_t cnt = val & 0x0F;
             if(cmd == 0) { // short rle
-	      cnt += 3;
+	      cnt += THREE;
 	      store_value(src.pop(), cnt);
 	    } else if(cmd == 1) { // long rle
-	      cnt += ((T)(src.pop()) << 4) + 19;
+	      cnt += static_cast<size_t>((static_cast<T>(src.pop()) << FOUR) + NINETEEN);
 	      store_value(src.pop(), cnt);
 	    } else if(cmd == 2) { // long pattern
-	      const size_t ofs = cnt + 3 + ((T)(src.pop()) << 4);
-	      cnt = src.pop() + 16;
+	      const size_t ofs = cnt + THREE + static_cast<size_t>(static_cast<T>(src.pop()) << FOUR);
+	      cnt = static_cast<size_t>(src.pop() + SIXTEEN);
 	      store_pattern(ofs, cnt);
 	    } else if(cmd >= 3 && cmd <= 15) { //short pattern
-	      const size_t ofs = cnt + 3 + ((T)(src.pop()) << 4);
+	      const size_t ofs = cnt + THREE + static_cast<size_t>(static_cast<T>(src.pop()) << FOUR);
 	      store_pattern(ofs, cmd);
 	    } else {
 	      fmt::print(stderr, "unknown marker {:#X} at offset {}\n", val, (src.i_src-1));
@@ -178,6 +181,8 @@ namespace cppsas7bdat {
 	}
 
 	BYTES operator()(const BYTES& _values) noexcept {
+	  constexpr uint8_t FOUR{4}, EIGHT{8};
+	  
 	  reset();
 	  SRC_VALUES src(_values);
 	  auto store_values = [&](size_t n) {
@@ -188,28 +193,28 @@ namespace cppsas7bdat {
 	  
 	  while(src.check(1) && check_dst()) {
 	    const auto val = src.pop();
-	    const uint8_t command = val >> 4;
-	    const size_t end_of_first_byte = val & 0x0F;
+	    const uint8_t command = static_cast<uint8_t>(val >> FOUR);
+	    const size_t end_of_first_byte = static_cast<size_t>(val & 0x0F);
 	    //fmt::print(stderr, "RLE:({}, {}: {:#X})\n", i_src, j_dst, control_byte);
 	    switch(command) {
 	      break; case SAS_RLE_COMMAND_COPY64: {
-		       const size_t n = (end_of_first_byte << 8) + src.pop() + 64;
+		       const size_t n = (end_of_first_byte << EIGHT) + src.pop() + 64;
 		       store_values(n);
 		     }
 	      break; case SAS_RLE_COMMAND_INSERT_BYTE18: {
-		       const size_t n = (end_of_first_byte << 4) + src.pop() + 18;
+		       const size_t n = (end_of_first_byte << FOUR) + src.pop() + 18;
 		       store_value(src.pop(), n);			  
 		     }
 	      break; case SAS_RLE_COMMAND_INSERT_AT17: {
-		       const size_t n = (end_of_first_byte << 8) + src.pop() + 17;
+		       const size_t n = (end_of_first_byte << EIGHT) + src.pop() + 17;
 		       store_value(C_AT, n);
 		     }
 	      break; case SAS_RLE_COMMAND_INSERT_BLANK17: {
-		       const size_t n = (end_of_first_byte << 8) + src.pop() + 17;
+		       const size_t n = (end_of_first_byte << EIGHT) + src.pop() + 17;
 		       store_value(C_SPACE, n);
 		     }
 	      break; case SAS_RLE_COMMAND_INSERT_ZERO17: {
-		       const size_t n = (end_of_first_byte << 8) + src.pop() + 17;
+		       const size_t n = (end_of_first_byte << EIGHT) + src.pop() + 17;
 		       store_value(C_NULL, n);
 		     }
 	      break; case SAS_RLE_COMMAND_COPY1: {

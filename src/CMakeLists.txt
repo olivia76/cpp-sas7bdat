@@ -1,5 +1,15 @@
+configure_file(
+  "${PROJECT_SOURCE_DIR}/include/cppsas7bdat/version.hpp.in"
+  "${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp"
+  )
 
-set(HEADER_LIST ${PROJECT_SOURCE_DIR}/include/cppsas7bdat/sas7bdat.hpp)
+find_package(Boost REQUIRED COMPONENTS date_time)
+find_package(fmt)
+find_package(spdlog)
+#find_package(docopt COMPONENTS CXX REQUIRED)
+#message (STATUS ${DOCOPT_INCLUDE_DIRS})
+
+#set(HEADER_LIST ${PROJECT_SOURCE_DIR}/include/cppsas7bdat/sas7bdat.hpp)
 add_library(lib_cppsas7bdat
     exceptions.hpp
     exceptions.cpp
@@ -20,15 +30,16 @@ add_library(lib_cppsas7bdat
     )
 #target_include_directories(lib_cppsas7bdat INTERFACE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(lib_cppsas7bdat PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(lib_cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )
 target_link_libraries(lib_cppsas7bdat PRIVATE fmt::fmt Boost::date_time)
-
-set(SRC_LIST
-    ${SRC_LIST}
-    sas7bdat.cpp
-    sas7bdat-impl.hpp
-    exceptions.hpp
-    exceptions.cpp
-    ${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp
-    ${PROJECT_SOURCE_DIR}/include/cppsas7bdat/sas7bdat.hpp
-    version.cpp
-    PARENT_SCOPE)
+#
+#set(SRC_LIST
+#    ${SRC_LIST}
+#    sas7bdat.cpp
+#    sas7bdat-impl.hpp
+#    exceptions.hpp
+#    exceptions.cpp
+#    ${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp
+#    ${PROJECT_SOURCE_DIR}/include/cppsas7bdat/sas7bdat.hpp
+#    version.cpp
+#    PARENT_SCOPE)

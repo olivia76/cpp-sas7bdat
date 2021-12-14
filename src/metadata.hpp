@@ -260,9 +260,9 @@ namespace cppsas7bdat {
 	D(fmt::print(stderr, "READ_METADATA::process_COLUMN_ATTRIBUTES_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
 	const size_t offset_max = _subheader.offset + _subheader.length-12-integer_size;
 	for(size_t offset = _subheader.offset + integer_size + 8; offset <= offset_max; offset += integer_size+8) {
-	  const size_t column_data_offset = buf.get_integer(offset + 0);
-	  const size_t column_data_length = buf.get_int32  (offset + integer_size);
-	  const uint8_t column_data_type  = buf.get_byte   (offset + integer_size + 6);
+	  const size_t column_data_offset = buf.get_uinteger(offset + 0);
+	  const size_t column_data_length = buf.get_uint32  (offset + integer_size);
+	  const uint8_t column_data_type  = buf.get_byte    (offset + integer_size + 6);
 	  column_data_offsets.emplace_back(column_data_offset);
 	  column_data_lengths.emplace_back(column_data_length);
 	  column_data_types.emplace_back(column_data_type == 1 ? Column::Type::number : Column::Type::string);
@@ -318,39 +318,39 @@ namespace cppsas7bdat {
 	
 	for(size_t icol=0; icol<ncols; ++icol) {
 	  D(fmt::print(stderr, "READ_METADATA::create_columns: {}/{}\n", icol, ncols));
-	  const auto name   = get_value("name", column_names, icol);
-	  const auto label  = get_value("label", column_labels, icol);
-	  const auto format = get_value("format", column_formats, icol);
-	  const auto offset = get_value("data_offset", column_data_offsets, icol);
-	  const auto length = get_value("data_length", column_data_lengths, icol);
-	  const auto type   = get_value("data_type", column_data_types, icol);
+	  const auto column_name   = get_value("name", column_names, icol);
+	  const auto column_label  = get_value("label", column_labels, icol);
+	  const auto column_format = get_value("format", column_formats, icol);
+	  const auto column_offset = get_value("data_offset", column_data_offsets, icol);
+	  const auto column_length = get_value("data_length", column_data_lengths, icol);
+	  const auto column_type   = get_value("data_type", column_data_types, icol);
 
 	  bool column_type_not_supported = true;
 	  auto add_column = [&](auto&& formatter) {
-			      D(fmt::print(stderr, "add_column: {}, {}, {}, {}, {}, {}\n", name, label, format, offset, length, (int)(type)));
+			      D(fmt::print(stderr, "add_column: {}, {}, {}, {}, {}, {}\n", column_name, column_label, column_format, column_offset, column_length, (int)(column_type)));
 			      column_type_not_supported = false;
-			      _metadata->columns.emplace_back(name, label, format, std::move(formatter));
+			      _metadata->columns.emplace_back(column_name, column_label, column_format, std::move(formatter));
 			    };
 
-	  if(type == Type::string) add_column(FORMATTER::StringFormatter(offset, length));
-	  else if(type == Type::number) {
-	    if(length == 1) add_column(FORMATTER::SmallIntegerFormatter(offset, length));
-	    else if(length == 2) add_column(FORMATTER::IntegerFormatter<_endian, int16_t>(offset, length));
-	    else if(is_datetime_format(format)) add_column(FORMATTER::DateTimeFormatter<_endian>(offset, length));
-	    else if(is_date_format(format)) add_column(FORMATTER::DateFormatter<_endian>(offset, length));
-	    else if(is_time_format(format)) add_column(FORMATTER::TimeFormatter<_endian>(offset, length));
+	  if(column_type == Type::string) add_column(FORMATTER::StringFormatter(column_offset, column_length));
+	  else if(column_type == Type::number) {
+	    if(column_length == 1) add_column(FORMATTER::SmallIntegerFormatter(column_offset, column_length));
+	    else if(column_length == 2) add_column(FORMATTER::IntegerFormatter<_endian, int16_t>(column_offset, column_length));
+	    else if(is_datetime_format(column_format)) add_column(FORMATTER::DateTimeFormatter<_endian>(column_offset, column_length));
+	    else if(is_date_format(column_format)) add_column(FORMATTER::DateFormatter<_endian>(column_offset, column_length));
+	    else if(is_time_format(column_format)) add_column(FORMATTER::TimeFormatter<_endian>(column_offset, column_length));
 	    else {
-	      if(length == 8) add_column(FORMATTER::DoubleFormatter<_endian>(offset, length));
-	      else if(length == 3) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 3>(offset, length));
-	      else if(length == 4) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 4>(offset, length));
-	      else if(length == 5) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 5>(offset, length));
-	      else if(length == 6) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 6>(offset, length));
-	      else if(length == 7) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 7>(offset, length));
+	      if(column_length == 8) add_column(FORMATTER::DoubleFormatter<_endian>(column_offset, column_length));
+	      else if(column_length == 3) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 3>(column_offset, column_length));
+	      else if(column_length == 4) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 4>(column_offset, column_length));
+	      else if(column_length == 5) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 5>(column_offset, column_length));
+	      else if(column_length == 6) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 6>(column_offset, column_length));
+	      else if(column_length == 7) add_column(FORMATTER::IncompleteDoubleFormatter<_endian, 7>(column_offset, column_length));
 	    }
 	  }
 	  if(column_type_not_supported) {
 	    //fmt::print(stderr, "NoFormatter: {}, {}: ", (int)type, format);
-	    add_column(FORMATTER::NoFormatter(offset, length));
+	    add_column(FORMATTER::NoFormatter(column_offset, column_length));
 	  }
 	}
       }

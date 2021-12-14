@@ -77,7 +77,7 @@ namespace cppsas7bdat {
       }
 
       void set_header_length_and_read(Properties::Header* _header) {
-	_header->header_length = buf.get_int32(196+align1); // 196-200 + align1
+	_header->header_length = buf.get_uint32(196+align1); // 196-200 + align1
 
 	// Read the rest of the header
 	if(_header->format == Format::bit64 && _header->header_length != 8192) {
@@ -98,8 +98,8 @@ namespace cppsas7bdat {
 	_header->date_created = get_datetime_from_epoch(buf.get_double(164+align1)); // 164-172 + align1
 	_header->date_modified = get_datetime_from_epoch(buf.get_double(172+align1)); // 172-180 + align1
 
-	_header->page_length = buf.get_int32(200+align1); // 200-204 + align1
-	_header->page_count = buf.get_int32(204+align1); // 204-208 + align1
+	_header->page_length = buf.get_uint32(200+align1); // 200-204 + align1
+	_header->page_count = buf.get_uint32(204+align1); // 204-208 + align1
 
 	_header->sas_release = buf.get_string(216+total_align, 8); // 216-224 + total_align
 	_header->sas_server_type = buf.get_string(224+total_align, 16); // 224-240 + total_align

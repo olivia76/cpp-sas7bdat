@@ -54,27 +54,29 @@ namespace cppsas7bdat {
 	resize(_offset_in_buffer + _read_length);
 	// Read the stream 
 	if(_is)
-	  _is.read(reinterpret_cast<char*>(m_buffer.get())+_offset_in_buffer, _read_length);
+	  _is.read(reinterpret_cast<char*>(m_buffer.get())+_offset_in_buffer, static_cast<std::streamsize>(_read_length));
 	// Did we manage to read the requested data?
 	return _is.good();
       }
       
       size_t size() const noexcept { return m_size; }
       
-      const uint8_t* data(const size_t _offset, const size_t _length) const noexcept
+      const uint8_t* data(const size_t _offset,
+			  [[maybe_unused]] const size_t _length) const noexcept
       {
 	assert(_offset + _length <= size());
 	return m_buffer.get() + _offset;
       }
       
-      uint8_t* data(const size_t _offset, const size_t _length) noexcept
+      uint8_t* data(const size_t _offset,
+		    [[maybe_unused]] const size_t _length) noexcept
       {
 	//fmt::print(stderr, "BUFFER::data({}, {} / {})\n", _offset, _offset+_length, size());
 	assert(_offset + _length <= size());
 	return m_buffer.get() + _offset;
       }
       
-      char operator[](const size_t _offset) const noexcept { return *data(_offset, 1); }
+      uint8_t operator[](const size_t _offset) const noexcept { return *data(_offset, 1); }
 
       void set(const size_t _offset, const uint8_t _v) noexcept {
 	*data(_offset, 1) = _v;

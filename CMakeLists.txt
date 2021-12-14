@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 #Set the project name
 project(
@@ -8,8 +9,17 @@ project(
   LANGUAGES CXX
   )
 
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+add_compile_options(-Wall -Wextra -pedantic -O3)
+
 #include(cmake/StandardProjectSettings.cmake)
-#include(cmake/PreventInSourceBuilds.cmake)
+include(cmake/PreventInSourceBuilds.cmake)
+
+# Link this 'library' to set the c++ standard / compile-time options requested
+add_library(project_options INTERFACE)
+target_compile_features(project_options INTERFACE cxx_std_17)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
   option(ENABLE_BUILD_WITH_TIME_TRACE "Enable -ftime-trace to generate time tracing .json files on clang" OFF)
@@ -18,86 +28,161 @@ if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
   endif()
 endif()
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
-#set(CMAKE_CXX_COMPILER g++)
-#set(CMAKE_C_COMPILER gcc)
-#set(CMAKE_AUTOMOC ON)
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
-#set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# Link this 'library' to use the warnings specified in CompilerWarnings.cmake
+add_library(project_warnings INTERFACE)
 
-set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall -DDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall")
+# enable cache system
+include(cmake/Cache.cmake)
 
-#include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-#include_directories(include)
+# Add linker configuration
+include(cmake/Linker.cmake)
+configure_linker(project_options)
 
-set(SRC_LIST
-    apps/cppsas7bdat-ci.cpp
-    src/sas7bdat.cpp
-    src/version.cpp)
-set(header_list
-    ${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp
-    include/cppsas7bdat/sas7bdat.hpp)
 
-#file(GLOB apps_SRC apps *.cpp *.hpp)
-#file(GLOB src_SRC src *.cpp *.hpp)
-#file(GLOB include_SRC include *.cpp *.hpp)
+# standard compiler warnings
+include(cmake/CompilerWarnings.cmake)
+set_project_warnings(project_warnings)
 
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${apps_SRC})
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${src_SRC})
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${include_SRC})
-#source_group(src)
-#source_group(include)
+# sanitizer options if supported by compiler
+include(cmake/Sanitizers.cmake)
+enable_sanitizers(project_options)
 
-#set(files
-#    ./include/cppsas7bdat/sas7bdat.hpp)
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${files})
+# enable doxygen
+include(cmake/Doxygen.cmake)
+enable_doxygen()
 
-configure_file(
-  "${PROJECT_SOURCE_DIR}/include/cppsas7bdat/version.hpp.in"
-  "${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp"
-  )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+# allow for static analysis options
+include(cmake/StaticAnalyzers.cmake)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
+option(ENABLE_TESTING "Enable Test Builds" ON)
+option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
+
+# Very basic PCH example
+option(ENABLE_PCH "Enable Precompiled Headers" OFF)
+if(ENABLE_PCH)
+  # This sets a global PCH parameter, each project will build its own PCH, which is a good idea if any #define's change
+  #
+  # consider breaking this out per project as necessary
+  target_precompile_headers(
+    project_options
+    INTERFACE
+    <vector>
+    <string>
+    <map>
+    <utility>)
 endif()
 
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_compile_options(-Wall -Wextra -pedantic -O3)
-
-include(FetchContent)
-
-# Formatting library
-FetchContent_Declare(
-  fmtlib
-  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 5.3.0)
-FetchContent_MakeAvailable(fmtlib) # Adds fmt::fmt
-
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    include(CTest)
+option(ENABLE_CONAN "Use Conan for dependency management" OFF)
+if(ENABLE_CONAN)
+  include(cmake/Conan.cmake)
+  run_conan()
 endif()
 
-set(Boost_INCLUDE_DIR /usr/local/boost_1_59_0/include)
-set(Boost_LIBRARY_DIR /usr/local/boost_1_59_0/lib)
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost REQUIRED COMPONENTS program_options filesystem date_time)
+#set(Boost_INCLUDE_DIR /usr/local/boost_1_59_0/include)
+#set(Boost_LIBRARY_DIR /usr/local/boost_1_59_0/lib)
+#set(Boost_USE_STATIC_LIBS OFF)
+#set(Boost_USE_MULTITHREADED ON)
+#set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost REQUIRED COMPONENTS date_time)
 message(STATUS "Boost version: ${Boost_VERSION}")
 include_directories( ${Boost_INCLUDE_DIR} )
 
-add_subdirectory(src)
-add_subdirectory(apps)
-#add_subdirectory(tests)
-
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if(ENABLE_TESTING)
   enable_testing()
-  add_subdirectory(tests)
+  message("Building Tests. Be sure to check out test/constexpr_tests for constexpr testing")
+  add_subdirectory(test)
 endif()
 
-include(CPack)
+if(ENABLE_FUZZING)
+  message("Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
+  add_subdirectory(fuzz_test)
+endif()
+
+add_subdirectory(src)
+
+add_subdirectory(apps)
+
+option(ENABLE_UNITY "Enable Unity builds of projects" OFF)
+if(ENABLE_UNITY)
+  # Add for any project you want to apply unity builds for
+  set_target_properties(intro PROPERTIES UNITY_BUILD ON)
+endif()
+
+
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+##set(CMAKE_CXX_COMPILER g++)
+##set(CMAKE_C_COMPILER gcc)
+##set(CMAKE_AUTOMOC ON)
+##set(CMAKE_INCLUDE_CURRENT_DIR ON)
+##set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+#set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall -DDEBUG")
+#set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall")
+
+##include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+##include_directories(include)
+
+#set(SRC_LIST
+#    apps/cppsas7bdat-ci.cpp
+#    src/sas7bdat.cpp
+#    src/version.cpp)
+#set(header_list
+#    ${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp
+#    include/cppsas7bdat/sas7bdat.hpp)
+
+##file(GLOB apps_SRC apps *.cpp *.hpp)
+##file(GLOB src_SRC src *.cpp *.hpp)
+##file(GLOB include_SRC include *.cpp *.hpp)
+
+##source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${apps_SRC})
+##source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${src_SRC})
+##source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${include_SRC})
+##source_group(src)
+##source_group(include)
+
+##set(files
+##    ./include/cppsas7bdat/sas7bdat.hpp)
+##source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${files})
+
+#configure_file(
+#  "${PROJECT_SOURCE_DIR}/include/cppsas7bdat/version.hpp.in"
+#  "${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp"
+#  )
+#include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+#
+#if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+#  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+#endif()
+#
+#set(CMAKE_CXX_EXTENSIONS OFF)
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED True)
+#
+#add_compile_options(-Wall -Wextra -pedantic -O3)
+#
+#include(FetchContent)
+#
+# Formatting library
+#FetchContent_Declare(
+#  fmtlib
+#  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#  GIT_TAG 5.3.0)
+#FetchContent_MakeAvailable(fmtlib) # Adds fmt::fmt
+#
+#if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+#    include(CTest)
+#endif()
+#
+#
+#add_subdirectory(src)
+#add_subdirectory(apps)
+##add_subdirectory(tests)
+#
+#if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+#  enable_testing()
+#  add_subdirectory(tests)
+#endif()
+#
+#include(CPack)

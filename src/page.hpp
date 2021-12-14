@@ -118,8 +118,8 @@ namespace cppsas7bdat {
       template<typename _Fct>
       void process_page_subheaders(_Fct _process) {
 	constexpr const size_t subheader_size = 3*buf.integer_size; // 12 or 24
-	for(int16_t isubheader = 0; isubheader<current_page_header.subheaders_count; ++isubheader) {
-	  const size_t offset = page_bit_offset+8+subheader_size*isubheader;
+	for(uint16_t isubheader = 0; isubheader<current_page_header.subheaders_count; ++isubheader) {
+	  const size_t offset = page_bit_offset + 8 + subheader_size*isubheader;
 	  D(fmt::print(stderr, "process_page_subheaders: subheader#{}: offset={}, ", isubheader, offset));
 
 	  const auto subheader = _get_page_subheader(offset);

@@ -40,7 +40,7 @@ namespace cppsas7bdat {
       return BYTES(_buf, _length);
     }
 
-    std::basic_string<BYTE> operator"" _bytes ( const char* _array, const size_t _length )
+    /*std::basic_string<BYTE> operator"" _bytes ( const char* _array, const size_t _length )
     {
       auto c2b = [](const char c) {
 		   if(c=='0') return 0;
@@ -67,7 +67,7 @@ namespace cppsas7bdat {
 	s[i] = c2b(_array[j])*16+c2b(_array[j+1]);
       } 
       return s;
-    }
+      }*/
 
     template<Endian _endian>
     struct ENDIAN {
@@ -126,8 +126,8 @@ namespace cppsas7bdat {
       const auto _days = std::round(_seconds/seconds_in_a_day);
       _seconds -= _days * seconds_in_a_day;
       const auto _secs = std::round(_seconds);
-      const auto _microseconds = (_seconds-_secs)*1e6;
-      return start + days(_days) + seconds(_secs) + microseconds(_microseconds);
+      const auto _microseconds = std::round((_seconds-_secs)*1e6);
+      return start + days(std::lround(_days)) + seconds(std::lround(_secs)) + microseconds(std::lround(_microseconds));
     }
 
     inline TIME get_time_from_epoch(const double _seconds)
@@ -146,7 +146,7 @@ namespace cppsas7bdat {
       using namespace boost::gregorian;
       if(std::isnan(_days)) return DATE(not_a_date_time);
       ptime start(boost::gregorian::date(1960,1,1));
-      return (start + days(_days)).date();
+      return (start + days(std::lround(_days))).date();
     }
 
     inline DATE get_date_from_epoch(const double _t)
