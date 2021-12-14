@@ -33,7 +33,7 @@
 namespace cppsas7bdat {
   namespace INTERNAL {
 
-    CHECK_HEADER check_header(const char* _pcszFileName, Properties::Header* _header)
+    inline CHECK_HEADER check_header(const char* _pcszFileName, Properties::Header* _header)
     {
       INTERNAL::CHECK_HEADER ch(_pcszFileName);
       ch.check_magic_number();
@@ -42,7 +42,7 @@ namespace cppsas7bdat {
     }
 
     template<Endian _endian, Format _format>
-    READ_HEADER<_endian, _format> _read_header(CHECK_HEADER&& ch, Properties::Header* _header)
+    inline READ_HEADER<_endian, _format> _read_header(CHECK_HEADER&& ch, Properties::Header* _header)
     {
       READ_HEADER<_endian, _format> rh(std::move(ch));
       rh.set_header_length_and_read(_header);
@@ -51,7 +51,7 @@ namespace cppsas7bdat {
     }
 
     template<Endian _endian, Format _format>
-    READ_METADATA<_endian, _format> _read_metadata(READ_HEADER<_endian, _format>&& rh,
+    inline READ_METADATA<_endian, _format> _read_metadata(READ_HEADER<_endian, _format>&& rh,
 						   const Properties::Header* _header,
 						   Properties::Metadata* _metadata)
     {
@@ -61,7 +61,7 @@ namespace cppsas7bdat {
     }
 
     template<Endian _endian, Format _format, typename _Decompressor>
-    READ_DATA<_endian, _format, _Decompressor> _read_data(READ_METADATA<_endian, _format>&& rm,
+    inline READ_DATA<_endian, _format, _Decompressor> _read_data(READ_METADATA<_endian, _format>&& rm,
 							  _Decompressor&& _decompressor,
 							  const Properties::Metadata* _metadata)
     {
@@ -90,7 +90,7 @@ namespace cppsas7bdat {
 			     READ_DATA<Endian::little, Format::bit32, DECOMPRESSOR::RDC<Endian::little, Format::bit32> >,
 			     READ_DATA<Endian::little, Format::bit32, DECOMPRESSOR::RLE<Endian::little, Format::bit32>> >;
     
-    RH read_header(CHECK_HEADER&& ch,
+    inline RH read_header(CHECK_HEADER&& ch,
 		   Properties::Header* _header)
     {
       if(ch.is_big_endian) {
@@ -102,13 +102,13 @@ namespace cppsas7bdat {
       }
     }
 
-    RH read_header(const char* _pcszFileName,
+    inline RH read_header(const char* _pcszFileName,
 		   Properties::Header* _header)
     {
       return read_header(check_header(_pcszFileName, _header), _header);
     }
 
-    RM read_metadata(RH&& rh,
+    inline RM read_metadata(RH&& rh,
 		     const Properties::Header* _header,
 		     Properties::Metadata* _metadata)
     {
@@ -118,14 +118,14 @@ namespace cppsas7bdat {
 			}, rh);
     }
 
-    RM read_metadata(const char* _pcszFileName,
+    inline RM read_metadata(const char* _pcszFileName,
 		     Properties::Header* _header,
 		     Properties::Metadata* _metadata)
     {
       return read_metadata(read_header(_pcszFileName, _header), _header, _metadata);
     }
 
-    RD read_data(RM&& rm,
+    inline RD read_data(RM&& rm,
 		 const Properties::Metadata* _metadata)
     {
       return std::visit([&](auto&& arg) -> RD {
@@ -139,14 +139,14 @@ namespace cppsas7bdat {
 			}, rm);
     }
 
-    RD read_data(const char* _pcszFileName,
+    inline RD read_data(const char* _pcszFileName,
 		 Properties::Header* _header,
 		 Properties::Metadata* _metadata)
     {
       return read_data(read_metadata(read_header(_pcszFileName, _header), _header, _metadata), _metadata);
     }
 
-    auto read_line(RD& rd)
+    inline auto read_line(RD& rd)
     {
       return std::visit([&](auto&& arg) {
 			  return arg.read_line();

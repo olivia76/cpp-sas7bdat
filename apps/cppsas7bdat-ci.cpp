@@ -8,107 +8,76 @@
 
 #include <cppsas7bdat/version.hpp>
 #include <cppsas7bdat/sas7bdat.hpp>
-#include <cppsas7bdat/reader.hpp>
-#include <boost/program_options.hpp>
-//#include <boost/filesystem.hpp>
-#include <fmt/core.h>
-#include <iostream>
-
-namespace 
-{ 
-  const int SUCCESS = 0; 
-  const int ERROR_IN_COMMAND_LINE = 1; 
-  const int ERROR_UNHANDLED_EXCEPTION = 2; 
-  const int FAIL = -1;
-} // namespace 
+#include <cppsas7bdat/reader_print.hpp>
+#include <cppsas7bdat/reader_csv.hpp>
+#include <fstream>
+#include <docopt/docopt.h>
+#include <spdlog/spdlog.h>
 
 namespace {
-  namespace po = boost::program_options; 
+  static constexpr auto USAGE =
+R"(SAS7BDAT file reader
 
-  /** 
-   *  Define and parse the program options 
-   */
-  class PO {
-  public:
-    PO()
-      : m_desc("Options")
-    {
-      m_desc.add_options()
-        ("help,h", "Print help messages")
-        ("version", "Version")
-	("input,i", po::value<std::string>(), "Input")
-        ;
-      m_positionalOptions.add("input", -1);
-    }
+     Usage:
+       cppsas7bdat-ci print [--nlines=<lines>] <file>...
+       cppsas7bdat-ci csv <file>...
+       cppsas7bdat-ci (-h|--help)
+       cppsas7bdat-ci (-v|--version)
 
-    bool parse(int argc, char* argv[])
-    {
-      po::store(po::command_line_parser(argc, argv).options(m_desc) 
-                .positional(m_positionalOptions).run(), 
-                m_vm);
-      po::notify(m_vm);
-
-      if ( m_vm.count("help")  ) return show_help();
-      return true;
-    }
-
-    bool show_help()
-    {
-      std::cout << m_desc << std::endl;
-      return false;
-    }
-
-    bool has(const std::string _label) const { return m_vm.count(_label); }
-    template<typename _Tp> _Tp get(const std::string _label) const { return m_vm[_label].as<_Tp>(); }
-
-    const po::variables_map& vm() const { return m_vm; }
-
-  protected:
-    po::options_description m_desc;
-    po::positional_options_description m_positionalOptions; 
-    po::variables_map m_vm;
-  };
+     Options:
+       -h --help                    Show this screen.
+       -v --version                 Show version.
+       -n=<lines> --nlines=<lines>  Read at most n lines
+)";
 }
 
-/**
- *  Get the version information and print it to stdout/export it
- *  to a json file
- */
-void getVersion([[maybe_unused]] PO& po)
+void process_print(const std::string& _filename, long _n)
 {
-  fmt::print("Version: {}\n", cppsas7bdat::getVersion());
+  cppsas7bdat::Reader reader(_filename.c_str(), cppsas7bdat::reader::print(std::cout));
+  while(_n != 0 && reader.read()) {
+    if(_n > 0) --_n;
+  }
 }
 
-void processInput(PO& po)
+std::string get_csv_filename(const std::string& _filename)
 {
-  auto inputfilename = po.get<std::string>("input");
-  fmt::print("Processing {}...\n", inputfilename);
+  auto ipos = _filename.rfind('.');
+  if(ipos != _filename.npos) {
+    return _filename.substr(0, ipos+1) + "csv";
+  }  
+  return _filename + "csv";
+}
 
-  cppsas7bdat::Reader reader(inputfilename.c_str(), cppsas7bdat::reader::print());
-  while(reader.read()) ;
+void process_csv(const std::string& _filename)
+{
+  const auto csv_filename = get_csv_filename(_filename);
+  std::ofstream csv_os(csv_filename.c_str());
+  cppsas7bdat::Reader reader(_filename.c_str(), cppsas7bdat::reader::csv(csv_os));
+  while(reader.read());
 }
 
 int main(const int argc, char* argv[])
 {
-bool bOkay = true;
-  try { 
-    PO po;
-    if(po.parse(argc, argv)) {
-      if(po.has("version")) getVersion(po);
-      if(po.has("input")) processInput(po);
+  std::string version = fmt::format("CPP SAS7BDAT file reader {}", cppsas7bdat::getVersion());
+  std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
+							     { std::next(argv), std::next(argv, argc) },
+							     true,// show help if requested
+							     version);
+  if(false) 
+    for (auto const &arg : args) {
+      std::cout << arg.first << " = " << arg.second << std::endl;
+    }
+  if(args["print"].asBool()) {
+    const auto n = args["--nlines"] ? args["--nlines"].asLong() : -1;
+    const auto files = args["<file>"].asStringList();
+    for(const auto& file: files) {
+      process_print(file, n);
+    }
+  } else if(args["csv"].asBool()) {
+    const auto files = args["<file>"].asStringList();
+    for(const auto& file: files) {
+      process_csv(file);
     }
   }
-  catch(boost::program_options::required_option& e) {
-    fmt::print(stderr, "ERROR: {}\n", e.what());
-    return ERROR_IN_COMMAND_LINE; 
-  }
-  catch(boost::program_options::error& e) { 
-    fmt::print(stderr, "ERROR: {}\n", e.what());
-    return ERROR_IN_COMMAND_LINE; 
-  }
-  catch(std::exception& e) { 
-    fmt::print(stderr, "Unhandled Exception reached the top of main: {}, application will now exit\n", e.what());
-    return ERROR_UNHANDLED_EXCEPTION; 
-  }
-  return bOkay ? SUCCESS : FAIL;
+  return 0;
 }

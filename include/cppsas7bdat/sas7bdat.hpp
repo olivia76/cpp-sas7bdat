@@ -31,6 +31,16 @@ namespace cppsas7bdat {
   enum class Compression {
     none, RLE, RDC
   };
+
+  std::string_view to_string(const Endian _x);
+  std::string_view to_string(const Format _x);
+  std::string_view to_string(const Platform _x);
+  std::string_view to_string(const Compression _x);
+  
+  std::ostream& operator<<(std::ostream& os, const Endian _x);
+  std::ostream& operator<<(std::ostream& os, const Format _x);
+  std::ostream& operator<<(std::ostream& os, const Platform _x);
+  std::ostream& operator<<(std::ostream& os, const Compression _x);
   
   struct Properties {
     std::string filename;

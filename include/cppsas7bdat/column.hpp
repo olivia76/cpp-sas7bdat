@@ -125,6 +125,8 @@ namespace cppsas7bdat {
 
   using COLUMNS = std::vector<Column>;
 
+  std::string_view to_string(const Column::Type _x);
+  std::ostream& operator<<(std::ostream& os, const Column::Type _x);
 }
 
 

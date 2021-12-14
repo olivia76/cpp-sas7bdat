@@ -6,8 +6,6 @@ configure_file(
 find_package(Boost REQUIRED COMPONENTS date_time)
 find_package(fmt)
 find_package(spdlog)
-#find_package(docopt COMPONENTS CXX REQUIRED)
-#message (STATUS ${DOCOPT_INCLUDE_DIRS})
 
 #set(HEADER_LIST ${PROJECT_SOURCE_DIR}/include/cppsas7bdat/sas7bdat.hpp)
 add_library(lib_cppsas7bdat
