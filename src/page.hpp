@@ -98,7 +98,7 @@ namespace cppsas7bdat {
 	current_page_header.reset();
 	if(!is) return false;
 	if(is.eof()) return false;
-	D(fmt::print(stderr, "read_page: length={}\n", header->page_length));
+	D(spdlog::debug("read_page: length={}\n", header->page_length));
 	if(!buf.read_stream(is, header->page_length)) {
 	  if(is.eof()) return false;
 	  EXCEPTION::cannot_read_page();
@@ -107,11 +107,11 @@ namespace cppsas7bdat {
       }
       
       bool _get_page_header() {
-	D(fmt::print(stderr, "get_page_header: "));
+	D(spdlog::debug("get_page_header: "));
 	current_page_header.type             = buf.get_uint16(page_bit_offset+0);
 	current_page_header.block_count      = buf.get_uint16(page_bit_offset+2);
 	current_page_header.subheaders_count = buf.get_uint16(page_bit_offset+4);
-	D(fmt::print(stderr, "{},{},{}\n", current_page_header.type, current_page_header.block_count, current_page_header.subheaders_count));
+	D(spdlog::debug("{},{},{}\n", current_page_header.type, current_page_header.block_count, current_page_header.subheaders_count));
 	return true;
       }
 
@@ -120,7 +120,7 @@ namespace cppsas7bdat {
 	constexpr const size_t subheader_size = 3*buf.integer_size; // 12 or 24
 	for(uint16_t isubheader = 0; isubheader<current_page_header.subheaders_count; ++isubheader) {
 	  const size_t offset = page_bit_offset + 8 + subheader_size*isubheader;
-	  D(fmt::print(stderr, "process_page_subheaders: subheader#{}: offset={}, ", isubheader, offset));
+	  D(spdlog::debug("process_page_subheaders: subheader#{}: offset={}, ", isubheader, offset));
 
 	  const auto subheader = _get_page_subheader(offset);
 	  
@@ -136,7 +136,7 @@ namespace cppsas7bdat {
 	const auto length      = buf.get_uinteger(_offset + buf.integer_size);
 	const auto compression = buf.get_byte    (_offset + buf.integer_size*2);
 	const auto type        = buf.get_byte    (_offset + buf.integer_size*2+1);
-	D(fmt::print(stderr, "soffset={}, slength={}, scompression={}, stype:{}\n", offset, length, compression, type));
+	D(spdlog::debug("soffset={}, slength={}, scompression={}, stype:{}\n", offset, length, compression, type));
 	return PAGE_SUBHEADER{offset, length, compression, type};
       }
       

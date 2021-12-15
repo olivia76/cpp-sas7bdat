@@ -107,7 +107,7 @@ namespace cppsas7bdat {
 	  T ctrl_bits{0};
 	  
 	  while(src.check(2) && check_dst()) {
-	    //fmt::print(stderr, "RDC({}/{},{}/{})\n", i_src, n_src, i_dst, n_dst);
+	    D(spdlog::debug("RDC({}/{},{}/{})\n", src.i_src, src.n_src, i_dst, n_dst));
 	    // get new load of control bits if needed
 	    ctrl_mask >>= ONE;
 	    if(ctrl_mask == 0) {
@@ -139,8 +139,8 @@ namespace cppsas7bdat {
 	      const size_t ofs = cnt + THREE + static_cast<size_t>(static_cast<T>(src.pop()) << FOUR);
 	      store_pattern(ofs, cmd);
 	    } else {
-	      fmt::print(stderr, "unknown marker {:#X} at offset {}\n", val, (src.i_src-1));
-	      assert(false);
+	      spdlog::critical("unknown marker {:#X} at offset {}\n", val, (src.i_src-1));
+	      EXCEPTION::cannot_decompress();
 	    }	    
 	  }
 	  fill();
@@ -195,7 +195,7 @@ namespace cppsas7bdat {
 	    const auto val = src.pop();
 	    const uint8_t command = static_cast<uint8_t>(val >> FOUR);
 	    const size_t end_of_first_byte = static_cast<size_t>(val & 0x0F);
-	    //fmt::print(stderr, "RLE:({}, {}: {:#X})\n", i_src, j_dst, control_byte);
+	    D(spdlog::debug("RLE:({}, {}: {:#X})\n", src.i_src, i_dst, command));
 	    switch(command) {
 	      break; case SAS_RLE_COMMAND_COPY64: {
 		       const size_t n = (end_of_first_byte << EIGHT) + src.pop() + 64;
@@ -242,8 +242,8 @@ namespace cppsas7bdat {
 		       store_value(C_NULL, end_of_first_byte + 2);	      
 		     }
 	      break; default: {
-		       fmt::print(stderr, "Invalid command: {:#X} at offset {}\n", command, (src.i_src-1));
-		       assert(false);
+		       spdlog::critical("Invalid command: {:#X} at offset {}\n", command, (src.i_src-1));
+		       EXCEPTION::cannot_decompress();
 		     }
 	    }
 	  }

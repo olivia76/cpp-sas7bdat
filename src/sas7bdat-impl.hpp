@@ -10,8 +10,9 @@
 #define _CPP_SAS7BDAT_SRC_SAS7BDAT_IMPL_HPP_
 
 #include <cppsas7bdat/sas7bdat.hpp>
-#include <fmt/core.h>
-#include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
+//#include <fmt/core.h>
+//#include <fmt/ostream.h>
 #include <variant>
 #include "debug.hpp"
 #include "exceptions.hpp"

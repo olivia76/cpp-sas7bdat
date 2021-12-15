@@ -31,13 +31,13 @@ namespace cppsas7bdat {
       explicit CHECK_HEADER(const char* _pcszFileName)
 	: is(INTERNAL::open_stream(_pcszFileName))
       {
-	D(fmt::print(stderr, "Reading header ...\n"));
+	D(spdlog::debug("Reading header ...\n"));
 	if(!buf.read_stream(is, HEADER_SIZE)) EXCEPTION::header_too_short();
 	assert(is);
       }
 
       void check_magic_number() const {
-	D(fmt::print(stderr, "Checking magic number ...\n"));
+	D(spdlog::debug("Checking magic number ...\n"));
 	if(!_check_magic_number()) EXCEPTION::invalid_magic_number();
       }
 
@@ -51,7 +51,7 @@ namespace cppsas7bdat {
 	total_align = align1 + align2;
 	_header->endianness = (buf[37] == 0x01 ? Endian::little : Endian::big);
 	is_big_endian = _header->endianness == Endian::big;
-	D(fmt::print(stderr, "Setting aligns ... {}, {}, {}, {}, {}\n", align1, align2, total_align, _header->format, _header->endianness));
+	D(spdlog::debug("Setting aligns ... {}, {}, {}, {}, {}\n", align1, align2, total_align, _header->format, _header->endianness));
       }      
     };
 
@@ -79,11 +79,11 @@ namespace cppsas7bdat {
 
 	// Read the rest of the header
 	if(_header->format == Format::bit64 && _header->header_length != 8192) {
-	  fmt::print(stderr, "Expected header length of 8192 but got {}\n", _header->header_length);
+	  spdlog::info("Expected header length of 8192 but got {}\n", _header->header_length);
 	}
 
 	if(!buf.read_stream(is, _header->header_length-CHECK_HEADER::HEADER_SIZE, CHECK_HEADER::HEADER_SIZE)) EXCEPTION::header_too_short();
-	D(fmt::print(stderr, "Set header length and read ... {}\n", _header->header_length));
+	D(spdlog::debug("Set header length and read ... {}\n", _header->header_length));
       }
       
       void set_header(Properties::Header* _header) const {
@@ -106,13 +106,13 @@ namespace cppsas7bdat {
 			    ? buf.get_string(272+total_align, 16)    // 272+286 + total_align
 			    : buf.get_string(256+total_align, 16) ); // 256-272 + total_align
 
-	D(fmt::print(stderr, "Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
-		     _header->platform,
-		     _header->dataset_name, _header->file_type,
-		     boost::posix_time::to_iso_extended_string(_header->date_created),
-		     boost::posix_time::to_iso_extended_string(_header->date_modified),
-		     _header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
-		     _header->page_length, _header->page_count));
+	D(spdlog::debug("Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
+			_header->platform,
+			_header->dataset_name, _header->file_type,
+			boost::posix_time::to_iso_extended_string(_header->date_created),
+			boost::posix_time::to_iso_extended_string(_header->date_modified),
+			_header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
+			_header->page_length, _header->page_count));
       }
 
       static std::string_view get_encoding(const uint8_t _e) noexcept {

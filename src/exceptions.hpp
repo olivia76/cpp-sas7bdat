@@ -16,6 +16,7 @@ namespace cppsas7bdat {
     void header_too_short();
     void invalid_magic_number();
     void cannot_read_page();
+    void cannot_decompress();
   }
 }
 

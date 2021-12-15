@@ -28,7 +28,6 @@ namespace cppsas7bdat {
 	    length(_length),
 	    type(_type)
 	{
-	  //fmt::print(stderr, "IFormatter: {}:{} ", offset, length);
 	}
 
 	STRING   get_string  ([[maybe_unused]] const void* _p) const noexcept { return {}; }
@@ -41,17 +40,16 @@ namespace cppsas7bdat {
 	const uint8_t* data(const void* _p) const noexcept
 	{
 	  const uint8_t* p = reinterpret_cast<const uint8_t*>(_p) + offset;
-	  //fmt::print(stderr, "IFormatter::data: {}, {}, {}\n", _p, offset, (void*)p);	
 	  return p;
 	}
       };
 
       struct NoFormatter : public IFormatter {
-	NoFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::unknown) { D(fmt::print(stderr, "NoFormatter: {}:{}\n", offset, length)); }
+	NoFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::unknown) { D(spdlog::debug("NoFormatter: {}:{}\n", offset, length)); }
       };
       
       struct StringFormatter : public IFormatter {
-	StringFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::string) { D(fmt::print(stderr, "StringFormatter\n")); }
+	StringFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::string) { D(spdlog::debug("StringFormatter\n")); }
 	
 	STRING get_string(const void* _p) const noexcept
 	{
@@ -60,7 +58,7 @@ namespace cppsas7bdat {
       };
       
       struct SmallIntegerFormatter : public IFormatter {
-	SmallIntegerFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::integer) { D(fmt::print(stderr, "SmallIntegerFormatter\n")); }
+	SmallIntegerFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::integer) { D(spdlog::debug("SmallIntegerFormatter\n")); }
 
 	INTEGER get_integer(const void* _p) const noexcept
 	{
@@ -76,7 +74,7 @@ namespace cppsas7bdat {
       
       template<Endian _endian, typename _Tp>
       struct IntegerFormatter : public IFormatter {
-	IntegerFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::integer) { D(fmt::print(stderr, "IntegerFormatter\n")); }
+	IntegerFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::integer) { D(spdlog::debug("IntegerFormatter\n")); }
 
 	INTEGER get_integer(const void* _p) const noexcept
 	{
@@ -92,11 +90,10 @@ namespace cppsas7bdat {
 
       template<Endian _endian>
       struct DoubleFormatter : public IFormatter {
-	DoubleFormatter(const size_t _offset, const size_t _length, const Type _type=Type::number) : IFormatter(_offset, _length, _type) { D(fmt::print(stderr, "DoubleFormatter\n")); }
+	DoubleFormatter(const size_t _offset, const size_t _length, const Type _type=Type::number) : IFormatter(_offset, _length, _type) { D(spdlog::debug("DoubleFormatter\n")); }
 
 	NUMBER get_number([[maybe_unused]] const void* _p) const noexcept
 	{
-	  //fmt::print(stderr, "DoubleFormatter::get_number: {}\n", _p);		     
 	  return INTERNAL::get_double<_endian>(data(_p));
 	}
 	
@@ -104,7 +101,7 @@ namespace cppsas7bdat {
 
       template<Endian _endian, int _nbits>
       struct IncompleteDoubleFormatter : public IFormatter {
-	IncompleteDoubleFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::number) { D(fmt::print(stderr, "IncompleteDoubleFormatter\n")); }
+	IncompleteDoubleFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::number) { D(spdlog::debug("IncompleteDoubleFormatter\n")); }
 
 	NUMBER get_number([[maybe_unused]] const void* _p) const noexcept
 	{
@@ -115,7 +112,7 @@ namespace cppsas7bdat {
 
       template<Endian _endian>
       struct DateTimeFormatter : public DoubleFormatter<_endian> {
-	DateTimeFormatter(const size_t _offset, const size_t _length) : DoubleFormatter<_endian>(_offset, _length, Type::datetime) { D(fmt::print(stderr, "DateTimeFormatter\n")); }
+	DateTimeFormatter(const size_t _offset, const size_t _length) : DoubleFormatter<_endian>(_offset, _length, Type::datetime) { D(spdlog::debug("DateTimeFormatter\n")); }
 
 	DATETIME get_datetime([[maybe_unused]] const void* _p) const noexcept
 	{
@@ -136,7 +133,7 @@ namespace cppsas7bdat {
 
       template<Endian _endian>
       struct DateFormatter : public DoubleFormatter<_endian> {
-	DateFormatter(const size_t _offset, const size_t _length) : DoubleFormatter<_endian>(_offset, _length, Type::date) { D(fmt::print(stderr, "DateTimeFormatter\n")); }
+	DateFormatter(const size_t _offset, const size_t _length) : DoubleFormatter<_endian>(_offset, _length, Type::date) { D(spdlog::debug("DateTimeFormatter\n")); }
 
 	DATE get_date([[maybe_unused]] const void* _p) const noexcept
 	{
@@ -152,7 +149,7 @@ namespace cppsas7bdat {
 
       template<Endian _endian>
       struct TimeFormatter : public DoubleFormatter<_endian> {
-	TimeFormatter(const size_t _offset, const size_t _length) : DoubleFormatter<_endian>(_offset, _length, Type::time) { D(fmt::print(stderr, "DateTimeFormatter\n")); }
+	TimeFormatter(const size_t _offset, const size_t _length) : DoubleFormatter<_endian>(_offset, _length, Type::time) { D(spdlog::debug("DateTimeFormatter\n")); }
 
 	TIME get_time([[maybe_unused]] const void* _p) const noexcept
 	{

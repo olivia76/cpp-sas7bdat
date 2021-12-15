@@ -71,7 +71,6 @@ namespace cppsas7bdat {
       uint8_t* data(const size_t _offset,
 		    [[maybe_unused]] const size_t _length) noexcept
       {
-	//fmt::print(stderr, "BUFFER::data({}, {} / {})\n", _offset, _offset+_length, size());
 	assert(_offset + _length <= size());
 	return m_buffer.get() + _offset;
       }
