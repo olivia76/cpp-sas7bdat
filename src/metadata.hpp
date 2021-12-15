@@ -219,7 +219,7 @@ namespace cppsas7bdat {
 	    _metadata->lcp = 0;
 	    _metadata->creator = buf.get_string(_subheader.offset + compression_offset, _metadata->lcs);
 	  }
-	  D(fmt::print(stderr, "compression: {}, creator: {}, creator_proc: {}\n", (int)_metadata->compression, _metadata->creator, _metadata->creator_proc));
+	  D(fmt::print(stderr, "compression: {}, creator: {}, creator_proc: {}\n", _metadata->compression, _metadata->creator, _metadata->creator_proc));
 	}
       }
 
@@ -327,7 +327,7 @@ namespace cppsas7bdat {
 
 	  bool column_type_not_supported = true;
 	  auto add_column = [&](auto&& formatter) {
-			      D(fmt::print(stderr, "add_column: {}, {}, {}, {}, {}, {}\n", column_name, column_label, column_format, column_offset, column_length, (int)(column_type)));
+			      D(fmt::print(stderr, "add_column: {}, {}, {}, {}, {}, {}\n", column_name, column_label, column_format, column_offset, column_length, column_type));
 			      column_type_not_supported = false;
 			      _metadata->columns.emplace_back(column_name, column_label, column_format, std::move(formatter));
 			    };
@@ -349,7 +349,7 @@ namespace cppsas7bdat {
 	    }
 	  }
 	  if(column_type_not_supported) {
-	    //fmt::print(stderr, "NoFormatter: {}, {}: ", (int)type, format);
+	    //fmt::print(stderr, "NoFormatter: {}, {}: ", type, format);
 	    add_column(FORMATTER::NoFormatter(column_offset, column_length));
 	  }
 	}

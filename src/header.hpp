@@ -43,8 +43,6 @@ namespace cppsas7bdat {
 
       bool _check_magic_number() const noexcept {
 	return std::memcmp(buf.data(0, sizeof(MAGIC_NUMBER)), MAGIC_NUMBER, sizeof(MAGIC_NUMBER)) == 0;
-	//static const auto MAGIC_NUMBER = "000000000000000000000000c2ea8160b31411cfbd92080009c7318c181f1011"_bytes;
-	//return std::memcmp(buf.data(), MAGIC_NUMBER.data(), MAGIC_NUMBER.size()) == 0;
       }
 
       void set_aligns_endianness(Properties::Header* _header) {
@@ -53,7 +51,7 @@ namespace cppsas7bdat {
 	total_align = align1 + align2;
 	_header->endianness = (buf[37] == 0x01 ? Endian::little : Endian::big);
 	is_big_endian = _header->endianness == Endian::big;
-	D(fmt::print(stderr, "Setting aligns ... {}, {}, {}, {}, {}\n", align1, align2, total_align, (int)_header->format, (int)_header->endianness));
+	D(fmt::print(stderr, "Setting aligns ... {}, {}, {}, {}, {}\n", align1, align2, total_align, _header->format, _header->endianness));
       }      
     };
 
@@ -90,7 +88,7 @@ namespace cppsas7bdat {
       
       void set_header(Properties::Header* _header) const {
 	_header->platform = (buf[39] == '1' ? Platform::unix :
-			    buf[39] == '2' ? Platform::windows : Platform::unknown);
+			     buf[39] == '2' ? Platform::windows : Platform::unknown);
 	_header->encoding = get_encoding(buf[70]); // 70
 	_header->dataset_name = buf.get_string(92, 64); // 92-156
 	_header->file_type = buf.get_string(156, 8); // 156-164
@@ -109,8 +107,11 @@ namespace cppsas7bdat {
 			    : buf.get_string(256+total_align, 16) ); // 256-272 + total_align
 
 	D(fmt::print(stderr, "Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
-		     (int)_header->platform,
-		     _header->dataset_name, _header->file_type, boost::posix_time::to_iso_extended_string(_header->date_created), boost::posix_time::to_iso_extended_string(_header->date_modified), _header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
+		     _header->platform,
+		     _header->dataset_name, _header->file_type,
+		     boost::posix_time::to_iso_extended_string(_header->date_created),
+		     boost::posix_time::to_iso_extended_string(_header->date_modified),
+		     _header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
 		     _header->page_length, _header->page_count));
       }
 

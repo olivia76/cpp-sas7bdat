@@ -3,7 +3,13 @@
 ## Summary
 This is a toy project with cmake and C++ external polymorphism.
 
-This project is a C++17 implementation of a SAS7BDAT file reader.
+This project is a C++17 implementation of a SAS7BDAT file reader based
+on different existing projects:
+
+- https://github.com/tk3369/SASLib.jl
+- https://pypi.org/project/sas7bdat/
+
+
 
 ## cmake
 
@@ -13,6 +19,8 @@ Inspired from https://github.com/cpp-best-practices/cpp_starter_project
 
 This design pattern is very nicely explained in a talk of Klaus Iglberger - Breaking Dependencies: Type Erasure - A Design Analysis (https://www.youtube.com/watch?v=7GIz9SmRgyc)
 
+
+## boost
 
 ## Catch2
 Catch2 needs to be installed in the system
@@ -53,7 +61,7 @@ spdlog needs to be install in the system
     make
     sudo make install
 
-## json/
+## json
 
     git clone git@github.com:nlohmann/json.git
     cd json
