@@ -22,15 +22,15 @@ external polymorphism is used internally to store the exact operator,
 including endianness, 32/64 bits, ...
 
 Supported types:
-- string
-- integer
-- number (double)
-- datetime
-- date
-- time
+- string (`std::string`)
+- integer (`long`)
+- number (`double`)
+- datetime (`boost::posix_time::ptime`)
+- date (`boost::gregorian::date`)
+- time (`boost::posix_time::time_duration`)
 
-Each formatter class implements one or several *getters* as well as
-the *to_string* method.
+Each formatter [class](src/formatters.hpp) implements one or several *getters* as well as
+the *to_string* method. 
 
 ### Datasink
 
@@ -49,6 +49,13 @@ field protection beside the double quotes, no encoding, ...).
 // See for example apps/cppsas7bdat-ci.cpp
 
 #include <cppsas7bdat/sas7bdat.hpp>
+
+struct MyDataSink {
+	MyDataSink(...) { /* ... */ }
+	
+	void set_properties(const cppsas7bdat::Properties& _properties) { /* ... */ }
+	void read_row(const size_t _irow, cppsas7bdat::Column::PBUF _p) { /* ... */ }
+};
 
 void read_file(const char* _filename)
 {
