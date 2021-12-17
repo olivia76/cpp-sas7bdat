@@ -33,7 +33,6 @@ namespace cppsas7bdat {
       {
 	D(spdlog::debug("Reading header ...\n"));
 	if(!buf.read_stream(is, HEADER_SIZE)) EXCEPTION::header_too_short();
-	assert(is);
       }
 
       void check_magic_number() const {
@@ -76,12 +75,10 @@ namespace cppsas7bdat {
 
       void set_header_length_and_read(Properties::Header* _header) {
 	_header->header_length = buf.get_uint32(196+align1); // 196-200 + align1
-
-	// Read the rest of the header
-	if(_header->format == Format::bit64 && _header->header_length != 8192) {
+	if(false && _header->format == Format::bit64 && _header->header_length != 8192) {
 	  spdlog::info("Expected header length of 8192 but got {}\n", _header->header_length);
 	}
-
+	// Read the rest of the header
 	if(!buf.read_stream(is, _header->header_length-CHECK_HEADER::HEADER_SIZE, CHECK_HEADER::HEADER_SIZE)) EXCEPTION::header_too_short();
 	D(spdlog::debug("Set header length and read ... {}\n", _header->header_length));
       }
@@ -116,17 +113,41 @@ namespace cppsas7bdat {
       }
 
       static std::string_view get_encoding(const uint8_t _e) noexcept {
+	constexpr const char* SAS_DEFAULT_STRING_ENCODING = "WINDOWS-1252";
 	switch(_e) {
+	case 0: return SAS_DEFAULT_STRING_ENCODING;
 	case 20: return "UTF-8";
 	case 28: return "US-ASCII";
 	case 29: return "ISO-8859-1";
 	case 30: return "ISO-8859-2";
 	case 31: return "ISO-8859-3";
+	case 32: return "ISO-8859-4";
+	case 33: return "ISO-8859-5";
 	case 34: return "ISO-8859-6";
 	case 35: return "ISO-8859-7";
 	case 36: return "ISO-8859-8";
+	case 37: return "ISO-8859-9";
 	case 39: return "ISO-8859-11";
-	case 40: return "ISO-8859-9";
+	case 40: return "ISO-8859-15";
+	case 41: return "CP437";
+	case 42: return "CP850";
+	case 43: return "CP852";
+	case 44: return "CP857";
+	case 45: return "CP858";
+	case 46: return "CP862";
+	case 47: return "CP864";
+	case 48: return "CP865";
+	case 49: return "CP866";
+	case 50: return "CP869";
+	case 51: return "CP874";
+	case 52: return "CP921";
+	case 53: return "CP922";
+	case 54: return "CP1129";
+	case 55: return "CP720";
+	case 56: return "CP737";
+	case 57: return "CP775";
+	case 58: return "CP860";
+	case 59: return "CP863";
 	case 60: return "WINDOWS-1250";
 	case 61: return "WINDOWS-1251";
 	case 62: return "WINDOWS-1252";
@@ -135,16 +156,41 @@ namespace cppsas7bdat {
 	case 65: return "WINDOWS-1255";
 	case 66: return "WINDOWS-1256";
 	case 67: return "WINDOWS-1257";
+	case 68: return "WINDOWS-1258";
+	case 69: return "MACROMAN";
+	case 70: return "MACARABIC";
+	case 71: return "MACHEBREW";
+	case 72: return "MACGREEK";
+	case 73: return "MACTHAI";
+	case 75: return "MACTURKISH";
+	case 76: return "MACUKRAINE";
 	case 118: return "CP950";
 	case 119: return "EUC-TW";
 	case 123: return "BIG5-HKSCS";
 	case 125: return "GB18030";
 	case 126: return "CP936";
+	case 128: return "CP1381";
 	case 134: return "EUC-JP";
+	case 136: return "CP949";
+	case 137: return "CP942";
 	case 138: return "CP932";
 	case 140: return "EUC-KR";
 	case 141: return "CP949";
-	default: return "UTF-8";
+	case 142: return "CP949";
+	case 163: return "MACICELAND";
+	case 167: return "ISO-2022-JP";
+	case 168: return "ISO-2022-KR";
+	case 169: return "ISO-2022-CN";
+	case 172: return "ISO-2022-CN-EXT";
+	case 204: return SAS_DEFAULT_STRING_ENCODING; // any
+	case 205: return "GB18030";
+	case 227: return "ISO-8859-14";
+	case 242: return "ISO-8859-13";
+	case 245: return "MACCROATIAN";
+	case 246: return "MACCYRILLIC";
+	case 247: return "MACROMANIA";
+	case 248: return "SHIFT_JISX0213";
+	default: return SAS_DEFAULT_STRING_ENCODING;
 	};
       }
     };

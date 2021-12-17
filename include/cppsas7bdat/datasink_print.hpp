@@ -1,20 +1,20 @@
 /**
- *  \file cppsas7bdat/reader_print.hpp
+ *  \file cppsas7bdat/datasink_print.hpp
  * 
- *  \brief Simple reader that print out the content of the file
+ *  \brief Simple datasink that print out the content of the file
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_READER_PRINT_HPP_
-#define _CPP_SAS7BDAT_READER_PRINT_HPP_
+#ifndef _CPP_SAS7BDAT_DATASINK_PRINT_HPP_
+#define _CPP_SAS7BDAT_DATASINK_PRINT_HPP_
 
 #include <cppsas7bdat/column.hpp>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
 namespace cppsas7bdat {
-  namespace reader {
+  namespace datasink {
     struct print {
       std::ostream& os;
       
@@ -71,15 +71,7 @@ namespace cppsas7bdat {
       void read_row(const size_t _irow, Column::PBUF _p) {
 	fmt::print(os, "{}", _irow);
 	for(const auto& column: columns) {
-	  fmt::print(os, ",");
-	  switch(column.type()) {
-	  case cppsas7bdat::Column::Type::string: fmt::print(os, "{}", column.get_string(_p)); break;
-	  case cppsas7bdat::Column::Type::integer: fmt::print(os, "{}", column.get_integer(_p)); break;
-	  case cppsas7bdat::Column::Type::number: fmt::print(os, "{}", column.get_number(_p)); break;
-	  case cppsas7bdat::Column::Type::datetime: fmt::print(os, "{}", column.get_datetime(_p)); break;
-	  case cppsas7bdat::Column::Type::date: fmt::print(os, "{}", column.get_date(_p)); break;
-	  case cppsas7bdat::Column::Type::time: fmt::print(os, "{}", column.get_time(_p)); break;
-	  }
+	  fmt::print(os, ",{}", column.to_string(_p));
 	}
 	fmt::print(os, "\n");
       }

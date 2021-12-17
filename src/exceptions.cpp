@@ -19,31 +19,31 @@ namespace cppsas7bdat {
   
   void EXCEPTION::cannot_allocate_memory()
   {
-    raise_exception("cannot_allocate_memory\n");
+    raise_exception("cannot_allocate_memory");
   }
   
   void EXCEPTION::not_a_valid_file()
   {
-    raise_exception("not_a_valid_file\n");
+    raise_exception("not_a_valid_file");
   }
   
   void EXCEPTION::header_too_short()
   {
-    raise_exception("header_too_short\n");
+    raise_exception("header_too_short");
   }
   
   void EXCEPTION::invalid_magic_number()
   {
-    raise_exception("invalid_magic_number\n");
+    raise_exception("invalid_magic_number");
   }
 
   void EXCEPTION::cannot_read_page()
   {
-    raise_exception("cannot_read_page\n");
+    raise_exception("cannot_read_page");
   }
 
   void EXCEPTION::cannot_decompress()
   {
-    raise_exception("cannot_decompress\n");
+    raise_exception("cannot_decompress");
   }
 }

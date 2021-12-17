@@ -18,7 +18,8 @@
 
 namespace cppsas7bdat {
 
-  using STRING = std::string_view;
+  using STRING = std::string;
+  using SV = std::string_view;
   using NUMBER = double;
   using INTEGER = int32_t;
   using DATETIME = boost::posix_time::ptime;
@@ -37,12 +38,14 @@ namespace cppsas7bdat {
       virtual ~FormatterConcept() {}
 
       virtual Type     type() const noexcept = 0;
-      virtual STRING   get_string(PBUF _p) const noexcept = 0;
+      virtual SV       get_string(PBUF _p) const noexcept = 0;
       virtual NUMBER   get_number(PBUF _p) const noexcept = 0;
       virtual INTEGER  get_integer(PBUF _p) const noexcept = 0;
       virtual DATETIME get_datetime(PBUF _p) const noexcept = 0;
       virtual DATE     get_date(PBUF _p) const noexcept = 0;
       virtual TIME     get_time(PBUF _p) const noexcept = 0;
+
+      virtual STRING   to_string(PBUF _p) const = 0;
     };
 
     template<typename _Fp>
@@ -51,15 +54,18 @@ namespace cppsas7bdat {
 	: formatter(std::forward<_Fp>(_formatter))
       {
       }
-      FormatterModel(const FormatterModel&) = default;
-	  
+
+      std::unique_ptr<FormatterConcept> clone() const
+      {
+	return std::unique_ptr<FormatterModel>(*this);
+      }
 
       Type type() const noexcept final
       {
 	return formatter.type;
       }
 
-      STRING get_string(PBUF _p) const noexcept final
+      SV get_string(PBUF _p) const noexcept final
       {
 	return formatter.get_string(_p);
       }
@@ -88,6 +94,12 @@ namespace cppsas7bdat {
       {
 	return formatter.get_time(_p);
       }
+
+      STRING to_string(PBUF _p) const final
+      {
+	return formatter.to_string(_p);
+      }
+      
     private:
       _Fp formatter;
     };
@@ -112,12 +124,14 @@ namespace cppsas7bdat {
     const std::string format;
 
     Type     type() const noexcept { return pimpl->type(); }
-    STRING   get_string(PBUF _p) const noexcept { return pimpl->get_string(_p); }
+    SV       get_string(PBUF _p) const noexcept { return pimpl->get_string(_p); }
     NUMBER   get_number(PBUF _p) const noexcept { return pimpl->get_number(_p); }
     INTEGER  get_integer(PBUF _p) const noexcept { return pimpl->get_integer(_p); }
     DATETIME get_datetime(PBUF _p) const noexcept { return pimpl->get_datetime(_p); }
     DATE     get_date(PBUF _p) const noexcept { return pimpl->get_date(_p); }
     TIME     get_time(PBUF _p) const noexcept { return pimpl->get_time(_p); }
+
+    STRING   to_string(PBUF _p) const { return pimpl->to_string(_p); }
     
   private:
     PIMPL pimpl;

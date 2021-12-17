@@ -91,28 +91,29 @@ namespace cppsas7bdat {
 
   class Reader {
   private:
-    struct DatasetReaderConcept {
+    struct DatasetSinkConcept {
       class Internal;
       using PINTERNAL = std::unique_ptr<Internal>;
       PINTERNAL pinternal;
       
-      explicit DatasetReaderConcept(const char* _pcszFileName);
-      virtual ~DatasetReaderConcept();
+      explicit DatasetSinkConcept(const char* _pcszFileName);
+      virtual ~DatasetSinkConcept();
       
       const Properties& properties() const noexcept;
       const COLUMNS& columns() const noexcept;
       size_t current_row_index() const noexcept;
 
-      bool read();
+      void read_all();
+      bool read_row();
 
       virtual void set_properties() = 0;
       virtual void read_row(Column::PBUF _p) = 0;
     };
 
     template<typename _Dp>
-    struct DatasetReaderModel : DatasetReaderConcept {
-      DatasetReaderModel(const char* _pcszFileName, _Dp&& _dataset)
-	: DatasetReaderConcept(_pcszFileName),
+    struct DatasetSinkModel : DatasetSinkConcept {
+      DatasetSinkModel(const char* _pcszFileName, _Dp&& _dataset)
+	: DatasetSinkConcept(_pcszFileName),
 	  dataset(std::forward<_Dp>(_dataset)) {}
 
       void set_properties() final
@@ -128,13 +129,13 @@ namespace cppsas7bdat {
     private:
       _Dp dataset;
     };
-    using PIMPL = std::unique_ptr<DatasetReaderConcept>;
+    using PIMPL = std::unique_ptr<DatasetSinkConcept>;
     PIMPL m_pimpl;
    
     template<typename _Dp>
-    static PIMPL build(const char* _pcszFileName, _Dp&& _dataset)
+    static PIMPL build(const char* _pcszFileName, _Dp&& _datasink)
     {
-      return std::make_unique< DatasetReaderModel<_Dp> >(_pcszFileName, std::forward<_Dp>(_dataset));
+      return std::make_unique< DatasetSinkModel<_Dp> >(_pcszFileName, std::forward<_Dp>(_datasink));
     }
     
   public:
@@ -146,8 +147,10 @@ namespace cppsas7bdat {
     }
     ~Reader();
 
-    bool read() { return m_pimpl->read(); }
     const Properties& properties() const noexcept { return m_pimpl->properties(); }
+
+    void read_all() { m_pimpl->read_all(); }
+    bool read_row() { return m_pimpl->read_row(); }
     size_t current_row_index() const noexcept { return m_pimpl->current_row_index(); }
   };
   

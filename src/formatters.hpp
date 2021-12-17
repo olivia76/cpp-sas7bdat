@@ -11,6 +11,7 @@
 #define _CPP_SAS7BDAT_SRC_FORMATTERS_HPP_
 
 #include <limits>
+#include <string>
 
 namespace cppsas7bdat {
   namespace INTERNAL {
@@ -30,12 +31,13 @@ namespace cppsas7bdat {
 	{
 	}
 
-	STRING   get_string  ([[maybe_unused]] const void* _p) const noexcept { return {}; }
+	SV       get_string  ([[maybe_unused]] const void* _p) const noexcept { return {}; }
 	NUMBER   get_number  ([[maybe_unused]] const void* _p) const noexcept { return std::numeric_limits<NUMBER>::quiet_NaN(); }
 	INTEGER  get_integer ([[maybe_unused]] const void* _p) const noexcept { return {}; }
 	DATETIME get_datetime([[maybe_unused]] const void* _p) const noexcept { return {}; }
 	DATE     get_date    ([[maybe_unused]] const void* _p) const noexcept { return {}; }
 	TIME     get_time    ([[maybe_unused]] const void* _p) const noexcept { return {}; }
+	STRING   to_string   ([[maybe_unused]] const void* _p) const { return {}; } 
 
 	const uint8_t* data(const void* _p) const noexcept
 	{
@@ -51,9 +53,14 @@ namespace cppsas7bdat {
       struct StringFormatter : public IFormatter {
 	StringFormatter(const size_t _offset, const size_t _length) : IFormatter(_offset, _length, Type::string) { D(spdlog::debug("StringFormatter\n")); }
 	
-	STRING get_string(const void* _p) const noexcept
+	SV get_string(const void* _p) const noexcept
 	{
 	  return INTERNAL::get_string_trim_0(data(_p), length);
+	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return STRING(get_string(_p));
 	}
       };
       
@@ -68,6 +75,11 @@ namespace cppsas7bdat {
 	NUMBER get_number(const void* _p) const noexcept
 	{
 	  return get_integer(_p);
+	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return std::to_string(get_integer(_p));
 	}
 	
       };
@@ -85,6 +97,11 @@ namespace cppsas7bdat {
 	{
 	  return get_integer(_p);
 	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return std::to_string(get_integer(_p));
+	}
 	
       };
 
@@ -96,6 +113,11 @@ namespace cppsas7bdat {
 	{
 	  return INTERNAL::get_double<_endian>(data(_p));
 	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return std::to_string(get_number(_p));
+	}
 	
       };
 
@@ -106,6 +128,11 @@ namespace cppsas7bdat {
 	NUMBER get_number([[maybe_unused]] const void* _p) const noexcept
 	{
 	  return INTERNAL::get_incomplete_double<_endian, _nbits>(data(_p));
+	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return std::to_string(get_number(_p));
 	}
 	
       };
@@ -128,6 +155,11 @@ namespace cppsas7bdat {
 	{
 	  return get_datetime(_p).time_of_day();
 	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return boost::posix_time::to_iso_extended_string(get_datetime(_p));
+	}
 	
       };
 
@@ -144,6 +176,11 @@ namespace cppsas7bdat {
 	{
 	  return DATETIME(get_date(_p), {});
 	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return boost::gregorian::to_iso_extended_string(get_date(_p));
+	}
 	
       };
 
@@ -159,6 +196,11 @@ namespace cppsas7bdat {
 	DATETIME get_datetime([[maybe_unused]] const void* _p) const noexcept
 	{
 	  return DATETIME({}, get_time(_p));
+	}
+
+	STRING to_string(const void* _p) const
+	{
+	  return boost::posix_time::to_simple_string(get_time(_p));
 	}
 	
       };

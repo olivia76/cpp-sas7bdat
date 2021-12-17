@@ -1,20 +1,20 @@
 /**
- *  \file cppsas7bdat/reader_csv.hpp
+ *  \file cppsas7bdat/datasink_csv.hpp
  * 
- *  \brief CSV reader
+ *  \brief CSV datasink
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_READER_CSV_HPP_
-#define _CPP_SAS7BDAT_READER_CSV_HPP_
+#ifndef _CPP_SAS7BDAT_DATASINK_CSV_HPP_
+#define _CPP_SAS7BDAT_DATASINK_CSV_HPP_
 
 #include <cppsas7bdat/column.hpp>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
 namespace cppsas7bdat {
-  namespace reader {
+  namespace datasink {
     struct csv {
       std::ostream& os;
       
@@ -54,9 +54,7 @@ namespace cppsas7bdat {
 	fmt::print(os, "\n");
       }
 
-      void print(const STRING& _x) {
-	fmt::print(os, "\"{}\"", _x);
-      }
+      void print(const SV& _x) { fmt::print(os, "\"{}\"", _x); }
       void print(const NUMBER _x) { fmt::print(os, "{}", _x); }
       void print(const INTEGER _x) { fmt::print(os, "{}", _x); }
       void print(const DATETIME _x) { fmt::print(os, "{}", _x); }
