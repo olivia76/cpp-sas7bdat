@@ -10,10 +10,11 @@ on different existing projects:
 - https://github.com/tk3369/SASLib.jl
 - https://pypi.org/project/sas7bdat/
 
-The C++ external polymorphism design is used internally at 2 levels:
+The C++ external polymorphism design is used internally at 3 levels:
 
 - For the dataset's columns
-- For the datasink
+- For the data source
+- For the data sink
 
 ### Datset's columns
 
@@ -32,9 +33,14 @@ Supported types:
 Each formatter [class](src/formatters.hpp) implements one or several *getters* as well as
 the *to_string* method. 
 
-### Datasink
+### Data source
 
-2 simple datasinks are provided in this package:
+A data source based on `std::ifstream` is provided in this package:
+[ifstream](include/cppsas7bdat/datasource_ifstream.hpp).
+
+### Data sink
+
+2 simple data sinks are provided in this package:
 [print](include/cppsas7bdat/datasink_print.hpp) and
 [csv](include/cppsas7bdat/datasink_csv.hpp).
 
@@ -50,6 +56,15 @@ field protection beside the double quotes, no encoding, ...).
 
 #include <cppsas7bdat/sas7bdat.hpp>
 
+struct MyDataSource {
+	MyDataSource(...) { /* ... */ }
+	
+	/// This method is called to check if there is any more data
+	bool eof() { /* ... */ }
+	/// This method is called to read data
+	bool read_bytes(void* _p, const size_t _length) { /* ... */ }
+};
+
 struct MyDataSink {
 	MyDataSink(...) { /* ... */ }
 	
@@ -59,9 +74,9 @@ struct MyDataSink {
 	void read_row(const size_t _irow, cppsas7bdat::Column::PBUF _p) { /* ... */ }
 };
 
-void read_file(const char* _filename)
+void read_sas7bdat(...)
 {
-	cppsas7bdat::Reader reader(_filename, MyDataSink(...));
+	cppsas7bdat::Reader reader(MyDataSource(...), MyDataSink(...));
 	
 	// Read row by row
 	while(reader.read_row());

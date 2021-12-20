@@ -169,9 +169,11 @@ namespace cppsas7bdat {
     template<typename _Sp, typename _Dp>
     explicit Reader(_Sp&& _source, _Dp&& _dataset)
       : Reader(build_source(std::forward<_Sp>(_source)),
-	       build_sink(std::forward<_Dp>(_dataset)))  //m_pimpl(build(_source, _dataset))
+	       build_sink(std::forward<_Dp>(_dataset)))
     {
     }
+    Reader(Reader&&) noexcept = default;
+    Reader& operator=(Reader&&) noexcept = default;
     ~Reader();
 
     const Properties& properties() const noexcept;
@@ -179,7 +181,9 @@ namespace cppsas7bdat {
     bool read_row();
     size_t current_row_index() const noexcept;
   };
-  
+
+  static_assert(!std::is_copy_constructible_v<Reader> && !std::is_copy_assignable_v<Reader>, "Reader is copyable");
+  static_assert(std::is_nothrow_move_constructible_v<Reader> && std::is_nothrow_move_assignable_v<Reader>, "Reader is not movable");
 }
 
 #endif

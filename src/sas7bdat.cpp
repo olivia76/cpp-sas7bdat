@@ -112,7 +112,7 @@ namespace cppsas7bdat {
   
   void Reader::read_all()
   {
-    while(read_row());
+    m_pimpl->read_all();
   }
   
   bool Reader::read_row()

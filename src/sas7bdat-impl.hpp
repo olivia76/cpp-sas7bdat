@@ -202,6 +202,11 @@ namespace cppsas7bdat {
       m_sink->push_row(current_row_index(), vals->data());
       return true;
     }
+
+    void read_all()
+    {
+      while(read_row());
+    }
     
   private:
     PSINK m_sink;
