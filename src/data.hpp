@@ -15,8 +15,9 @@
 namespace cppsas7bdat {
   namespace INTERNAL {
 
-    template<Endian _endian, Format _format, typename _Decompressor>
-    struct READ_DATA : public READ_PAGE<_endian, _format> {
+    template<typename _DataSource, Endian _endian, Format _format, typename _Decompressor>
+    struct READ_DATA : public READ_PAGE<_DataSource, _endian, _format> {
+      using DataSource = _DataSource;
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
 
@@ -28,16 +29,16 @@ namespace cppsas7bdat {
       size_t current_row{0};
       size_t current_row_on_page{0};
       
-      using READ_PAGE<_endian, _format>::header;
-      using READ_PAGE<_endian, _format>::read_page;
-      using READ_PAGE<_endian, _format>::process_page_subheaders;
-      using READ_PAGE<_endian, _format>::current_page_header;
-      using READ_PAGE<_endian, _format>::buf;
+      using READ_PAGE<_DataSource, _endian, _format>::header;
+      using READ_PAGE<_DataSource, _endian, _format>::read_page;
+      using READ_PAGE<_DataSource, _endian, _format>::process_page_subheaders;
+      using READ_PAGE<_DataSource, _endian, _format>::current_page_header;
+      using READ_PAGE<_DataSource, _endian, _format>::buf;
       
       using PAGE_CONSTANT<_format>::page_bit_offset;
       
-      READ_DATA(READ_METADATA<_endian, _format>&& _rm, _Decompressor&& _decompressor, const Properties::Metadata* _metadata)
-	: READ_PAGE<_endian, _format>(std::move(_rm)),
+      READ_DATA(READ_METADATA<_DataSource, _endian, _format>&& _rm, _Decompressor&& _decompressor, const Properties::Metadata* _metadata)
+	: READ_PAGE<_DataSource, _endian, _format>(std::move(_rm)),
 	  decompressor(std::move(_decompressor)),
 	  data_subheaders(std::move(_rm.data_subheaders)),
 	  metadata(_metadata)

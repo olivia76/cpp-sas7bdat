@@ -91,67 +91,93 @@ namespace cppsas7bdat {
 
   class Reader {
   private:
+    struct DataSourceConcept {
+      virtual ~DataSourceConcept();
+
+      virtual bool eof() = 0;
+      virtual bool read_bytes(void* _p, const size_t _length) = 0;
+    };
+
+    template<typename _Sp>
+    struct DataSourceModel : DataSourceConcept {
+      DataSourceModel(_Sp&& _source)
+	: source(std::forward<_Sp>(_source))
+      {
+      }
+
+      bool eof() final {
+	return source.eof();
+      }
+
+      bool read_bytes(void* _p, const size_t _length) final {
+	return source.read_bytes(_p, _length);
+      }
+
+      _Sp source;      
+    };
+    
     struct DatasetSinkConcept {
-      class Internal;
-      using PINTERNAL = std::unique_ptr<Internal>;
-      PINTERNAL pinternal;
-      
-      explicit DatasetSinkConcept(const char* _pcszFileName);
       virtual ~DatasetSinkConcept();
-      
-      const Properties& properties() const noexcept;
-      const COLUMNS& columns() const noexcept;
-      size_t current_row_index() const noexcept;
 
-      void read_all();
-      bool read_row();
-
-      virtual void set_properties() = 0;
-      virtual void read_row(Column::PBUF _p) = 0;
+      virtual void set_properties(const Properties& _properties) = 0;
+      virtual void push_row(const size_t _row_index, Column::PBUF _p) = 0;
     };
 
     template<typename _Dp>
     struct DatasetSinkModel : DatasetSinkConcept {
-      DatasetSinkModel(const char* _pcszFileName, _Dp&& _dataset)
-	: DatasetSinkConcept(_pcszFileName),
-	  dataset(std::forward<_Dp>(_dataset)) {}
+      DatasetSinkModel(_Dp&& _dataset)
+	: dataset(std::forward<_Dp>(_dataset)) {}
 
-      void set_properties() final
+      void set_properties(const Properties& _properties) final
       {
-	dataset.set_properties(properties());
+	dataset.set_properties(_properties);
       }
       
-      void read_row(Column::PBUF _p) final
+      void push_row(const size_t _row_index, Column::PBUF _p) final
       {
-	dataset.read_row(current_row_index(), _p);
+	dataset.read_row(_row_index, _p);
       }
       
     private:
       _Dp dataset;
     };
-    using PIMPL = std::unique_ptr<DatasetSinkConcept>;
-    PIMPL m_pimpl;
-   
-    template<typename _Dp>
-    static PIMPL build(const char* _pcszFileName, _Dp&& _datasink)
+
+  public:
+    class impl;
+    using PIMPL = std::unique_ptr<impl>;
+    using PSOURCE = std::unique_ptr<DataSourceConcept>;
+    using PSINK = std::unique_ptr<DatasetSinkConcept>;
+
+    template<typename _Sp>
+    static PSOURCE build_source(_Sp&& _source)
     {
-      return std::make_unique< DatasetSinkModel<_Dp> >(_pcszFileName, std::forward<_Dp>(_datasink));
+      return std::make_unique< DataSourceModel<_Sp> >(std::forward<_Sp>(_source));
     }
+    template<typename _Dp>
+    static PSINK build_sink(_Dp&& _sink)
+    {
+      return std::make_unique< DatasetSinkModel<_Dp> >(std::forward<_Dp>(_sink));
+    }
+
+  private:
+    PIMPL m_pimpl;
+
+  protected:
+    Reader(PSOURCE&& _source, PSINK&& _sink);
     
   public:
-    template<typename _Dp>
-    explicit Reader(const char* _pcszFileName, _Dp&& _dataset)
-      : m_pimpl(build(_pcszFileName, _dataset))
+    template<typename _Sp, typename _Dp>
+    explicit Reader(_Sp&& _source, _Dp&& _dataset)
+      : Reader(build_source(std::forward<_Sp>(_source)),
+	       build_sink(std::forward<_Dp>(_dataset)))  //m_pimpl(build(_source, _dataset))
     {
-      m_pimpl->set_properties();
     }
     ~Reader();
 
-    const Properties& properties() const noexcept { return m_pimpl->properties(); }
-
-    void read_all() { m_pimpl->read_all(); }
-    bool read_row() { return m_pimpl->read_row(); }
-    size_t current_row_index() const noexcept { return m_pimpl->current_row_index(); }
+    const Properties& properties() const noexcept;
+    void read_all();
+    bool read_row();
+    size_t current_row_index() const noexcept;
   };
   
 }

@@ -13,14 +13,17 @@
 namespace cppsas7bdat {
   namespace INTERNAL {
 
-    struct CHECK_HEADER {
+    struct HEADER_CONSTANTS {
       static constexpr size_t HEADER_SIZE{288};
       static constexpr BYTE MAGIC_NUMBER[] = { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 					       0x00,0x00,0x00,0x00,0xc2,0xea,0x81,0x60,
 					       0xb3,0x14,0x11,0xcf,0xbd,0x92,0x08,0x00,
 					       0x09,0xc7,0x31,0x8c,0x18,0x1f,0x10,0x11 };
-      
-      std::ifstream is;
+    };
+    
+    template<typename _DataSource>
+    struct CHECK_HEADER : public HEADER_CONSTANTS {
+      _DataSource is;
       INTERNAL::MBUFFER buf;
       size_t align1{0};
       size_t align2{0};
@@ -28,8 +31,8 @@ namespace cppsas7bdat {
       bool is_big_endian{false};
       bool is_64bit{false};
 
-      explicit CHECK_HEADER(const char* _pcszFileName)
-	: is(INTERNAL::open_stream(_pcszFileName))
+      explicit CHECK_HEADER(_DataSource&& _is)
+	: is(std::move(_is)) //INTERNAL::open_stream(_pcszFileName))
       {
 	D(spdlog::debug("Reading header ...\n"));
 	if(!buf.read_stream(is, HEADER_SIZE)) EXCEPTION::header_too_short();
@@ -54,17 +57,18 @@ namespace cppsas7bdat {
       }      
     };
 
-    template<Endian _endian, Format _format>
+    template<typename _DataSource, Endian _endian, Format _format>
     struct READ_HEADER {
+      using DataSource = _DataSource;
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
 
-      std::ifstream is;
+      _DataSource is;
       INTERNAL::BUFFER<_endian, _format> buf;
       const size_t align1;
       const size_t total_align;
 
-      READ_HEADER(CHECK_HEADER&& _ch)
+      READ_HEADER(CHECK_HEADER<_DataSource>&& _ch)
 	: is(std::move(_ch.is)),
 	  buf(std::move(_ch.buf)),
 	  align1(_ch.align1),
@@ -79,7 +83,7 @@ namespace cppsas7bdat {
 	  spdlog::info("Expected header length of 8192 but got {}\n", _header->header_length);
 	}
 	// Read the rest of the header
-	if(!buf.read_stream(is, _header->header_length-CHECK_HEADER::HEADER_SIZE, CHECK_HEADER::HEADER_SIZE)) EXCEPTION::header_too_short();
+	if(!buf.read_stream(is, _header->header_length-HEADER_CONSTANTS::HEADER_SIZE, HEADER_CONSTANTS::HEADER_SIZE)) EXCEPTION::header_too_short();
 	D(spdlog::debug("Set header length and read ... {}\n", _header->header_length));
       }
       

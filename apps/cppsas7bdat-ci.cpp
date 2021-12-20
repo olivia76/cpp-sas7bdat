@@ -8,6 +8,7 @@
 
 #include <cppsas7bdat/version.hpp>
 #include <cppsas7bdat/sas7bdat.hpp>
+#include <cppsas7bdat/datasource_ifstream.hpp>
 #include <cppsas7bdat/datasink_print.hpp>
 #include <cppsas7bdat/datasink_csv.hpp>
 #include <fstream>
@@ -33,7 +34,7 @@ R"(SAS7BDAT file reader
 
 void process_print(const std::string& _filename, long _n)
 {
-  cppsas7bdat::Reader reader(_filename.c_str(), cppsas7bdat::datasink::print(std::cout));
+  cppsas7bdat::Reader reader(cppsas7bdat::datasource::ifstream(_filename.c_str()), cppsas7bdat::datasink::print(std::cout));
   while(_n != 0 && reader.read_row()) {
     if(_n > 0) --_n;
   }
@@ -52,7 +53,7 @@ void process_csv(const std::string& _filename)
 {
   const auto csv_filename = get_csv_filename(_filename);
   std::ofstream csv_os(csv_filename.c_str());
-  cppsas7bdat::Reader reader(_filename.c_str(), cppsas7bdat::datasink::csv(csv_os));
+  cppsas7bdat::Reader reader(cppsas7bdat::datasource::ifstream(_filename.c_str()), cppsas7bdat::datasink::csv(csv_os));
   reader.read_all();
 }
 

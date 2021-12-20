@@ -24,6 +24,7 @@ add_library(lib_cppsas7bdat
     sas7bdat.cpp
     sas7bdat-impl.hpp
     version.cpp
+    datasource_ifstream.cpp
     #
     )
 #target_include_directories(lib_cppsas7bdat INTERFACE ${PROJECT_SOURCE_DIR}/include)

@@ -95,48 +95,34 @@ namespace cppsas7bdat {
     os << to_string(_x);
     return os;
   }
+
+  Reader::Reader(PSOURCE&& _source, PSINK&& _sink)
+    : m_pimpl(impl::build(std::move(_source), std::move(_sink)))
+  {
+  }
   
   Reader::~Reader() = default;
-
-  Reader::DatasetSinkConcept::DatasetSinkConcept(const char* _pcszFileName)
-    : pinternal(std::make_unique<Reader::DatasetSinkConcept::Internal>(_pcszFileName))
-  {
-  }
-  
-  /*Reader::DatasetSinkConcept::DatasetSinkConcept(const char* _pcszFileName)
-    : pinternal(new Internal(_pcszFileName)),
-      properties(pinternal->read_properties(_pcszFileName))
-  {
-  }*/
-
+  Reader::DataSourceConcept::~DataSourceConcept() = default;
   Reader::DatasetSinkConcept::~DatasetSinkConcept() = default;
 
-  const Properties& Reader::DatasetSinkConcept::properties() const noexcept
+  const Properties& Reader::properties() const noexcept
   {
-    return pinternal->properties();
+    return m_pimpl->properties();
   }
-
-  const COLUMNS& Reader::DatasetSinkConcept::columns() const noexcept
-  {
-    return properties().metadata.columns;
-  }
-
-  size_t Reader::DatasetSinkConcept::current_row_index() const noexcept
-  {
-    return pinternal->current_row_index();
-  }
-
-  void Reader::DatasetSinkConcept::read_all()
+  
+  void Reader::read_all()
   {
     while(read_row());
   }
   
-  bool Reader::DatasetSinkConcept::read_row()
+  bool Reader::read_row()
   {
-    auto vals = pinternal->read_row();
-    if(!vals) return false;
-    read_row(vals->data());
-    return true;
+    return m_pimpl->read_row();
+  }
+  
+  size_t Reader::current_row_index() const noexcept
+  {
+    return m_pimpl->current_row_index();
   }
   
 }

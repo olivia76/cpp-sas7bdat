@@ -55,14 +55,15 @@ namespace cppsas7bdat {
       static constexpr const size_t page_bit_offset = 16;
     };
     
-    template<Endian _endian, Format _format>
+    template<typename _DataSource, Endian _endian, Format _format>
     struct READ_PAGE : public PAGE_CONSTANT<_format> {
+      using DataSource = _DataSource;
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
 
       using PAGE_CONSTANT<_format>::page_bit_offset;
 
-      std::ifstream is;
+      _DataSource is;
       INTERNAL::BUFFER<_endian, _format> buf;
       const Properties::Header* header;
       struct PAGE_HEADER {
@@ -77,7 +78,7 @@ namespace cppsas7bdat {
 	}
       } current_page_header;
 
-      READ_PAGE(std::ifstream&& _is,
+      READ_PAGE(_DataSource&& _is,
 		INTERNAL::BUFFER<_endian, _format>&& _buf,
 		const Properties::Header* _header)
 	: is(std::move(_is)),
@@ -96,11 +97,11 @@ namespace cppsas7bdat {
       
       bool read_page() {
 	current_page_header.reset();
-	if(!is) return false;
-	if(is.eof()) return false;
+	//if(!is) return false;
+	if(is->eof()) return false;
 	D(spdlog::debug("read_page: length={}\n", header->page_length));
 	if(!buf.read_stream(is, header->page_length)) {
-	  if(is.eof()) return false;
+	  if(is->eof()) return false;
 	  EXCEPTION::cannot_read_page();
 	}
 	return _get_page_header();

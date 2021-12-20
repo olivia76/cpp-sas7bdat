@@ -42,64 +42,66 @@
 namespace cppsas7bdat {
   namespace INTERNAL {
 
-    inline CHECK_HEADER check_header(const char* _pcszFileName, Properties::Header* _header)
+    using DATASOURCE = Reader::PSOURCE;
+    
+    inline CHECK_HEADER<DATASOURCE> check_header(DATASOURCE&& _source, Properties::Header* _header)
     {
-      INTERNAL::CHECK_HEADER ch(_pcszFileName);
+      INTERNAL::CHECK_HEADER<DATASOURCE> ch(std::move(_source));
       ch.check_magic_number();
       ch.set_aligns_endianness(_header);
       return ch;
     }
 
     template<Endian _endian, Format _format>
-    inline READ_HEADER<_endian, _format> _read_header(CHECK_HEADER&& ch, Properties::Header* _header)
+    inline READ_HEADER<DATASOURCE, _endian, _format> _read_header(CHECK_HEADER<DATASOURCE>&& ch, Properties::Header* _header)
     {
-      READ_HEADER<_endian, _format> rh(std::move(ch));
+      READ_HEADER<DATASOURCE, _endian, _format> rh(std::move(ch));
       rh.set_header_length_and_read(_header);
       rh.set_header(_header);
       return rh;
     }
 
     template<Endian _endian, Format _format>
-    inline READ_METADATA<_endian, _format> _read_metadata(READ_HEADER<_endian, _format>&& rh,
-							  const Properties::Header* _header,
-							  Properties::Metadata* _metadata)
+    inline READ_METADATA<DATASOURCE, _endian, _format> _read_metadata(READ_HEADER<DATASOURCE, _endian, _format>&& rh,
+								      const Properties::Header* _header,
+								      Properties::Metadata* _metadata)
     {
-      READ_METADATA<_endian, _format> rm(std::move(rh), _header);
+      READ_METADATA<DATASOURCE, _endian, _format> rm(std::move(rh), _header);
       rm.set_metadata(_metadata);
       return rm;
     }
 
     template<Endian _endian, Format _format, typename _Decompressor>
-    inline READ_DATA<_endian, _format, _Decompressor> _read_data(READ_METADATA<_endian, _format>&& rm,
-								 _Decompressor&& _decompressor,
-								 const Properties::Metadata* _metadata)
+    inline READ_DATA<DATASOURCE, _endian, _format, _Decompressor> _read_data(READ_METADATA<DATASOURCE, _endian, _format>&& rm,
+									     _Decompressor&& _decompressor,
+									     const Properties::Metadata* _metadata)
     {
-      READ_DATA<_endian, _format, _Decompressor> rd(std::move(rm), std::move(_decompressor), _metadata);
+      READ_DATA<DATASOURCE, _endian, _format, _Decompressor> rd(std::move(rm), std::move(_decompressor), _metadata);
       return rd;
     }
 
-    using RH = std::variant< READ_HEADER<Endian::big, Format::bit64>,
-			     READ_HEADER<Endian::big, Format::bit32>,
-			     READ_HEADER<Endian::little, Format::bit64>,
-			     READ_HEADER<Endian::little, Format::bit32> >;
-    using RM = std::variant< READ_METADATA<Endian::big, Format::bit64>,
-			     READ_METADATA<Endian::big, Format::bit32>,
-			     READ_METADATA<Endian::little, Format::bit64>,
-			     READ_METADATA<Endian::little, Format::bit32> >;
-    using RD = std::variant< READ_DATA<Endian::big, Format::bit64, DECOMPRESSOR::None>,
-			     READ_DATA<Endian::big, Format::bit64, DECOMPRESSOR::RDC<Endian::big, Format::bit64> >,
-			     READ_DATA<Endian::big, Format::bit64, DECOMPRESSOR::RLE<Endian::big, Format::bit64> >,
-			     READ_DATA<Endian::big, Format::bit32, DECOMPRESSOR::None>,
-			     READ_DATA<Endian::big, Format::bit32, DECOMPRESSOR::RDC<Endian::big, Format::bit32> >,
-			     READ_DATA<Endian::big, Format::bit32, DECOMPRESSOR::RLE<Endian::big, Format::bit32> >,
-			     READ_DATA<Endian::little, Format::bit64, DECOMPRESSOR::None>,
-			     READ_DATA<Endian::little, Format::bit64, DECOMPRESSOR::RDC<Endian::little, Format::bit64> >,
-			     READ_DATA<Endian::little, Format::bit64, DECOMPRESSOR::RLE<Endian::little, Format::bit64>>,
-			     READ_DATA<Endian::little, Format::bit32, DECOMPRESSOR::None>,
-			     READ_DATA<Endian::little, Format::bit32, DECOMPRESSOR::RDC<Endian::little, Format::bit32> >,
-			     READ_DATA<Endian::little, Format::bit32, DECOMPRESSOR::RLE<Endian::little, Format::bit32>> >;
+    using RH = std::variant< READ_HEADER<DATASOURCE, Endian::big, Format::bit64>,
+			     READ_HEADER<DATASOURCE, Endian::big, Format::bit32>,
+			     READ_HEADER<DATASOURCE, Endian::little, Format::bit64>,
+			     READ_HEADER<DATASOURCE, Endian::little, Format::bit32> >;
+    using RM = std::variant< READ_METADATA<DATASOURCE, Endian::big, Format::bit64>,
+			     READ_METADATA<DATASOURCE, Endian::big, Format::bit32>,
+			     READ_METADATA<DATASOURCE, Endian::little, Format::bit64>,
+			     READ_METADATA<DATASOURCE, Endian::little, Format::bit32> >;
+    using RD = std::variant< READ_DATA<DATASOURCE, Endian::big, Format::bit64, DECOMPRESSOR::None>,
+			     READ_DATA<DATASOURCE, Endian::big, Format::bit64, DECOMPRESSOR::RDC<Endian::big, Format::bit64> >,
+			     READ_DATA<DATASOURCE, Endian::big, Format::bit64, DECOMPRESSOR::RLE<Endian::big, Format::bit64> >,
+			     READ_DATA<DATASOURCE, Endian::big, Format::bit32, DECOMPRESSOR::None>,
+			     READ_DATA<DATASOURCE, Endian::big, Format::bit32, DECOMPRESSOR::RDC<Endian::big, Format::bit32> >,
+			     READ_DATA<DATASOURCE, Endian::big, Format::bit32, DECOMPRESSOR::RLE<Endian::big, Format::bit32> >,
+			     READ_DATA<DATASOURCE, Endian::little, Format::bit64, DECOMPRESSOR::None>,
+			     READ_DATA<DATASOURCE, Endian::little, Format::bit64, DECOMPRESSOR::RDC<Endian::little, Format::bit64> >,
+			     READ_DATA<DATASOURCE, Endian::little, Format::bit64, DECOMPRESSOR::RLE<Endian::little, Format::bit64>>,
+			     READ_DATA<DATASOURCE, Endian::little, Format::bit32, DECOMPRESSOR::None>,
+			     READ_DATA<DATASOURCE, Endian::little, Format::bit32, DECOMPRESSOR::RDC<Endian::little, Format::bit32> >,
+			     READ_DATA<DATASOURCE, Endian::little, Format::bit32, DECOMPRESSOR::RLE<Endian::little, Format::bit32>> >;
     
-    inline RH read_header(CHECK_HEADER&& ch,
+    inline RH read_header(CHECK_HEADER<DATASOURCE>&& ch,
 			  Properties::Header* _header)
     {
       if(ch.is_big_endian) {
@@ -109,12 +111,6 @@ namespace cppsas7bdat {
 	if(ch.is_64bit) return _read_header<Endian::little, Format::bit64>(std::move(ch), _header);
 	else return _read_header<Endian::little, Format::bit32>(std::move(ch), _header);
       }
-    }
-
-    inline RH read_header(const char* _pcszFileName,
-			  Properties::Header* _header)
-    {
-      return read_header(check_header(_pcszFileName, _header), _header);
     }
 
     inline RM read_metadata(RH&& rh,
@@ -127,32 +123,18 @@ namespace cppsas7bdat {
 			}, rh);
     }
 
-    inline RM read_metadata(const char* _pcszFileName,
-			    Properties::Header* _header,
-			    Properties::Metadata* _metadata)
-    {
-      return read_metadata(read_header(_pcszFileName, _header), _header, _metadata);
-    }
-
     inline RD read_data(RM&& rm,
 			const Properties::Metadata* _metadata)
     {
       return std::visit([&](auto&& arg) -> RD {
 			  using T = std::decay_t<decltype(arg)>;
 			  switch(_metadata->compression) {
-			  case Compression::RDC: return _read_data<T::endian, T::format>(std::move(arg), DECOMPRESSOR::RDC<T::endian, T::format>(_metadata), _metadata);
-			  case Compression::RLE: return _read_data<T::endian, T::format>(std::move(arg), DECOMPRESSOR::RLE<T::endian, T::format>(_metadata), _metadata);
+			  case Compression::RDC: return _read_data< T::endian, T::format>(std::move(arg), DECOMPRESSOR::RDC<T::endian, T::format>(_metadata), _metadata);
+			  case Compression::RLE: return _read_data< T::endian, T::format>(std::move(arg), DECOMPRESSOR::RLE<T::endian, T::format>(_metadata), _metadata);
 			  default:
 			    return _read_data<T::endian, T::format>(std::move(arg), DECOMPRESSOR::None(), _metadata);
 			  }
 			}, rm);
-    }
-
-    inline RD read_data(const char* _pcszFileName,
-			Properties::Header* _header,
-			Properties::Metadata* _metadata)
-    {
-      return read_data(read_metadata(read_header(_pcszFileName, _header), _header, _metadata), _metadata);
     }
 
     inline auto read_line(RD& rd)
@@ -164,18 +146,66 @@ namespace cppsas7bdat {
     
   }
 
-  class Reader::DatasetSinkConcept::Internal {
-  public:
-    explicit Internal(const char* _pcszFileName)
-      : m_read_data(INTERNAL::read_data(_pcszFileName, &m_properties.header, &m_properties.metadata))
+  namespace READ {
+
+    inline INTERNAL::RH header(INTERNAL::DATASOURCE&& _source,
+			       Properties::Header* _header)
     {
+      return INTERNAL::read_header(INTERNAL::check_header(std::move(_source), _header), _header);
     }
 
+    inline INTERNAL::RM metadata(INTERNAL::DATASOURCE&& _source,
+				 Properties::Header* _header,
+				 Properties::Metadata* _metadata)
+    {
+      return INTERNAL::read_metadata(READ::header(std::move(_source), _header), _header, _metadata);
+    }
+
+    inline INTERNAL::RD data(INTERNAL::DATASOURCE&& _source,
+			     Properties::Header* _header,
+			     Properties::Metadata* _metadata)
+    {
+      return INTERNAL::read_data(INTERNAL::read_metadata(INTERNAL::read_header(INTERNAL::check_header(std::move(_source), _header), _header), _header, _metadata), _metadata);
+      //return INTERNAL::read_data(READ::metadata(std::move(_source), _header), _header), _metadata);
+    }
+    
+  }
+
+  class Reader::impl {
+  public:
+
+    static PIMPL build(PSOURCE&& _source, PSINK&& _sink)
+    {
+      return std::make_unique<impl>(std::move(_source), std::move(_sink));
+    }
+    
+    explicit impl(PSOURCE&& _source, PSINK&& _sink)
+      :	m_sink(std::move(_sink)),
+	m_read_data(READ::data(std::move(_source), &m_properties.header, &m_properties.metadata))
+    {
+      m_sink->set_properties(properties());
+    }
+   
     const Properties& properties() const noexcept { return m_properties; }
-    auto read_row() { ++m_current_row_index; return INTERNAL::read_line(m_read_data); }
     size_t current_row_index() const noexcept { return m_current_row_index; }
+
+    void push_row(const size_t _row_index, Column::PBUF _p)
+    {
+      m_sink->push_row(_row_index, _p);
+    }
+
+    bool read_row()
+    {
+      ++m_current_row_index;
+      auto vals = INTERNAL::read_line(m_read_data);
+      if(!vals) return false;
+      m_sink->push_row(current_row_index(), vals->data());
+      return true;
+    }
     
   private:
+    PSINK m_sink;
+    
     Properties m_properties;
     INTERNAL::RD m_read_data;
     size_t m_current_row_index{std::numeric_limits<std::size_t>::max()};

@@ -47,16 +47,18 @@ namespace cppsas7bdat {
 	}
 	m_size = _size;
       }
-      
-      bool read_stream(std::istream& _is, const size_t _read_length, const size_t _offset_in_buffer=0)
+
+      template<typename _DataSource>
+      bool read_stream(_DataSource& _is, const size_t _read_length, const size_t _offset_in_buffer=0)
       {
 	// Make sure the buffer is big enough to hold the data
 	resize(_offset_in_buffer + _read_length);
-	// Read the stream 
-	if(_is)
-	  _is.read(reinterpret_cast<char*>(m_buffer.get())+_offset_in_buffer, static_cast<std::streamsize>(_read_length));
+	// Read the stream
+	return _is->read_bytes(m_buffer.get()+_offset_in_buffer, _read_length);
+	//if(_is)
+	  //_is.read(reinterpret_cast<char*>(m_buffer.get())+_offset_in_buffer, static_cast<std::streamsize>(_read_length));
 	// Did we manage to read the requested data?
-	return _is.good();
+	//return _is.good();
       }
       
       size_t size() const noexcept { return m_size; }

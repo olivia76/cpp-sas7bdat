@@ -78,8 +78,9 @@ namespace cppsas7bdat {
       static constexpr BYTE COLUMN_LIST_SUBHEADER       [][4] = { { 0xFE,0xFF,0xFF,0xFF }, { 0xFF,0xFF,0xFF,0xFE } };	
     };
     
-    template<Endian _endian, Format _format>
-    struct READ_METADATA : public READ_PAGE<_endian, _format>, public METADATA_CONSTANT<_format> {
+    template<typename _DataSource, Endian _endian, Format _format>
+    struct READ_METADATA : public READ_PAGE<_DataSource, _endian, _format>, public METADATA_CONSTANT<_format> {
+      using DataSource = _DataSource;
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
 
@@ -109,13 +110,13 @@ namespace cppsas7bdat {
       std::vector<size_t> column_data_lengths;
       std::vector<Column::Type> column_data_types;
 
-      using READ_PAGE<_endian, _format>::read_page;
-      using READ_PAGE<_endian, _format>::process_page_subheaders;
-      using READ_PAGE<_endian, _format>::current_page_header;
-      using READ_PAGE<_endian, _format>::buf;
+      using READ_PAGE<_DataSource, _endian, _format>::read_page;
+      using READ_PAGE<_DataSource, _endian, _format>::process_page_subheaders;
+      using READ_PAGE<_DataSource, _endian, _format>::current_page_header;
+      using READ_PAGE<_DataSource, _endian, _format>::buf;
       
-      READ_METADATA(READ_HEADER<_endian, _format>&& _rh, const Properties::Header* _header)
-	: READ_PAGE<_endian, _format>(std::move(_rh.is), std::move(_rh.buf), _header)
+      READ_METADATA(READ_HEADER<_DataSource, _endian, _format>&& _rh, const Properties::Header* _header)
+	: READ_PAGE<_DataSource, _endian, _format>(std::move(_rh.is), std::move(_rh.buf), _header)
       {
       }
 
