@@ -41,7 +41,10 @@ namespace cppsas7bdat {
       return BYTES(_buf, _length);
     }
 
-    /*constexpr bool SYSTEM_IS_LITTLE_ENDIAN{__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__};
+    //#define USE_INHOUSE
+    #ifdef USE_INHOUSE
+    
+    constexpr bool SYSTEM_IS_LITTLE_ENDIAN{__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__};
     constexpr Endian SYSTEM_ENDIANNESS{SYSTEM_IS_LITTLE_ENDIAN ? Endian::little : Endian::big};
 
     struct _GET_VAL {
@@ -56,7 +59,8 @@ namespace cppsas7bdat {
       template<typename _Tp>
       static inline _Tp swap(const uint8_t* _buf) noexcept
       {
-	return boost::endian::endian_reverse(get<_Tp>(_buf));
+	auto x = get<_Tp>(_buf);
+	return boost::endian::endian_reverse(x);
       }
     };
     
@@ -68,7 +72,9 @@ namespace cppsas7bdat {
 	if constexpr (_endian_from == _endian_to) return _GET_VAL::template get<_Tp>(_buf);
 	else return _GET_VAL::template swap<_Tp>(_buf);
       }
-      };*/
+      };
+    
+    #else
     
     template<Endian _endian>
     struct ENDIAN {
@@ -82,6 +88,8 @@ namespace cppsas7bdat {
 	else return boost::endian::little_to_native(x);
       } 
     };
+
+    #endif
 
     template<Endian _endian, typename _Tp>
     inline _Tp get_val(const uint8_t* _buf) noexcept

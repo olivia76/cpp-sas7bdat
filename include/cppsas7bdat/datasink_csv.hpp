@@ -55,7 +55,7 @@ namespace cppsas7bdat {
       }
 
       void print(const SV& _x) { fmt::print(os, "\"{}\"", _x); }
-      void print(const NUMBER _x) { fmt::print(os, "{}", _x); }
+      void print(const NUMBER _x) { if(!std::isnan(_x)) fmt::print(os, "{}", _x); }
       void print(const INTEGER _x) { fmt::print(os, "{}", _x); }
       void print(const DATETIME _x) { fmt::print(os, "{}", _x); }
       void print(const DATE _x) { fmt::print(os, "{}", _x); }

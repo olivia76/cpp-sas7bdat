@@ -11,6 +11,7 @@
 #include <cppsas7bdat/datasource_ifstream.hpp>
 #include <cppsas7bdat/datasink_print.hpp>
 #include <cppsas7bdat/datasink_csv.hpp>
+#include <cppsas7bdat/datasink_null.hpp>
 #include <fstream>
 #include <docopt/docopt.h>
 #include <spdlog/spdlog.h>
@@ -22,6 +23,7 @@ R"(SAS7BDAT file reader
      Usage:
        cppsas7bdat-ci print [--nlines=<lines>] <file>...
        cppsas7bdat-ci csv <file>...
+       cppsas7bdat-ci null <file>...
        cppsas7bdat-ci (-h|--help)
        cppsas7bdat-ci (-v|--version)
 
@@ -57,6 +59,12 @@ void process_csv(const std::string& _filename)
   reader.read_all();
 }
 
+void process_null(const std::string& _filename)
+{
+  cppsas7bdat::Reader reader(cppsas7bdat::datasource::ifstream(_filename.c_str()), cppsas7bdat::datasink::null());
+  reader.read_all();
+}
+
 int main(const int argc, char* argv[])
 {
   std::string version = fmt::format("CPP SAS7BDAT file reader {}", cppsas7bdat::getVersion());
@@ -78,6 +86,11 @@ int main(const int argc, char* argv[])
     const auto files = args["<file>"].asStringList();
     for(const auto& file: files) {
       process_csv(file);
+    }
+  } else if(args["null"].asBool()) {
+    const auto files = args["<file>"].asStringList();
+    for(const auto& file: files) {
+      process_null(file);
     }
   }
   return 0;
