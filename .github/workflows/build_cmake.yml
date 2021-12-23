@@ -1,0 +1,31 @@
+name: CMake
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+# Use a bash shell so we can use the same syntax for environment variable
+# access regardless of the host operating system
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        include:
+        - os: ubuntu-latest
+          ENABLE_COVERAGE: ON
+        - os: windows-latest
+          # Windows works differently
+          ENABLE_COVERAGE: OFF
+        - os: macos-latest
+          ENABLE_COVERAGE: ON
+
