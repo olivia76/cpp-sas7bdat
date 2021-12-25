@@ -8,7 +8,8 @@ class CppSAS7BDATProject(ConanFile):
         "docopt.cpp/0.6.2",
         "fmt/8.0.1",
         "spdlog/1.9.2",
-        "boost/1.71.0"
+        "boost/1.71.0",
+        "nlohmann_json/3.10.4"
     )
     generators = "cmake", "gcc", "txt", "cmake_find_package"
 
