@@ -1,7 +1,6 @@
 from conans import ConanFile
 
-
-class CppStarterProject(ConanFile):
+class CppSAS7BDATProject(ConanFile):
     name = "CppSAS7BDAT"
     version = "1.0"
     requires = (
