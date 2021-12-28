@@ -30,6 +30,6 @@ target_include_directories(lib_cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )
 target_link_libraries(lib_cppsas7bdat
   PRIVATE
   fmt::fmt
-  spdlog::spdlog_header_only
+  spdlog::spdlog
   Boost::date_time 
   )
