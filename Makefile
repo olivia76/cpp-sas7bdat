@@ -2,7 +2,7 @@ all: build
 
 .PHONY: build
 build:
-	mkdir -p build; cd build; cmake ..; cmake --build .
+	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON; cmake --build ./build
 
 .PHONY: build-tests
 build-tests:

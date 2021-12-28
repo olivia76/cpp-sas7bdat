@@ -14,7 +14,6 @@
 #include <cppsas7bdat/datasink_null.hpp>
 #include <fstream>
 #include <docopt/docopt.h>
-#include <spdlog/spdlog.h>
 
 namespace {
   static constexpr auto USAGE =
