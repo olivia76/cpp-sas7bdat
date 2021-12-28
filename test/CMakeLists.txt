@@ -1,5 +1,6 @@
 find_package(Catch2 REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(spdlog)
 
 include(CTest)
 include(Catch)
@@ -9,9 +10,15 @@ target_link_libraries(catch_main PUBLIC Catch2::Catch2)
 target_link_libraries(catch_main PRIVATE project_options)
 
 add_executable(tests tests_internal.cpp)
-target_link_libraries(tests PRIVATE project_warnings project_options catch_main)
-target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json)
-target_link_libraries(tests PRIVATE lib_cppsas7bdat)
+target_link_libraries(tests
+  PRIVATE
+  project_warnings
+  project_options
+  catch_main
+  nlohmann_json::nlohmann_json
+  spdlog::spdlog
+  lib_cppsas7bdat
+  )
 
 # automatically discover tests that are defined in catch based test files you can modify the unittests. Set TEST_PREFIX
 # to whatever you want, or use different for different binaries
