@@ -13,7 +13,8 @@
 #include <cppsas7bdat/datasink_csv.hpp>
 #include <cppsas7bdat/datasink_null.hpp>
 #include <fstream>
-#include <docopt/docopt.h>
+//#include <docopt/docopt.h>
+#include <docopt.h>
 
 namespace {
   static constexpr auto USAGE =
