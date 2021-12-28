@@ -2,7 +2,8 @@
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(fmt)
 find_package(spdlog)
-find_package(docopt COMPONENTS CXX REQUIRED)
+#find_package(docopt COMPONENTS CXX REQUIRED)
+find_package(docopt REQUIRED)
 message (STATUS ${DOCOPT_INCLUDE_DIRS})
 include_directories(${DOCOPT_INCLUDE_DIRS})
 
