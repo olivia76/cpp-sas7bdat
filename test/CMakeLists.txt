@@ -12,13 +12,13 @@ target_link_libraries(catch_main PRIVATE project_options)
 add_executable(tests tests_internal.cpp)
 target_link_libraries(tests
   PRIVATE
-  project_warnings
-  project_options
   catch_main
   nlohmann_json::nlohmann_json
   spdlog::spdlog
   lib_cppsas7bdat
   )
+#  project_warnings
+#  project_options
 
 # automatically discover tests that are defined in catch based test files you can modify the unittests. Set TEST_PREFIX
 # to whatever you want, or use different for different binaries
