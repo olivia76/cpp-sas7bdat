@@ -12,7 +12,7 @@ class CppSAS7BDATProject(ConanFile):
         "nlohmann_json/3.10.4"
     )
     generators = "cmake", "gcc", "txt", "cmake_find_package"
-
+    
     def requirements(self):
         pass
 

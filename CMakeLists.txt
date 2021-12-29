@@ -73,9 +73,9 @@ if(ENABLE_PCH)
     <utility>)
 endif()
 
-
 option(ENABLE_CONAN "Use Conan for dependency management" OFF)
 if(ENABLE_CONAN)
+  #set(ENV{CONAN_PRINT_RUN_COMMANDS} "1")
   include(cmake/Conan.cmake)
   run_conan()
 endif()
