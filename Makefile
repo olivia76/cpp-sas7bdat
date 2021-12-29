@@ -2,7 +2,9 @@ all: build
 
 .PHONY: build
 build:
-	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON; cmake --build ./build
+	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON
+	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON
+	cmake --build ./build
 
 .PHONY: build-tests
 build-tests:
