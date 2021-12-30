@@ -18,4 +18,4 @@ do
 	    echo "Didn't manage to retrieve $f..."
 	fi
     fi
-done < files.txt
+done < $DIR/files.txt
