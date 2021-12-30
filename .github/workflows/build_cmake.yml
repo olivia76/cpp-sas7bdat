@@ -87,7 +87,7 @@ jobs:
       run: |
           ../test/retrieve.bash
           ctest -C $BUILD_TYPE --output-on-failure
-          gcovr -j $(nproc) --delete --root .. --print-summary --xml-pretty --xml coverage.xml ./src ./include
+          gcovr -j $(nproc) --delete --root .. --print-summary --xml-pretty --xml coverage.xml ../src ../include
 
     - name: Windows - Test and coverage
       if: runner.os == 'Windows'
