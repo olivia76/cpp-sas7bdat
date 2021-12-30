@@ -1,10 +1,12 @@
 all: build
 
+BUILD_TYPE := Release
+
 .PHONY: build
 build:
-	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON
-	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON
-	cmake --build ./build
+	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
+	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
+	cmake --build ./build --config ${BUILD_TYPE}
 
 .PHONY: build-tests
 build-tests:

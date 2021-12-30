@@ -32,4 +32,5 @@ target_link_libraries(lib_cppsas7bdat
   fmt::fmt
   spdlog::spdlog
   Boost::date_time 
+  PRIVATE project_options
   )

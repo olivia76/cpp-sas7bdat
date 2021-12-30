@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_VERBOSE_MAKEFILE ON)
-
 #Set the project name
 project(
   cppsas7bdat
@@ -9,13 +8,15 @@ project(
   LANGUAGES CXX
   )
 
+include(cmake/StandardProjectSettings.cmake)
+include(cmake/PreventInSourceBuilds.cmake)
+
+#add_library(project_warnings INTERFACE)
+
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-Wall -Wextra -pedantic -O3)
-
-#include(cmake/StandardProjectSettings.cmake)
-include(cmake/PreventInSourceBuilds.cmake)
 
 # Link this 'library' to set the c++ standard / compile-time options requested
 add_library(project_options INTERFACE)
