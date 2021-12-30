@@ -10,7 +10,7 @@ build:
 
 .PHONY: tests
 tests:
-	cd ./build; ctest -C ${BUILD_TYPE}
+	cd ./build; ctest -C ${BUILD_TYPE} --output-on-failure
 	#make -C build test ARGS='-V'
 
 .PHONY: build-debug
