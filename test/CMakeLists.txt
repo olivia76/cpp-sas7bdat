@@ -9,7 +9,7 @@ add_library(catch_main STATIC catch_main.cpp)
 target_link_libraries(catch_main PUBLIC Catch2::Catch2)
 target_link_libraries(catch_main PRIVATE project_options)
 
-add_executable(tests tests_internal.cpp)
+add_executable(tests tests_internal.cpp tests_interface.cpp)
 target_link_libraries(tests
   PRIVATE
   catch_main
