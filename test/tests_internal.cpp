@@ -32,7 +32,10 @@ struct FILES {
   json j; 
 };
 
-static const FILES files("files.json");
+static const FILES& files() {
+  static const FILES instance("files.json");
+  return instance;
+}
 
 namespace {
   using namespace cppsas7bdat;
@@ -148,7 +151,7 @@ SCENARIO("When I try to read a file with an invalid magic number, an exception i
 
 SCENARIO("When I read a file, the align/endianness values are set properly", "[internal][set_align_endianness]")
 {
-  const auto data = GENERATE(from_range(files.j.items().begin(),files.j.items().end()));
+  const auto data = GENERATE(from_range(files().j.items().begin(),files().j.items().end()));
 
   const std::string filename = data.key();
   const auto ref_header = data.value()["Header"];
@@ -166,7 +169,7 @@ SCENARIO("When I read a file, the align/endianness values are set properly", "[i
 
 SCENARIO("When I read a file, the header is set properly", "[internal][read_header]")
 {
-  const auto data = GENERATE(from_range(files.j.items().begin(),files.j.items().end()));
+  const auto data = GENERATE(from_range(files().j.items().begin(),files().j.items().end()));
 
   const std::string filename = data.key();
   const auto ref_header = data.value()["Header"];
@@ -196,7 +199,7 @@ SCENARIO("When I read a file, the header is set properly", "[internal][read_head
 
 SCENARIO("When I read a file, the metadata is set properly", "[internal][read_metadata]")
 {
-  const auto data = GENERATE(from_range(files.j.items().begin(),files.j.items().end()));
+  const auto data = GENERATE(from_range(files().j.items().begin(),files().j.items().end()));
 
   const std::string filename = data.key();
   const auto ref_header = data.value()["Header"];
@@ -242,7 +245,7 @@ SCENARIO("When I read a file, the metadata is set properly", "[internal][read_me
 
 SCENARIO("When I read a file, the data are read properly", "[internal][read_data]")
 {
-  const auto data = GENERATE(from_range(files.j.items().begin(),files.j.items().end()));
+  const auto data = GENERATE(from_range(files().j.items().begin(),files().j.items().end()));
   
   const std::string filename = data.key();
   const auto ref_header = data.value()["Header"];
