@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CURDIR=$(pwd)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 while read -r f
 do
@@ -9,8 +9,8 @@ do
 	dir=${f#* }
 	if [[ ! -z "$dir" ]]; then
 	    echo "Creating directory [$dir] ..."
-	    mkdir -p $CURDIR/$dir
-	    cd $CURDIR/$dir
+	    mkdir -p $DIR/$dir
+	    cd $DIR/$dir
 	fi
     else
 	wget $f 2> /dev/null
