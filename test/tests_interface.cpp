@@ -143,15 +143,6 @@ SCENARIO("When I read a file with the public interface, the data are read proper
   const auto ref_header = data.value()["Header"];
   const auto ref_columns = data.value()["Columns"];
   auto ref_data = data.value()["Data"].items();
-  //auto ref_data_iter = ref_data.begin();
-  //const size_t ncols = ref_columns.size();
-
-  //size_t ref_irow;
-  //auto get_ref_irow = [&]() {
-  //			const std::string line = ref_data_iter.key();
-  //			std::from_chars(line.data(), line.data()+line.size(), ref_irow);
-  //		      };
-  //get_ref_irow();
   
   GIVEN(fmt::format("A file {},", filename)) {
     // Skip big5 files
