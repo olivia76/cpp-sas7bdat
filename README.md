@@ -96,10 +96,16 @@ void read_sas7bdat(...)
 
 Inspired from https://github.com/cpp-best-practices/cpp_starter_project
 
+
 ## C++ external polymorphism
 
 This design pattern is very nicely explained in a talk of Klaus Iglberger - Breaking Dependencies: Type Erasure - A Design Analysis (https://www.youtube.com/watch?v=7GIz9SmRgyc)
 
+## Conan
+
+```bash
+pip install conan
+``` 
 
 ## boost
 
@@ -127,7 +133,7 @@ spdlog needs to be install in the system
 ```bash
 git clone https://github.com/gabime/spdlog.git
 cd spdlog
-mkdir build; cd build; cmake ..; make; sudo make install
+cmake -S . -B ./build -DSPDLOG_FMT_EXTERNAL=ON; cmake --build ./build; cd build; sudo make install
 ```
 
 ## docopt
