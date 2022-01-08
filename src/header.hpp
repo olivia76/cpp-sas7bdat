@@ -34,12 +34,12 @@ namespace cppsas7bdat {
       explicit CHECK_HEADER(_DataSource&& _is)
 	: is(std::move(_is)) //INTERNAL::open_stream(_pcszFileName))
       {
-	D(spdlog::debug("Reading header ...\n"));
+	D(spdlog::info("Reading header ...\n"));
 	if(!buf.read_stream(is, HEADER_SIZE)) EXCEPTION::header_too_short();
       }
 
       void check_magic_number() const {
-	D(spdlog::debug("Checking magic number ...\n"));
+	D(spdlog::info("Checking magic number ...\n"));
 	if(!_check_magic_number()) EXCEPTION::invalid_magic_number();
       }
 
@@ -53,7 +53,7 @@ namespace cppsas7bdat {
 	total_align = align1 + align2;
 	_header->endianness = (buf[37] == 0x01 ? Endian::little : Endian::big);
 	is_big_endian = _header->endianness == Endian::big;
-	D(spdlog::debug("Setting aligns ... {}, {}, {}, {}, {}\n", align1, align2, total_align, _header->format, _header->endianness));
+	D(spdlog::info("Setting aligns ... {}, {}, {}, {}, {}\n", align1, align2, total_align, _header->format, _header->endianness));
       }      
     };
 
@@ -65,8 +65,8 @@ namespace cppsas7bdat {
 
       _DataSource is;
       INTERNAL::BUFFER<_endian, _format> buf;
-      const size_t align1;
-      const size_t total_align;
+      const size_t align1; /**< 0 or 4 */
+      const size_t total_align; /**< 0, 4, or 8 */
 
       READ_HEADER(CHECK_HEADER<_DataSource>&& _ch)
 	: is(std::move(_ch.is)),
@@ -83,11 +83,14 @@ namespace cppsas7bdat {
 	  spdlog::info("Expected header length of 8192 but got {}\n", _header->header_length);
 	}
 	// Read the rest of the header
+	assert(_header->header_length >= HEADER_CONSTANTS::HEADER_SIZE);
 	if(!buf.read_stream(is, _header->header_length-HEADER_CONSTANTS::HEADER_SIZE, HEADER_CONSTANTS::HEADER_SIZE)) EXCEPTION::header_too_short();
-	D(spdlog::debug("Set header length and read ... {}\n", _header->header_length));
+	D(spdlog::info("Set header length and read ... {}\n", _header->header_length));
       }
       
       void set_header(Properties::Header* _header) const {
+	assert(buf.size() >= 288 + total_align);
+	
 	_header->platform = (buf[39] == '1' ? Platform::unix :
 			     buf[39] == '2' ? Platform::windows : Platform::unknown);
 	_header->encoding = get_encoding(buf[70]); // 70
@@ -104,10 +107,10 @@ namespace cppsas7bdat {
 	_header->sas_server_type = buf.get_string(224+total_align, 16); // 224-240 + total_align
 	_header->os_type = buf.get_string(240+total_align, 16); // 240-256
 	_header->os_name = ( buf[272+total_align]
-			    ? buf.get_string(272+total_align, 16)    // 272+286 + total_align
+			    ? buf.get_string(272+total_align, 16)    // 272+288 + total_align
 			    : buf.get_string(256+total_align, 16) ); // 256-272 + total_align
 
-	D(spdlog::debug("Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
+	D(spdlog::info("Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
 			_header->platform,
 			_header->dataset_name, _header->file_type,
 			boost::posix_time::to_iso_extended_string(_header->date_created),

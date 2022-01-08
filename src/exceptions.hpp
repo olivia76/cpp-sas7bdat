@@ -9,6 +9,8 @@
 #ifndef _CPP_SAS7BDAT_SRC_EXCEPTIONS_HPP_
 #define _CPP_SAS7BDAT_SRC_EXCEPTIONS_HPP_
 
+#include <cstddef>
+
 namespace cppsas7bdat {
   namespace EXCEPTION {
     void cannot_allocate_memory();
@@ -17,6 +19,7 @@ namespace cppsas7bdat {
     void invalid_magic_number();
     void cannot_read_page();
     void cannot_decompress();
+    void invalid_buffer_access(const size_t _offset, const size_t _n, const size_t _size);
   }
 }
 

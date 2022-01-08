@@ -9,9 +9,10 @@
 #include "exceptions.hpp"
 #include <stdexcept>
 #include <spdlog/spdlog.h>
+#include <fmt/core.h>
 
 namespace cppsas7bdat {
-  void raise_exception(const char* _msg)
+  void raise_exception(const std::string& _msg)
   {
     spdlog::critical(_msg);
     throw std::runtime_error(_msg);
@@ -45,5 +46,10 @@ namespace cppsas7bdat {
   void EXCEPTION::cannot_decompress()
   {
     raise_exception("cannot_decompress");
+  }
+
+  void EXCEPTION::invalid_buffer_access(const size_t _offset, const size_t _n, const size_t _size)
+  {
+    raise_exception(fmt::format("invalid_buffer_access: {}+{}>{}", _offset, _n, _size));
   }
 }

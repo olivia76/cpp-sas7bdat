@@ -13,7 +13,7 @@
 #ifdef DEBUG
 #  define D(x) x
 #else
-#  define D(x)
+#  define D(x) 
 #endif
 
 #endif

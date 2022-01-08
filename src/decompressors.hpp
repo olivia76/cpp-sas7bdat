@@ -14,9 +14,9 @@ namespace cppsas7bdat {
   namespace INTERNAL {
     namespace DECOMPRESSOR {
 
-      constexpr uint8_t C_NULL=0x00;
-      constexpr uint8_t C_SPACE=0x20;
-      constexpr uint8_t C_AT=0x40;
+      constexpr uint8_t C_NULL =0x00; /**< '\@' */
+      constexpr uint8_t C_SPACE=0x20; /**< ' ' */
+      constexpr uint8_t C_AT   =0x40; /**< '@' */
 
       struct SRC_VALUES {
 	const BYTES values;
@@ -30,15 +30,14 @@ namespace cppsas7bdat {
 	}
 
 	auto pop() noexcept { return values[i_src++]; }
-	auto pop(const size_t n) noexcept { auto v = values.substr(i_src, n); i_src += n; return v; }
+	auto pop(const size_t _n) noexcept { auto v = values.substr(i_src, _n); i_src += _n; return v; }
 
-	bool check(const size_t n) const noexcept { return i_src+n < n_src; }
+	bool check(const size_t _n) const noexcept { return i_src+_n < n_src; }
 	size_t remaining() const noexcept { return n_src-i_src; }
       };
 
       
       struct None {
-
 	BYTES operator()(const BYTES& _values) const noexcept { return _values; }	
       };
       
@@ -64,14 +63,21 @@ namespace cppsas7bdat {
 	  store_value(C_NULL, n_dst-i_dst);
 	}
 
-	void store_value(const uint8_t v, const size_t n)
+	void store_value(const uint8_t _v, const size_t _n)
 	{
-	  buf.memset(i_dst, v, n);
-	  i_dst += n;
+	  assert_check_dst(_n);
+	  buf.set(i_dst, _v, _n);
+	  i_dst += _n;
 	}
 
 	bool check_dst() const noexcept { return i_dst < n_dst; }
-	
+	bool check_dst(const size_t _n) const noexcept { return i_dst + _n <= n_dst; }
+	void assert_check_dst(const size_t _n) const {
+	  if(!check_dst(_n)) {
+	    spdlog::critical("Invalid dst length: {}+{}>{}\n", i_dst, _n, n_dst);
+	    EXCEPTION::cannot_decompress();
+	  }
+	}	
       };
 
       /// SASYZCR2
@@ -82,6 +88,7 @@ namespace cppsas7bdat {
 	using Base<_endian, _format>::reset;
 	using Base<_endian, _format>::fill;
 	using Base<_endian, _format>::check_dst;
+	using Base<_endian, _format>::assert_check_dst;
 	using Base<_endian, _format>::store_value;
 	using Base<_endian, _format>::i_dst;
 	
@@ -89,13 +96,14 @@ namespace cppsas7bdat {
 	{
 	}
 
-	void store_pattern(const size_t offset, const size_t n)
+	void store_pattern(const size_t _offset, const size_t _n)
 	{
-	  buf.memcpy(i_dst, i_dst - offset, n);
-	  i_dst += n;
+	  assert_check_dst(_n);
+	  buf.copy(i_dst, i_dst - _offset, _n);
+	  i_dst += _n;
 	}
 	
-	BYTES operator()(const BYTES& _values) noexcept {
+	BYTES operator()(const BYTES& _values) {
 	  constexpr uint8_t ONE{1}, FOUR{4}, EIGHT{8};
 	  constexpr uint8_t THREE{3}, SIXTEEN{16}, NINETEEN{19};
 	  
@@ -107,7 +115,7 @@ namespace cppsas7bdat {
 	  T ctrl_bits{0};
 	  
 	  while(src.check(2) && check_dst()) {
-	    D(spdlog::debug("RDC({}/{},{}/{})\n", src.i_src, src.n_src, i_dst, n_dst));
+	    D(spdlog::info("RDC({}/{},{}/{})\n", src.i_src, src.n_src, i_dst, n_dst));
 	    // get new load of control bits if needed
 	    ctrl_mask >>= ONE;
 	    if(ctrl_mask == 0) {
@@ -119,29 +127,29 @@ namespace cppsas7bdat {
 	    // just copy this char if control bit is zero
 	    if ( (ctrl_bits & ctrl_mask) == 0) {
 	      store_value(src.pop(), 1);
-	      continue;
-	    }
-	    // undo the compression code
-	    const auto val = src.pop();
-	    const uint8_t cmd = (val >> FOUR) & 0x0F;
-	    size_t cnt = val & 0x0F;
-            if(cmd == 0) { // short rle
-	      cnt += THREE;
-	      store_value(src.pop(), cnt);
-	    } else if(cmd == 1) { // long rle
-	      cnt += static_cast<size_t>((static_cast<T>(src.pop()) << FOUR) + NINETEEN);
-	      store_value(src.pop(), cnt);
-	    } else if(cmd == 2) { // long pattern
-	      const size_t ofs = cnt + THREE + static_cast<size_t>(static_cast<T>(src.pop()) << FOUR);
-	      cnt = static_cast<size_t>(src.pop() + SIXTEEN);
-	      store_pattern(ofs, cnt);
-	    } else if(cmd >= 3 && cmd <= 15) { //short pattern
-	      const size_t ofs = cnt + THREE + static_cast<size_t>(static_cast<T>(src.pop()) << FOUR);
-	      store_pattern(ofs, cmd);
 	    } else {
-	      spdlog::critical("unknown marker {:#X} at offset {}\n", val, (src.i_src-1));
-	      EXCEPTION::cannot_decompress();
-	    }	    
+	      // undo the compression code
+	      const auto val = src.pop();
+	      const uint8_t cmd = (val >> FOUR) & 0x0F;
+	      size_t cnt = val & 0x0F;
+	      if(cmd == 0) { // short rle
+		cnt += THREE;
+		store_value(src.pop(), cnt);
+	      } else if(cmd == 1) { // long rle
+		cnt += static_cast<size_t>((static_cast<T>(src.pop()) << FOUR) + NINETEEN);
+		store_value(src.pop(), cnt);
+	      } else if(cmd == 2) { // long pattern
+		const size_t ofs = cnt + THREE + static_cast<size_t>(static_cast<T>(src.pop()) << FOUR);
+		cnt = static_cast<size_t>(src.pop() + SIXTEEN);
+		store_pattern(ofs, cnt);
+	      } else if(cmd >= 3 && cmd <= 15) { //short pattern
+		const size_t ofs = cnt + THREE + static_cast<size_t>(static_cast<T>(src.pop()) << FOUR);
+		store_pattern(ofs, cmd);
+	      } else {
+		spdlog::critical("unknown marker {:#X} at offset {}\n", val, (src.i_src-1));
+		EXCEPTION::cannot_decompress();
+	      }
+	    }
 	  }
 	  fill();
 	  return buf.as_bytes();
@@ -173,6 +181,7 @@ namespace cppsas7bdat {
 	using Base<_endian, _format>::reset;
 	using Base<_endian, _format>::fill;
 	using Base<_endian, _format>::check_dst;
+	using Base<_endian, _format>::assert_check_dst;
 	using Base<_endian, _format>::store_value;
 	using Base<_endian, _format>::i_dst;
 	
@@ -180,14 +189,15 @@ namespace cppsas7bdat {
 	{
 	}
 
-	BYTES operator()(const BYTES& _values) noexcept {
+	BYTES operator()(const BYTES& _values) {
 	  constexpr uint8_t FOUR{4}, EIGHT{8};
 	  
 	  reset();
 	  SRC_VALUES src(_values);
 	  auto store_values = [&](size_t n) {
 				n = std::min(n, src.remaining());
-				buf.memcpy(i_dst, src.pop(n), n);
+				assert_check_dst(n);
+				buf.copy(i_dst, src.pop(n));
 				i_dst += n;
 			      };
 	  
@@ -195,7 +205,7 @@ namespace cppsas7bdat {
 	    const auto val = src.pop();
 	    const uint8_t command = static_cast<uint8_t>(val >> FOUR);
 	    const size_t end_of_first_byte = static_cast<size_t>(val & 0x0F);
-	    D(spdlog::debug("RLE:({}, {}: {:#X})\n", src.i_src, i_dst, command));
+	    D(spdlog::info("RLE:({}, {}: {:#X})\n", src.i_src, i_dst, command));
 	    switch(command) {
 	      break; case SAS_RLE_COMMAND_COPY64: {
 		       const size_t n = (end_of_first_byte << EIGHT) + src.pop() + 64;

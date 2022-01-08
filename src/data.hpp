@@ -66,20 +66,20 @@ namespace cppsas7bdat {
 	size_t length{metadata->row_length};
 	
 	if(current_page_header.type == PAGE_META_TYPE) {
-	  D(spdlog::debug("READ_DATA::read_line::PAGE_META_TYPE: {}, {}\n", current_row, current_row_on_page));
+	  D(spdlog::info("READ_DATA::read_line::PAGE_META_TYPE: {}, {}\n", current_row, current_row_on_page));
 	  auto data_subheader = data_subheaders[current_row_on_page];
 	  offset = data_subheader.offset;
 	  length = data_subheader.length;
 	} else if(current_page_header.type == PAGE_DATA_TYPE) {
-	  D(spdlog::debug("READ_DATA::read_line::PAGE_DATA_TYPE: {}, {}\n", current_row, current_row_on_page));
+	  D(spdlog::info("READ_DATA::read_line::PAGE_DATA_TYPE: {}, {}\n", current_row, current_row_on_page));
 	  offset = page_bit_offset + 8 + metadata->row_length * current_row_on_page;
 	} else if(is_page_mix(current_page_header.type)) {
-	  D(spdlog::debug("READ_DATA::read_line::PAGE_MIX_TYPE: {}, {}\n", current_row, current_row_on_page));
+	  D(spdlog::info("READ_DATA::read_line::PAGE_MIX_TYPE: {}, {}\n", current_row, current_row_on_page));
 	  constexpr const size_t subheader_size = 3*buf.integer_size; // 12 or 24
 	  const size_t align_correction = (page_bit_offset + 8 +current_page_header.subheaders_count * subheader_size) % 8;
 	  offset = page_bit_offset + 8 + align_correction + current_page_header.subheaders_count * subheader_size + metadata->row_length * current_row_on_page;
 	} else {
-	  spdlog::debug("Unknown page type: {}\n", current_page_header.type);
+	  spdlog::warn("Unknown page type: {}\n", current_page_header.type);
 	  return {};
 	}
 	++current_row;
@@ -90,7 +90,7 @@ namespace cppsas7bdat {
       
       BYTES extract_row_values(const size_t _offset, size_t _length) const
       {
-	D(spdlog::debug("READ_DATA::extract_row_values({}, {})\n", _offset, _length));
+	D(spdlog::info("READ_DATA::extract_row_values({}, {})\n", _offset, _length));
 	assert(_offset + _length <= header->page_length);
 	auto values = buf.get_bytes(_offset, _length);
 	const auto row_length = metadata->row_length;
@@ -101,7 +101,7 @@ namespace cppsas7bdat {
       }
 
       bool read_next_page() {
-	D(spdlog::debug("read_next_page\n"));
+	D(spdlog::info("read_next_page\n"));
 	data_subheaders.clear();
 	current_row_on_page = 0;
 	while(true) {
@@ -122,7 +122,7 @@ namespace cppsas7bdat {
 
       void process_DATA_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader)
       {
-	D(spdlog::debug("READ_DATA::process_DATA_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_DATA::process_DATA_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
 	data_subheaders.emplace_back(_subheader);
       }
       

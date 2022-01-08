@@ -128,7 +128,7 @@ namespace cppsas7bdat {
       }
 
       bool process_page(Properties::Metadata* _metadata) {
-	D(spdlog::debug("process_page: type={}\n", current_page_header.type));
+	D(spdlog::info("process_page: type={}\n", current_page_header.type));
 	bool data_reached = false;
 	if(is_page_meta_mix_amd(current_page_header.type)) data_reached = process_page_metadata(_metadata);
 	return is_page_data_mix(current_page_header.type) || data_reached;
@@ -158,7 +158,7 @@ namespace cppsas7bdat {
 	if(DataSubHeader::check(_metadata, _subheader)) { process_DATA_SUBHEADER(_subheader); return true; }
 
 	// Unknown subheader...
-	spdlog::debug("Unknown subheader signature!");
+	spdlog::warn("Unknown subheader signature!");
 	return false;
       }	
 
@@ -171,7 +171,8 @@ namespace cppsas7bdat {
       void process_ROW_SIZE_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 				      Properties::Metadata* _metadata) const noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_ROW_SIZE_SUBHEADER: {}, {} : ", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_METADATA::process_ROW_SIZE_SUBHEADER: {}, {} : ", _subheader.offset, _subheader.length));
+	buf.assert_check(_subheader.offset + lcp_offset, 4);
 	_metadata->lcs = buf.get_uint16(_subheader.offset + lcs_offset);
 	_metadata->lcp = buf.get_uint16(_subheader.offset + lcp_offset);
 	_metadata->row_length = buf.get_uinteger(_subheader.offset + 5*integer_size);
@@ -179,54 +180,55 @@ namespace cppsas7bdat {
 	_metadata->col_count_p1 = buf.get_uinteger(_subheader.offset + 9*integer_size);
 	_metadata->col_count_p2 = buf.get_uinteger(_subheader.offset + 10*integer_size);
 	_metadata->mix_page_row_count = buf.get_uinteger(_subheader.offset + 15*integer_size);
-	D(spdlog::debug("lcs={}, lcp={}, row_length={}, row_count={}, col_count_p1={}, col_count_p2={}, mix_page_row_count={}\n",
-		     _metadata->lcs, _metadata->lcp, _metadata->row_length, _metadata->row_count, _metadata->col_count_p1, _metadata->col_count_p2, _metadata->mix_page_row_count));
+	D(spdlog::info("lcs={}, lcp={}, row_length={}, row_count={}, col_count_p1={}, col_count_p2={}, mix_page_row_count={}\n",
+			_metadata->lcs, _metadata->lcp, _metadata->row_length, _metadata->row_count, _metadata->col_count_p1, _metadata->col_count_p2, _metadata->mix_page_row_count));
       }
 
       void process_COLUMN_SIZE_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 					 Properties::Metadata* _metadata) const noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_COLUMN_SIZE_SUBHEADER: {}, {} : ", _subheader.offset, _subheader.length));
-	_metadata->column_count = buf.get_uinteger(_subheader.offset + integer_size);
-	D(spdlog::debug("column_count={}\n", _metadata->column_count));
+	D(spdlog::info("READ_METADATA::process_COLUMN_SIZE_SUBHEADER: {}, {} : ", _subheader.offset, _subheader.length));
+	_metadata->column_count = buf.template get_uinteger<ASSERT::YES>(_subheader.offset + integer_size);
+	D(spdlog::info("column_count={}\n", _metadata->column_count));
 	if(_metadata->col_count_p1 + _metadata->col_count_p2 != _metadata->column_count)
-	  spdlog::debug("Column count mismatch\n");
+	  spdlog::info("Column count mismatch\n");
       }
       
       void process_SUBHEADER_COUNTS_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 					      [[maybe_unused]] Properties::Metadata* _metadata) const noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_SUBHEADER_COUNTS_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_METADATA::process_SUBHEADER_COUNTS_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	//spdlog::info("READ_METADATA::process_SUBHEADER_COUNTS_SUBHEADER: {}\n", buf.get_string_untrim(_subheader.offset, _subheader.length));
       }
       
       void process_COLUMN_TEXT_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 					 Properties::Metadata* _metadata) noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_COLUMN_TEXT_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
-	const size_t length = buf.get_uint16(_subheader.offset + integer_size);
-	const auto text = buf.get_string_untrim(_subheader.offset + integer_size, length);
-	D(spdlog::debug("text: {}\n", text));
+	D(spdlog::info("READ_METADATA::process_COLUMN_TEXT_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	const size_t length = buf.template get_uint16<ASSERT::YES>(_subheader.offset + integer_size);
+	const auto text = buf.template get_string_untrim<ASSERT::YES>(_subheader.offset + integer_size, length);
+	D(spdlog::info("text: {}\n", text));
 	column_texts.emplace_back(text);
 	if(column_texts.size() == 1) {
 	  if(text.find(RLE_COMPRESSION) != text.npos) _metadata->compression = Compression::RLE;
 	  else if(text.find(RDC_COMPRESSION) != text.npos) _metadata->compression = Compression::RDC;
-	  const auto compression = buf.get_string(_subheader.offset + compression_offset, 8);
+	  const auto compression = buf.template get_string<ASSERT::YES>(_subheader.offset + compression_offset, 8);
 	  if(compression == "") {
 	    _metadata->lcs = 0;
-	    _metadata->creator_proc = buf.get_string(_subheader.offset + compression_offset + 16, _metadata->lcp);
+	    _metadata->creator_proc = buf.template get_string<ASSERT::YES>(_subheader.offset + compression_offset + 16, _metadata->lcp);
 	  } else if(compression == RLE_COMPRESSION) {
-	    _metadata->creator_proc = buf.get_string(_subheader.offset + compression_offset + 24, _metadata->lcp);
+	    _metadata->creator_proc = buf.template get_string<ASSERT::YES>(_subheader.offset + compression_offset + 24, _metadata->lcp);
 	  } else if(_metadata->lcs > 0) {
 	    _metadata->lcp = 0;
-	    _metadata->creator = buf.get_string(_subheader.offset + compression_offset, _metadata->lcs);
+	    _metadata->creator = buf.template get_string<ASSERT::YES>(_subheader.offset + compression_offset, _metadata->lcs);
 	  }
-	  D(spdlog::debug("compression: {}, creator: {}, creator_proc: {}\n", _metadata->compression, _metadata->creator, _metadata->creator_proc));
+	  D(spdlog::info("compression: {}, creator: {}, creator_proc: {}\n", _metadata->compression, _metadata->creator, _metadata->creator_proc));
 	}
       }
 
       std::string get_column_text_substr(const size_t _idx, size_t _offset, size_t _length) const noexcept
       {
-	if(column_texts.size()) {
+	if(_idx < column_texts.size()) {
 	  const auto ct = column_texts[std::min(_idx, column_texts.size()-1)];
 	  const auto n = ct.size();
 	  _offset = std::min(_offset, n);
@@ -243,7 +245,7 @@ namespace cppsas7bdat {
       void process_COLUMN_NAME_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 					 [[maybe_unused]] Properties::Metadata* _metadata) noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_COLUMN_NAME_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_METADATA::process_COLUMN_NAME_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
 	const size_t offset_max = _subheader.offset + _subheader.length-12-integer_size;
 	for(size_t offset = _subheader.offset + integer_size + 8; offset <= offset_max; offset += 8) {
 	  const size_t idx         = buf.get_uint16(offset + 0);
@@ -251,14 +253,14 @@ namespace cppsas7bdat {
 	  const size_t name_length = buf.get_uint16(offset + 4);
 	  const auto column_name = get_column_text_substr(idx, name_offset, name_length);
 	  column_names.emplace_back(column_name);
-	  D(spdlog::debug("column name: {},{},{}: {}\n", idx, name_offset, name_length, column_name));
+	  D(spdlog::info("column name: {},{},{}: {}\n", idx, name_offset, name_length, column_name));
 	}	
       }
            
       void process_COLUMN_ATTRIBUTES_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 					       [[maybe_unused]] Properties::Metadata* _metadata) noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_COLUMN_ATTRIBUTES_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_METADATA::process_COLUMN_ATTRIBUTES_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
 	const size_t offset_max = _subheader.offset + _subheader.length-12-integer_size;
 	for(size_t offset = _subheader.offset + integer_size + 8; offset <= offset_max; offset += integer_size+8) {
 	  const size_t column_data_offset = buf.get_uinteger(offset + 0);
@@ -267,27 +269,28 @@ namespace cppsas7bdat {
 	  column_data_offsets.emplace_back(column_data_offset);
 	  column_data_lengths.emplace_back(column_data_length);
 	  column_data_types.emplace_back(column_data_type == 1 ? Column::Type::number : Column::Type::string);
-	  D(spdlog::debug("column attribute: {}, {}, {}\n", column_data_offset, column_data_length, column_data_type));
+	  D(spdlog::info("column attribute: {}, {}, {}\n", column_data_offset, column_data_length, column_data_type));
 	}
       }
       
       void process_FORMAT_AND_LABEL_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 					      [[maybe_unused]] Properties::Metadata* _metadata) noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_FORMAT_AND_LABEL_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_METADATA::process_FORMAT_AND_LABEL_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
 	const size_t offset = _subheader.offset + 3*integer_size;
+	buf.assert_check(offset + 32, 2);
 	const size_t format_idx = buf.get_uint16(offset + 22);
 	const size_t format_offset = buf.get_uint16(offset + 24);
 	const size_t format_length = buf.get_uint16(offset + 26);
 	const size_t label_idx = buf.get_uint16(offset + 28);
 	const size_t label_offset = buf.get_uint16(offset + 30);
 	const size_t label_length = buf.get_uint16(offset + 32);
-	D(spdlog::debug("column format: {}, {}, {}: ", format_idx, format_offset, format_length));
+	D(spdlog::info("column format: {}, {}, {}: ", format_idx, format_offset, format_length));
 	const auto column_format = get_column_text_substr(format_idx, format_offset, format_length);
-	D(spdlog::debug("{}\n", column_format));
-	D(spdlog::debug("column_label: {}, {}, {}: ", label_idx, label_offset, label_length));
+	D(spdlog::info("{}\n", column_format));
+	D(spdlog::info("column_label: {}, {}, {}: ", label_idx, label_offset, label_length));
 	const auto column_label = get_column_text_substr(label_idx, label_offset, label_length);
-	D(spdlog::debug("{}\n", column_label));
+	D(spdlog::info("{}\n", column_label));
 	column_formats.emplace_back(column_format);
 	column_labels.emplace_back(column_label);
       }
@@ -295,12 +298,13 @@ namespace cppsas7bdat {
       void process_COLUMN_LIST_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
 					 [[maybe_unused]] Properties::Metadata* _metadata) const noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_COLUMN_LIST_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_METADATA::process_COLUMN_LIST_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	//spdlog::info("READ_METADATA::process_COLUMN_LIST_SUBHEADER: {}\n", buf.get_string_untrim(_subheader.offset, _subheader.length));
       }
 
       void process_DATA_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader) noexcept
       {
-	D(spdlog::debug("READ_METADATA::process_DATA_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
+	D(spdlog::info("READ_METADATA::process_DATA_SUBHEADER: {}, {}\n", _subheader.offset, _subheader.length));
 	data_subheaders.emplace_back(_subheader);
       } 
 
@@ -311,14 +315,14 @@ namespace cppsas7bdat {
 
 	auto get_value = [&](auto arg, auto vals, const size_t icol) {
 			   const auto n = std::min(ncols, vals.size());
-			   if(n != ncols) spdlog::debug("Mismatch between the expected number of columns ({}) and the number ({}) of '{}' values!\n", ncols, vals.size(), arg);
+			   if(n != ncols) spdlog::info("Mismatch between the expected number of columns ({}) and the number ({}) of '{}' values!\n", ncols, vals.size(), arg);
 			   return vals.at(icol);
 			 };
 	
 	using Type = Column::Type;
 	
 	for(size_t icol=0; icol<ncols; ++icol) {
-	  D(spdlog::debug("READ_METADATA::create_columns: {}/{}\n", icol, ncols));
+	  D(spdlog::info("READ_METADATA::create_columns: {}/{}\n", icol, ncols));
 	  const auto column_name   = get_value("name", column_names, icol);
 	  const auto column_label  = get_value("label", column_labels, icol);
 	  const auto column_format = get_value("format", column_formats, icol);
@@ -328,7 +332,7 @@ namespace cppsas7bdat {
 
 	  bool column_type_not_supported = true;
 	  auto add_column = [&](auto&& formatter) {
-			      D(spdlog::debug("add_column: {}, {}, {}, {}, {}, {}\n", column_name, column_label, column_format, column_offset, column_length, column_type));
+			      D(spdlog::info("add_column: {}, {}, {}, {}, {}, {}\n", column_name, column_label, column_format, column_offset, column_length, column_type));
 			      column_type_not_supported = false;
 			      _metadata->columns.emplace_back(column_name, column_label, column_format, std::move(formatter));
 			    };
@@ -350,7 +354,7 @@ namespace cppsas7bdat {
 	    }
 	  }
 	  if(column_type_not_supported) {
-	    //spdlog::debug("NoFormatter: {}, {}: ", type, format);
+	    D(spdlog::warn("NoFormatter: {}, {}: ", column_type, column_format));
 	    add_column(FORMATTER::NoFormatter(column_offset, column_length));
 	  }
 	}

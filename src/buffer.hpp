@@ -14,6 +14,10 @@
 #include <cstring>
 
 namespace cppsas7bdat {
+  enum class ASSERT {
+		     NO, YES
+  };
+    
   namespace INTERNAL {
 
     class MBUFFER {
@@ -55,25 +59,41 @@ namespace cppsas7bdat {
 	resize(_offset_in_buffer + _read_length);
 	// Read the stream
 	return _is->read_bytes(m_buffer.get()+_offset_in_buffer, _read_length);
-	//if(_is)
-	  //_is.read(reinterpret_cast<char*>(m_buffer.get())+_offset_in_buffer, static_cast<std::streamsize>(_read_length));
-	// Did we manage to read the requested data?
-	//return _is.good();
       }
       
       size_t size() const noexcept { return m_size; }
-      
+
+      bool check(const size_t _offset, const size_t _length) const noexcept
+      {
+	return _offset + _length <= size();
+      }
+
+      void assert_check(const size_t _offset, const size_t _length) const noexcept
+      {
+	if(!check(_offset, _length)) EXCEPTION::invalid_buffer_access(_offset, _length, size());
+      }
+
+      template<ASSERT _assert=ASSERT::NO>
       const uint8_t* data(const size_t _offset,
 			  [[maybe_unused]] const size_t _length) const noexcept
       {
-	assert(_offset + _length <= size());
+#ifdef DEBUG
+	assert_check(_offset, _length);
+#endif
 	return m_buffer.get() + _offset;
       }
       
+      template<ASSERT _assert=ASSERT::NO>
       uint8_t* data(const size_t _offset,
 		    [[maybe_unused]] const size_t _length) noexcept
       {
-	assert(_offset + _length <= size());
+	if constexpr (_assert == ASSERT::YES) {
+	    assert_check(_offset, _length);
+	  } else {
+#ifdef DEBUG
+	  assert_check(_offset, _length);
+#endif
+	}
 	return m_buffer.get() + _offset;
       }
       
@@ -82,15 +102,15 @@ namespace cppsas7bdat {
       void set(const size_t _offset, const uint8_t _v) noexcept {
 	*data(_offset, 1) = _v;
       };
-      void memset(const size_t _offset, const uint8_t _v, const size_t _length) noexcept {
+      void set(const size_t _offset, const uint8_t _v, const size_t _length) noexcept {
 	std::memset(data(_offset, _length), _v, _length);
       };
-      void memcpy(const size_t _offset_dest, const size_t _offset_src, const size_t _length) noexcept {
+      void copy(const size_t _offset_dest, const size_t _offset_src, const size_t _length) noexcept {
 	std::memcpy(data(_offset_dest, _length), data(_offset_src, _length), _length);
       }
-      void memcpy(const size_t _offset, const BYTES& _src, const size_t _length) noexcept {
-	assert(_src.size() >= _length);
-	std::memcpy(data(_offset, _length), _src.data(), _length);
+      void copy(const size_t _offset, const BYTES& _src) noexcept {
+	const size_t length = _src.size();
+	std::memcpy(data(_offset, length), _src.data(), length);
       }
 
       BYTES as_bytes() const noexcept
@@ -108,46 +128,55 @@ namespace cppsas7bdat {
       explicit EBUFFER(const size_t _size) : MBUFFER(_size) {}
       EBUFFER(MBUFFER&& _buffer) : MBUFFER(std::move(_buffer)) {}
 
-      uint8_t get_byte(const size_t _offset) const noexcept { return *data(_offset, 1); }
+      template<ASSERT _assert=ASSERT::NO>
+      uint8_t get_byte(const size_t _offset) const noexcept { return *(this->template data<_assert>(_offset, 1)); }
 
+      template<ASSERT _assert=ASSERT::NO>
       BYTES get_bytes(const size_t _offset, const size_t _length) const noexcept
       {
-	return INTERNAL::get_bytes(data(_offset, _length), _length);
+	return INTERNAL::get_bytes(this->template data<_assert>(_offset, _length), _length);
       }
       
+      template<ASSERT _assert=ASSERT::NO>
       int16_t get_int16(const size_t _offset) const noexcept
       {
-	return INTERNAL::get_val<_endian, int16_t>(data(_offset, sizeof(int16_t)));
+	return INTERNAL::get_val<_endian, int16_t>(this->template data<_assert>(_offset, sizeof(int16_t)));
       }
       
+      template<ASSERT _assert=ASSERT::NO>
       uint16_t get_uint16(const size_t _offset) const noexcept
       {
-	return INTERNAL::get_val<_endian, uint16_t>(data(_offset, sizeof(uint16_t)));
+	return INTERNAL::get_val<_endian, uint16_t>(this->template data<_assert>(_offset, sizeof(uint16_t)));
       }
       
+      template<ASSERT _assert=ASSERT::NO>
       int32_t get_int32(const size_t _offset) const noexcept
       {
-	return INTERNAL::get_val<_endian, int32_t>(data(_offset, sizeof(int32_t)));
+	return INTERNAL::get_val<_endian, int32_t>(this->template data<_assert>(_offset, sizeof(int32_t)));
       }
       
+      template<ASSERT _assert=ASSERT::NO>
       uint32_t get_uint32(const size_t _offset) const noexcept
       {
-	return INTERNAL::get_val<_endian, uint32_t>(data(_offset, sizeof(uint32_t)));
+	return INTERNAL::get_val<_endian, uint32_t>(this->template data<_assert>(_offset, sizeof(uint32_t)));
       }
 
+      template<ASSERT _assert=ASSERT::NO>
       double get_double(const size_t _offset) const noexcept
       {
-	return INTERNAL::get_double<_endian>(data(_offset, sizeof(double)));
+	return INTERNAL::get_double<_endian>(this->template data<_assert>(_offset, sizeof(double)));
       }
       
+      template<ASSERT _assert=ASSERT::NO>
       std::string_view get_string(const size_t _offset, const size_t _length) const noexcept
       {
-	return INTERNAL::get_string_trim(data(_offset, _length), _length);
+	return INTERNAL::get_string_trim(this->template data<_assert>(_offset, _length), _length);
       }
       
+      template<ASSERT _assert=ASSERT::NO>
       std::string_view get_string_untrim(const size_t _offset, const size_t _length) const noexcept
       {
-	return INTERNAL::get_string(data(_offset, _length), _length);
+	return INTERNAL::get_string(this->template data<_assert>(_offset, _length), _length);
       }
     };
 
@@ -165,14 +194,16 @@ namespace cppsas7bdat {
       explicit BUFFER(const size_t _size) : EBUFFER<_endian>(_size) {}
       BUFFER(MBUFFER&& _buffer) : EBUFFER<_endian>(std::move(_buffer)) {}
 
+      template<ASSERT _assert=ASSERT::NO>
       integer_t get_integer(const size_t _offset) const noexcept
       {
-	return INTERNAL::get_val<_endian, integer_t>(data(_offset, sizeof(integer_t)));
+	return INTERNAL::get_val<_endian, integer_t>(this->template data<_assert>(_offset, sizeof(integer_t)));
       }
 
+      template<ASSERT _assert=ASSERT::NO>
       uinteger_t get_uinteger(const size_t _offset) const noexcept
       {
-	return INTERNAL::get_val<_endian, uinteger_t>(data(_offset, sizeof(uinteger_t)));
+	return INTERNAL::get_val<_endian, uinteger_t>(this->template data<_assert>(_offset, sizeof(uinteger_t)));
       }
     };
    
