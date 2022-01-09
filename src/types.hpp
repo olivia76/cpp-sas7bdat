@@ -14,7 +14,7 @@
 #include <cctype>
 #include <type_traits>
 #include <boost/endian/conversion.hpp>
-#include <endian.h>
+//#include <endian.h>
 
 namespace cppsas7bdat {
   namespace INTERNAL {
