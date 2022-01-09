@@ -32,7 +32,7 @@ namespace cppsas7bdat {
 	auto pop() noexcept { return values[i_src++]; }
 	auto pop(const size_t _n) noexcept { auto v = values.substr(i_src, _n); i_src += _n; return v; }
 
-	bool check(const size_t _n) const noexcept { return i_src+_n < n_src; }
+	bool check(const size_t _n) const noexcept { return i_src+_n <= n_src; }
 	size_t remaining() const noexcept { return n_src-i_src; }
       };
 
@@ -114,7 +114,7 @@ namespace cppsas7bdat {
 	  T ctrl_mask{0};
 	  T ctrl_bits{0};
 	  
-	  while(src.check(2) && check_dst()) {
+	  while(src.check(3) && check_dst()) {
 	    D(spdlog::info("RDC({}/{},{}/{})\n", src.i_src, src.n_src, i_dst, n_dst));
 	    // get new load of control bits if needed
 	    ctrl_mask >>= ONE;
@@ -201,7 +201,7 @@ namespace cppsas7bdat {
 				i_dst += n;
 			      };
 	  
-	  while(src.check(1) && check_dst()) {
+	  while(src.check(2) && check_dst()) {
 	    const auto val = src.pop();
 	    const uint8_t command = static_cast<uint8_t>(val >> FOUR);
 	    const size_t end_of_first_byte = static_cast<size_t>(val & 0x0F);

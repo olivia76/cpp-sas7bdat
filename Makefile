@@ -16,3 +16,7 @@ tests:
 .PHONY: build-debug
 build-debug:
 	mkdir -p build-debug; cd build-debug; cmake -DCMAKE_BUILD_TYPE=Debug ..; cmake --build .
+
+.PHONY: clean
+clean:
+	make -C build clean
