@@ -32,7 +32,7 @@ jobs:
         include:
         - os: ubuntu-latest
           ENABLE_COVERAGE: ON
-	- os: windows-latest
+        - os: windows-latest
           # Windows works differently
           ENABLE_COVERAGE: OFF
         - os: macos-latest
