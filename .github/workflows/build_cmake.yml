@@ -28,15 +28,15 @@ jobs:
     runs-on: ubuntu-latest                   #${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest']   #, 'windows-latest', 'macos-latest']
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         include:
         - os: ubuntu-latest
           ENABLE_COVERAGE: ON
-        #- os: windows-latest
-        #  # Windows works differently
-        #  ENABLE_COVERAGE: OFF
-        #- os: macos-latest
-        #  ENABLE_COVERAGE: ON
+	- os: windows-latest
+          # Windows works differently
+          ENABLE_COVERAGE: OFF
+        - os: macos-latest
+          ENABLE_COVERAGE: ON
 
     steps:
     - uses: actions/checkout@v2
