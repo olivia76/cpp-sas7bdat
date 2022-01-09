@@ -145,7 +145,7 @@ namespace cppsas7bdat {
 
       bool process_subheader(const PAGE_SUBHEADER& _subheader, Properties::Metadata* _metadata) {
 	// Match the subheader signature to the correct processing function
-	const auto subheader_signature = buf.get_bytes(_subheader.offset, buf.integer_size);
+	const auto subheader_signature = buf.get_bytes(_subheader.offset, integer_size);
 	if(match_signature(ROW_SIZE_SUBHEADER         , subheader_signature)) { process_ROW_SIZE_SUBHEADER         (_subheader, _metadata); return false; }
 	if(match_signature(COLUMN_SIZE_SUBHEADER      , subheader_signature)) { process_COLUMN_SIZE_SUBHEADER      (_subheader, _metadata); return false; }
 	if(match_signature(SUBHEADER_COUNTS_SUBHEADER , subheader_signature)) { process_SUBHEADER_COUNTS_SUBHEADER (_subheader, _metadata); return false; }

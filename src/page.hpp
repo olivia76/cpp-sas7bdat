@@ -60,6 +60,8 @@ namespace cppsas7bdat {
       using DataSource = _DataSource;
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
+      
+      constexpr static size_t integer_size = INTERNAL::BUFFER<_endian, _format>::integer_size;
 
       using PAGE_CONSTANT<_format>::page_bit_offset;
       using BUFFER = INTERNAL::BUFFER<_endian, _format>;
@@ -117,7 +119,7 @@ namespace cppsas7bdat {
       }
 
       constexpr static size_t subheader_size() noexcept {
-	return 3*BUFFER::integer_size;  // 12 or 24 
+	return 3*integer_size;  // 12 or 24 
       }
 
       template<typename _Fct>
@@ -138,9 +140,9 @@ namespace cppsas7bdat {
       PAGE_SUBHEADER _get_page_subheader(const size_t _offset) {
 	buf.assert_check(_offset, subheader_size());
 	const auto offset      = buf.get_uinteger(_offset);
-	const auto length      = buf.get_uinteger(_offset + buf.integer_size);
-	const auto compression = buf.get_byte    (_offset + buf.integer_size*2);
-	const auto type        = buf.get_byte    (_offset + buf.integer_size*2+1);
+	const auto length      = buf.get_uinteger(_offset + integer_size);
+	const auto compression = buf.get_byte    (_offset + integer_size*2);
+	const auto type        = buf.get_byte    (_offset + integer_size*2+1);
 	D(spdlog::info("soffset={}, slength={}, scompression={}, stype:{}\n", offset, length, compression, type));
 	// Check that the corresponding subheader falls within the buffer
 	buf.assert_check(offset, length); 

@@ -167,7 +167,7 @@ namespace cppsas7bdat {
 	  return true;
 	} else if(is_page_mix(current_page_header.type)) {
 	  D(spdlog::info("READ_DATA::read_next_page::PAGE_MIX_TYPE\n"));
-	  constexpr const size_t subheader_size = 3*buf.integer_size; // 12 or 24
+	  constexpr const size_t subheader_size = 3 * integer_size; // 12 or 24
 	  const size_t offset = page_bit_offset + 8 + current_page_header.subheaders_count * subheader_size;
 	  const size_t align_correction = offset % 8;
 	  page.reset(new PAGE::mix_type(metadata, offset + align_correction));
