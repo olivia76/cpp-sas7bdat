@@ -38,18 +38,20 @@ namespace cppsas7bdat {
 
       
       struct None {
-	BYTES operator()(const BYTES& _values) const noexcept { return _values; }	
+	template<typename T>
+	T operator()(T&& _values) const noexcept { return std::forward<T>(_values); }	
       };
       
       template<Endian _endian, Format _format>
-      struct Base {
+      struct DST_VALUES {
 	BUFFER<_endian, _format> buf;
 	const size_t n_dst{0};
 	size_t i_dst{0};
 	
-	explicit Base(const Properties::Metadata* _metadata)
-	  : buf(_metadata->row_length),
-	    n_dst(buf.size())
+	explicit DST_VALUES(const Properties::Metadata* _metadata) : DST_VALUES(_metadata->row_length) {}
+	explicit DST_VALUES(const size_t _n)
+	  : buf(_n),
+	    n_dst(_n)
 	{
 	}
 
@@ -65,15 +67,15 @@ namespace cppsas7bdat {
 
 	void store_value(const uint8_t _v, const size_t _n)
 	{
-	  assert_check_dst(_n);
+	  assert_check(_n);
 	  buf.set(i_dst, _v, _n);
 	  i_dst += _n;
 	}
 
-	bool check_dst() const noexcept { return i_dst < n_dst; }
-	bool check_dst(const size_t _n) const noexcept { return i_dst + _n <= n_dst; }
-	void assert_check_dst(const size_t _n) const {
-	  if(!check_dst(_n)) {
+	bool check() const noexcept { return i_dst < n_dst; }
+	bool check(const size_t _n) const noexcept { return i_dst + _n <= n_dst; }
+	void assert_check(const size_t _n) const {
+	  if(!check(_n)) {
 	    spdlog::critical("Invalid dst length: {}+{}>{}\n", i_dst, _n, n_dst);
 	    EXCEPTION::cannot_decompress();
 	  }
@@ -82,23 +84,23 @@ namespace cppsas7bdat {
 
       /// SASYZCR2
       template<Endian _endian, Format _format>
-      struct RDC : public Base<_endian, _format> {
-	using Base<_endian, _format>::buf;
-	using Base<_endian, _format>::n_dst;
-	using Base<_endian, _format>::reset;
-	using Base<_endian, _format>::fill;
-	using Base<_endian, _format>::check_dst;
-	using Base<_endian, _format>::assert_check_dst;
-	using Base<_endian, _format>::store_value;
-	using Base<_endian, _format>::i_dst;
+      struct RDC : public DST_VALUES<_endian, _format> {
+	using DST_VALUES<_endian, _format>::buf;
+	using DST_VALUES<_endian, _format>::n_dst;
+	using DST_VALUES<_endian, _format>::reset;
+	using DST_VALUES<_endian, _format>::fill;
+	using DST_VALUES<_endian, _format>::check;
+	using DST_VALUES<_endian, _format>::assert_check;
+	using DST_VALUES<_endian, _format>::store_value;
+	using DST_VALUES<_endian, _format>::i_dst;
 	
-	explicit RDC(const Properties::Metadata* _metadata) : Base<_endian, _format>(_metadata)
+	explicit RDC(const Properties::Metadata* _metadata) : DST_VALUES<_endian, _format>(_metadata)
 	{
 	}
 
 	void store_pattern(const size_t _offset, const size_t _n)
 	{
-	  assert_check_dst(_n);
+	  assert_check(_n);
 	  buf.copy(i_dst, i_dst - _offset, _n);
 	  i_dst += _n;
 	}
@@ -114,7 +116,7 @@ namespace cppsas7bdat {
 	  T ctrl_mask{0};
 	  T ctrl_bits{0};
 	  
-	  while(src.check(3) && check_dst()) {
+	  while(src.check(3) && check()) {
 	    D(spdlog::info("RDC({}/{},{}/{})\n", src.i_src, src.n_src, i_dst, n_dst));
 	    // get new load of control bits if needed
 	    ctrl_mask >>= ONE;
@@ -175,17 +177,17 @@ namespace cppsas7bdat {
        *  From https://github.com/WizardMac/ReadStat
        */
       template<Endian _endian, Format _format>
-      struct RLE : public Base<_endian, _format> {
-	using Base<_endian, _format>::buf;
-	using Base<_endian, _format>::n_dst;
-	using Base<_endian, _format>::reset;
-	using Base<_endian, _format>::fill;
-	using Base<_endian, _format>::check_dst;
-	using Base<_endian, _format>::assert_check_dst;
-	using Base<_endian, _format>::store_value;
-	using Base<_endian, _format>::i_dst;
+      struct RLE : public DST_VALUES<_endian, _format> {
+	using DST_VALUES<_endian, _format>::buf;
+	using DST_VALUES<_endian, _format>::n_dst;
+	using DST_VALUES<_endian, _format>::reset;
+	using DST_VALUES<_endian, _format>::fill;
+	using DST_VALUES<_endian, _format>::check;
+	using DST_VALUES<_endian, _format>::assert_check;
+	using DST_VALUES<_endian, _format>::store_value;
+	using DST_VALUES<_endian, _format>::i_dst;
 	
-	explicit RLE(const Properties::Metadata* _metadata) : Base<_endian, _format>(_metadata)
+	explicit RLE(const Properties::Metadata* _metadata) : DST_VALUES<_endian, _format>(_metadata)
 	{
 	}
 
@@ -196,12 +198,12 @@ namespace cppsas7bdat {
 	  SRC_VALUES src(_values);
 	  auto store_values = [&](size_t n) {
 				n = std::min(n, src.remaining());
-				assert_check_dst(n);
+				assert_check(n);
 				buf.copy(i_dst, src.pop(n));
 				i_dst += n;
 			      };
 	  
-	  while(src.check(2) && check_dst()) {
+	  while(src.check(2) && check()) {
 	    const auto val = src.pop();
 	    const uint8_t command = static_cast<uint8_t>(val >> FOUR);
 	    const size_t end_of_first_byte = static_cast<size_t>(val & 0x0F);
