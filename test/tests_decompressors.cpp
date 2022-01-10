@@ -13,27 +13,36 @@ using namespace cppsas7bdat;
 using namespace cppsas7bdat::INTERNAL;
 using namespace cppsas7bdat::INTERNAL::DECOMPRESSOR;
 
+namespace {
+  const BYTES operator"" _b(const char* _p, size_t _n) {
+    auto p = reinterpret_cast<const unsigned char*>(_p);
+    return BYTES(p, _n);
+  }  
+  const auto source1{"a"_b};
+  const auto source2{"abcdefghijklmnopqrstuvwxyz"_b};
+}
+
 SCENARIO("When I pop values from a source, I get the expected values", "[internal][decompressor][SRC_VALUES][pop]")
 {
+  const auto source = GENERATE(source1, source2);
+
   GIVEN("A source") {
-    const unsigned char src1[] = {'a'};
-    const BYTES source1{src1};
-    auto src = SRC_VALUES(source1);
-    THEN("The remaining is one") {
+    auto src = SRC_VALUES(source);
+    THEN("The remaining is the length of the source") {
       CHECK(src.check(1) == true);
-      CHECK(src.remaining() == 1);
+      CHECK(src.remaining() == source.size());
     }
-    WHEN("I pop a value") {
+    WHEN("I pop the first value") {
       auto test = src.pop();
       THEN("I get then expected value") {
-	CHECK(test == 'a');
-	CHECK(src.remaining() == 0);
+	CHECK(test == source[0]);
+	CHECK(src.remaining() == source.size()-1);
       }
-    }
-    WHEN("I pop all the values") {
-      auto test = src.pop(1);
+    }   
+    WHEN("I pop all the values in one go") {
+      auto test = src.pop(source.size());
       THEN("I get then expected value") {
-	CHECK(test == source1);
+	CHECK(test == source);
 	CHECK(src.remaining() == 0);
       }
     }
@@ -42,14 +51,14 @@ SCENARIO("When I pop values from a source, I get the expected values", "[interna
 
 SCENARIO("The None decompressor just does a perfect forward of the data", "[internal][decompressor][None]")
 {
+  const auto source = GENERATE(source1, source2);
+
   GIVEN("The none decompressor and a source") {
-    const unsigned char src1[] = {'a'};
-    const BYTES source1{src1};
     const auto decompressor = DECOMPRESSOR::None();
     WHEN("The source is passed to the decompressor") {
-      auto test = decompressor(source1);
+      auto test = decompressor(source);
       THEN("I get the source back") {
-	CHECK(test == source1);
+	CHECK(test == source);
       }
     }
   }
