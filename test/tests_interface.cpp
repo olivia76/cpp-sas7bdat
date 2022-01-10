@@ -12,6 +12,65 @@
 #include "../include/cppsas7bdat/datasink_null.hpp"
 #include "data.hpp"
 
+using namespace cppsas7bdat;
+
+SCENARIO("I can translate to string the Endian enum")
+{
+  auto [e, s] = GENERATE(std::make_pair(Endian::little, "little"), std::make_pair(Endian::big, "big"), std::make_pair(Endian::unknown, "unknown"), std::make_pair(Endian(-1), "unknown"));
+  GIVEN("A value") {
+    THEN("It is correctly translated") {
+      CHECK(to_string(e) == s);
+    }
+  }
+}
+
+SCENARIO("I can translate to string the Format enum")
+{
+  auto [e, s] = GENERATE(std::make_pair(Format::bit32, "32bits"), std::make_pair(Format::bit64, "64bits"), std::make_pair(Format(-1), "unknown"));
+  GIVEN("A value") {
+    THEN("It is correctly translated") {
+      CHECK(to_string(e) == s);
+    }
+  }
+}
+
+SCENARIO("I can translate to string the Platform enum")
+{
+  auto [e, s] = GENERATE(std::make_pair(Platform::unix, "unix"), std::make_pair(Platform::windows, "windows"), std::make_pair(Platform(-1), "unknown"));
+  GIVEN("A value") {
+    THEN("It is correctly translated") {
+      CHECK(to_string(e) == s);
+    }
+  }
+}
+
+SCENARIO("I can translate to string the Compression enum")
+{
+  auto [e, s] = GENERATE(std::make_pair(Compression::none, "none"), std::make_pair(Compression::RLE, "RLE"), std::make_pair(Compression::RDC, "RDC"), std::make_pair(Compression(-1), "unknown"));
+  GIVEN("A value") {
+    THEN("It is correctly translated") {
+      CHECK(to_string(e) == s);
+    }
+  }
+}
+
+SCENARIO("I can translate to string the Column type enum")
+{
+  auto [e, s] = GENERATE(std::make_pair(Column::Type::string, "string"),
+			 std::make_pair(Column::Type::number, "number"),
+			 std::make_pair(Column::Type::integer, "integer"),
+			 std::make_pair(Column::Type::datetime, "datetime"),
+			 std::make_pair(Column::Type::date, "date"),
+			 std::make_pair(Column::Type::time, "time"),
+			 std::make_pair(Column::Type(-1), "unknown"));
+  GIVEN("A value") {
+    THEN("It is correctly translated") {
+      CHECK(to_string(e) == s);
+    }
+  }
+}
+
+
 namespace {
   template<typename _DataSink>
   auto get_reader(const char* _pcszfilename, _DataSink&& _datasink) {
@@ -143,6 +202,8 @@ SCENARIO("When I read a file with the public interface, the data are read proper
   const auto ref_header = data.value()["Header"];
   const auto ref_columns = data.value()["Columns"];
   auto ref_data = data.value()["Data"].items();
+
+  constexpr size_t INVALID_ROW_INDEX{static_cast<size_t>(-1)};
   
   GIVEN(fmt::format("A file {},", filename)) {
     // Skip big5 files
@@ -151,7 +212,17 @@ SCENARIO("When I read a file with the public interface, the data are read proper
       auto reader = get_reader(filename.c_str(), MyTestDataSink(ref_data.begin(), ref_data.end()));
       const auto& columns = reader.properties().metadata.columns;
       THEN("The data values are correct") {
+	CHECK(reader.current_row_index() == INVALID_ROW_INDEX);
 	reader.read_all();
+	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
+      }
+      THEN("The data values are correct") {
+	CHECK(reader.current_row_index() == INVALID_ROW_INDEX);
+	size_t irow{0};
+	while(reader.read_row()) {
+	  CHECK(reader.current_row_index() == irow++);
+	}
+	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
       }
     }
   }

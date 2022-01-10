@@ -129,8 +129,8 @@ namespace cppsas7bdat {
       return std::visit([&](auto&& arg) -> RD {
 			  using T = std::decay_t<decltype(arg)>;
 			  switch(_metadata->compression) {
-			  case Compression::RDC: return _read_data< T::endian, T::format>(std::move(arg), DECOMPRESSOR::RDC<T::endian, T::format>(_metadata), _metadata);
-			  case Compression::RLE: return _read_data< T::endian, T::format>(std::move(arg), DECOMPRESSOR::RLE<T::endian, T::format>(_metadata), _metadata);
+			  case Compression::RDC: return _read_data<T::endian, T::format>(std::move(arg), DECOMPRESSOR::RDC<T::endian, T::format>(_metadata), _metadata);
+			  case Compression::RLE: return _read_data<T::endian, T::format>(std::move(arg), DECOMPRESSOR::RLE<T::endian, T::format>(_metadata), _metadata);
 			  default:
 			    return _read_data<T::endian, T::format>(std::move(arg), DECOMPRESSOR::None(), _metadata);
 			  }
@@ -166,7 +166,6 @@ namespace cppsas7bdat {
 			     Properties::Metadata* _metadata)
     {
       return INTERNAL::read_data(INTERNAL::read_metadata(INTERNAL::read_header(INTERNAL::check_header(std::move(_source), _header), _header), _header, _metadata), _metadata);
-      //return INTERNAL::read_data(READ::metadata(std::move(_source), _header), _header), _metadata);
     }
     
   }

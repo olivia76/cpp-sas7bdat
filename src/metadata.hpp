@@ -191,7 +191,7 @@ namespace cppsas7bdat {
 	_metadata->column_count = buf.template get_uinteger<ASSERT::YES>(_subheader.offset + integer_size);
 	D(spdlog::info("column_count={}\n", _metadata->column_count));
 	if(_metadata->col_count_p1 + _metadata->col_count_p2 != _metadata->column_count)
-	  spdlog::info("Column count mismatch\n");
+	  spdlog::warn("Column count mismatch\n");
       }
       
       void process_SUBHEADER_COUNTS_SUBHEADER([[maybe_unused]] const PAGE_SUBHEADER& _subheader,
