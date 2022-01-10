@@ -36,7 +36,7 @@ namespace cppsas7bdat {
 	INTEGER  get_integer ([[maybe_unused]] const void* _p) const noexcept { return {}; }
 	DATETIME get_datetime([[maybe_unused]] const void* _p) const noexcept { return {}; }
 	DATE     get_date    ([[maybe_unused]] const void* _p) const noexcept { return {}; }
-	TIME     get_time    ([[maybe_unused]] const void* _p) const noexcept { return {}; }
+	TIME     get_time    ([[maybe_unused]] const void* _p) const noexcept { return TIME(boost::posix_time::not_a_date_time); }
 	STRING   to_string   ([[maybe_unused]] const void* _p) const { return {}; } 
 
 	const uint8_t* data(const void* _p) const noexcept
@@ -175,6 +175,11 @@ namespace cppsas7bdat {
 	DATETIME get_datetime([[maybe_unused]] const void* _p) const noexcept
 	{
 	  return DATETIME(get_date(_p), {});
+	}
+	
+	TIME get_time([[maybe_unused]] const void* _p) const noexcept
+	{
+	  return {};
 	}
 
 	STRING to_string(const void* _p) const
