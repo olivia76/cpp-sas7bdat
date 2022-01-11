@@ -75,7 +75,7 @@ struct MyDataSink {
 	/// This method is called once the header/metadata is read.
 	void set_properties(const cppsas7bdat::Properties& _properties) { /* ... */ }
 	/// This method is called for each new row.
-	void read_row(const size_t _irow, cppsas7bdat::Column::PBUF _p) { /* ... */ }
+	void push_row(const size_t _irow, cppsas7bdat::Column::PBUF _p) { /* ... */ }
 };
 
 void read_sas7bdat(...)

@@ -51,7 +51,7 @@ namespace cppsas7bdat {
 	  fmt::print(os, "    name: {}\n", column.name);
 	  fmt::print(os, "    label: {}\n", column.label);
 	  fmt::print(os, "    format: {}\n", column.format);
-	  fmt::print(os, "    type: {}\n", column.type());
+	  fmt::print(os, "    type: {}\n", column.type);
 	  ++icol;
 	}
 	fmt::print(os, "Data:\n");
@@ -68,7 +68,7 @@ namespace cppsas7bdat {
 	fmt::print(os, "\n");
       }
       
-      void read_row(const size_t _irow, Column::PBUF _p) {
+      void push_row(const size_t _irow, Column::PBUF _p) {
 	fmt::print(os, "{}", _irow);
 	for(const auto& column: columns) {
 	  fmt::print(os, ",{}", column.to_string(_p));

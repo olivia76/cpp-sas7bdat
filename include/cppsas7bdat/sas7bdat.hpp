@@ -135,7 +135,7 @@ namespace cppsas7bdat {
       
       void push_row(const size_t _row_index, Column::PBUF _p) final
       {
-	dataset.read_row(_row_index, _p);
+	dataset.push_row(_row_index, _p);
       }
       
     private:
@@ -148,15 +148,15 @@ namespace cppsas7bdat {
     using PSOURCE = std::unique_ptr<DataSourceConcept>;
     using PSINK = std::unique_ptr<DatasetSinkConcept>;
 
-    template<typename _Sp>
-    static PSOURCE build_source(_Sp&& _source)
+    template<typename _Source>
+    static PSOURCE build_source(_Source&& _source)
     {
-      return std::make_unique< DataSourceModel<_Sp> >(std::forward<_Sp>(_source));
+      return std::make_unique< DataSourceModel<_Source> >(std::forward<_Source>(_source));
     }
-    template<typename _Dp>
-    static PSINK build_sink(_Dp&& _sink)
+    template<typename _Sink>
+    static PSINK build_sink(_Sink&& _sink)
     {
-      return std::make_unique< DatasetSinkModel<_Dp> >(std::forward<_Dp>(_sink));
+      return std::make_unique< DatasetSinkModel<_Sink> >(std::forward<_Sink>(_sink));
     }
 
   private:
@@ -166,10 +166,10 @@ namespace cppsas7bdat {
     Reader(PSOURCE&& _source, PSINK&& _sink);
     
   public:
-    template<typename _Sp, typename _Dp>
-    explicit Reader(_Sp&& _source, _Dp&& _dataset)
-      : Reader(build_source(std::forward<_Sp>(_source)),
-	       build_sink(std::forward<_Dp>(_dataset)))
+    template<typename _Source, typename _Sink>
+    explicit Reader(_Source&& _source, _Sink&& _sink)
+      : Reader(build_source(std::forward<_Source>(_source)),
+	       build_sink(std::forward<_Sink>(_sink)))
     {
     }
     Reader(Reader&&) noexcept = default;
@@ -177,8 +177,13 @@ namespace cppsas7bdat {
     ~Reader();
 
     const Properties& properties() const noexcept;
+    
     void read_all();
     bool read_row();
+    bool read_rows(const size_t _chunk_size);
+    
+    Column::PBUF read_row_no_sink();
+
     size_t current_row_index() const noexcept;
   };
 

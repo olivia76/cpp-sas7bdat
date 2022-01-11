@@ -120,9 +120,18 @@ namespace cppsas7bdat {
     return m_pimpl->read_row();
   }
   
+  bool Reader::read_rows(const size_t _chunk_size)
+  {
+    return m_pimpl->read_rows(_chunk_size);
+  }
+  
   size_t Reader::current_row_index() const noexcept
   {
     return m_pimpl->current_row_index();
   }
   
+  Column::PBUF Reader::read_row_no_sink()
+  {
+    return m_pimpl->read_row_no_sink();
+  }
 }

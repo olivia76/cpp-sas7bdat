@@ -143,6 +143,13 @@ namespace cppsas7bdat {
 			  return arg.read_line();
 			}, rd);
     }
+
+    inline auto current_row_index(const RD& rd)
+    {
+      return std::visit([&](auto&& arg) {
+			  return arg.current_row;
+			}, rd);
+    }
     
   }
 
@@ -186,20 +193,33 @@ namespace cppsas7bdat {
     }
    
     const Properties& properties() const noexcept { return m_properties; }
-    size_t current_row_index() const noexcept { return m_current_row_index; }
 
+    size_t current_row_index() const noexcept { return INTERNAL::current_row_index(m_read_data); }
+  
     void push_row(const size_t _row_index, Column::PBUF _p)
     {
       m_sink->push_row(_row_index, _p);
     }
 
+    Column::PBUF read_row_no_sink()
+    {
+      auto vals = INTERNAL::read_line(m_read_data);
+      return vals ? vals->data() : nullptr;
+    }
+
     bool read_row()
     {
-      ++m_current_row_index;
+      const size_t row_index = current_row_index();
       auto vals = INTERNAL::read_line(m_read_data);
       if(!vals) return false;
-      m_sink->push_row(current_row_index(), vals->data());
+      push_row(row_index, vals->data());
       return true;
+    }
+
+    bool read_rows(size_t _chunk_size)
+    {
+      while(_chunk_size && read_row()) _chunk_size--;
+      return _chunk_size == 0;
     }
 
     void read_all()
@@ -208,12 +228,9 @@ namespace cppsas7bdat {
     }
     
   private:
-    PSINK m_sink;
-    
+    PSINK m_sink;    
     Properties m_properties;
     INTERNAL::RD m_read_data;
-    size_t m_current_row_index{std::numeric_limits<std::size_t>::max()};
-    static_assert((std::numeric_limits<std::size_t>::max()+1) == 0);
   };
 
 }

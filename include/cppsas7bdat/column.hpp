@@ -37,7 +37,6 @@ namespace cppsas7bdat {
     struct FormatterConcept {
       virtual ~FormatterConcept() {}
 
-      virtual Type     type() const noexcept = 0;
       virtual SV       get_string(PBUF _p) const noexcept = 0;
       virtual NUMBER   get_number(PBUF _p) const noexcept = 0;
       virtual INTEGER  get_integer(PBUF _p) const noexcept = 0;
@@ -58,11 +57,6 @@ namespace cppsas7bdat {
       std::unique_ptr<FormatterConcept> clone() const
       {
 	return std::unique_ptr<FormatterModel>(*this);
-      }
-
-      Type type() const noexcept final
-      {
-	return formatter.type;
       }
 
       SV get_string(PBUF _p) const noexcept final
@@ -113,6 +107,7 @@ namespace cppsas7bdat {
       : name(_name),
 	label(_label),
 	format(_format),
+	type(_formatter.type),
 	pimpl(std::make_shared< FormatterModel<_Fp> >(std::forward<_Fp>(_formatter)))
     {
     }
@@ -122,8 +117,8 @@ namespace cppsas7bdat {
     const std::string name;
     const std::string label;
     const std::string format;
+    const Type type;
 
-    Type     type() const noexcept { return pimpl->type(); }
     SV       get_string(PBUF _p) const noexcept { return pimpl->get_string(_p); }
     NUMBER   get_number(PBUF _p) const noexcept { return pimpl->get_number(_p); }
     INTEGER  get_integer(PBUF _p) const noexcept { return pimpl->get_integer(_p); }

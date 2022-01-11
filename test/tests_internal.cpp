@@ -154,9 +154,9 @@ SCENARIO("When I read a file, the metadata is set properly", "[internal][read_me
 	  //CHECK(column.data_offset() == ref_column["offset"]);
 	  //CHECK(column.data_length() == ref_column["length"]);
 	  if(get_column_type(ref_column["type"]) == cppsas7bdat::Column::Type::string) {
-	    CHECK(column.type() == cppsas7bdat::Column::Type::string);
+	    CHECK(column.type == cppsas7bdat::Column::Type::string);
 	  } else {
-	    CHECK(column.type() >= cppsas7bdat::Column::Type::number);
+	    CHECK(column.type >= cppsas7bdat::Column::Type::number);
 	  }
 	}
       }
@@ -204,7 +204,7 @@ SCENARIO("When I read a file, the data are read properly", "[internal][read_data
 	      const auto& column = metadata.columns[icol];
 	      const auto refval = values[icol];
 	      INFO("Colname=" << column.name << '[' << icol << "] row=" << ref_irow);
-	      switch(column.type()) {
+	      switch(column.type) {
 	      case cppsas7bdat::Column::Type::string:
 		CHECK(column.get_string(p) == refval);
 		break;

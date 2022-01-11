@@ -36,13 +36,13 @@ namespace cppsas7bdat {
 	fmt::print(os, "\n");
       }
       
-      void read_row([[maybe_unused]]const size_t _irow,
+      void push_row([[maybe_unused]]const size_t _irow,
 		    Column::PBUF _p) {
 	bool first = true;
 	for(const auto& column: columns) {
 	  if(first) first = false;
 	  else fmt::print(os, ",");
-	  switch(column.type()) {
+	  switch(column.type) {
 	  case cppsas7bdat::Column::Type::string: print(column.get_string(_p)); break;
 	  case cppsas7bdat::Column::Type::integer: print(column.get_integer(_p)); break;
 	  case cppsas7bdat::Column::Type::number: print(column.get_number(_p)); break;

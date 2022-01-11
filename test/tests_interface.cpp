@@ -150,7 +150,7 @@ namespace {
       ncols = columns.size();
     }
       
-    void read_row([[maybe_unused]]const size_t _irow,
+    void push_row([[maybe_unused]]const size_t _irow,
 		  [[maybe_unused]]Column::PBUF _p) {
       if(row_read == ref_irow) {
 	const auto values = ref_data_iter.value();
@@ -158,7 +158,7 @@ namespace {
 	  const auto& column = columns[icol];
 	  const auto refval = values[icol];
 	  INFO("Colname=" << column.name << '[' << icol << "] row=" << ref_irow);
-	  switch(column.type()) {
+	  switch(column.type) {
 	  case cppsas7bdat::Column::Type::string:
 	    CHECK(column.get_string(_p) == refval);
 	    break;
@@ -203,24 +203,44 @@ SCENARIO("When I read a file with the public interface, the data are read proper
   const auto ref_columns = data.value()["Columns"];
   auto ref_data = data.value()["Data"].items();
 
-  constexpr size_t INVALID_ROW_INDEX{static_cast<size_t>(-1)};
-  
   GIVEN(fmt::format("A file {},", filename)) {
     // Skip big5 files
     if(filename.find("big5") != filename.npos) return;
     WHEN("The data is read") {
       auto reader = get_reader(filename.c_str(), MyTestDataSink(ref_data.begin(), ref_data.end()));
       const auto& columns = reader.properties().metadata.columns;
-      THEN("The data values are correct") {
-	CHECK(reader.current_row_index() == INVALID_ROW_INDEX);
+      THEN("The data values are correct - read_all") {
+	CHECK(reader.current_row_index() == 0);
 	reader.read_all();
 	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
       }
-      THEN("The data values are correct") {
-	CHECK(reader.current_row_index() == INVALID_ROW_INDEX);
+      THEN("The data values are correct - read_row") {
 	size_t irow{0};
+	CHECK(reader.current_row_index() == irow);
 	while(reader.read_row()) {
-	  CHECK(reader.current_row_index() == irow++);
+	  irow++;
+	  CHECK(reader.current_row_index() == irow);
+	}
+	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
+      }
+      THEN("The data values are correct - read_rows") {
+	size_t irow{0};
+	CHECK(reader.current_row_index() == irow);
+	while(reader.read_rows(50)) {
+	  irow += 50;
+	  CHECK(reader.current_row_index() == irow);
+	}
+	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
+      }
+      THEN("The data values are correct - read_row_no_sink") {
+	MyTestDataSink sink(ref_data.begin(), ref_data.end());
+	sink.set_properties(reader.properties());
+	size_t irow{0};
+	CHECK(reader.current_row_index() == irow);
+	while(auto p = reader.read_row_no_sink()) {
+	  sink.push_row(irow, p);	  
+	  irow++;
+	  CHECK(reader.current_row_index() == irow);
 	}
 	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
       }
