@@ -1,5 +1,5 @@
 find_package(PythonInterp)
-find_package(PythonLibs 3.8 REQUIRED)
+find_package(PythonLibs) # 3.8 REQUIRED)
 string(REPLACE "." ";" VERSION_LIST ${PYTHONLIBS_VERSION_STRING})
 list(GET VERSION_LIST 0 PYTHONLIBS_VERSION_MAJOR)                                                                                                                             
 list(GET VERSION_LIST 1 PYTHONLIBS_VERSION_MINOR)
