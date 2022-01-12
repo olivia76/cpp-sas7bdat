@@ -3,6 +3,7 @@
 #set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 #endif(APPLE)
 
+find_package (Python3 COMPONENTS Interpreter Development)
 find_package(PythonInterp)
 find_package(PythonLibs) # 3.8 REQUIRED)
 string(REPLACE "." ";" VERSION_LIST ${PYTHONLIBS_VERSION_STRING})
