@@ -91,6 +91,22 @@ void read_sas7bdat(...)
 
 ```
 
+```python
+import pycppsas7bdat
+
+class MySink(object):
+    rows = []
+
+    def set_properties(self, properties):
+        pass
+
+    def push_row(self, irow, row):
+        self.rows.append(row)
+
+s = MySink()        
+r = pycppsas7bdat.Reader("filename.sas7bdat", s)
+r.read_all()
+```
 
 ## cmake
 
