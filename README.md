@@ -108,6 +108,15 @@ r = pycppsas7bdat.Reader("filename.sas7bdat", s)
 r.read_all()
 ```
 
+## Performance
+
+
+| File                                 | cppsas7bdat -- native | cppsas7bdat -- python | SASLib.js | readstat |
+| :----------------------------------- | :-------------------: | :-------------------: | :-------: | :------: |
+| data_AHS2013/topical.sas7bdat        |        0.08 s         |         0.5 s         |    1.2 s  |   1.8 s  |
+| data_misc/numeric_1000000_2.sas7bdat |        0.02 s         |         0.8 s         |    0.1 s  |   1.1 s  |
+
+
 ## cmake
 
 Inspired from https://github.com/cpp-best-practices/cpp_starter_project
