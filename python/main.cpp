@@ -43,11 +43,15 @@ namespace {
     void push_row([[maybe_unused]]const size_t _irow,
 		  [[maybe_unused]]cppsas7bdat::Column::PBUF _p) {
 
+      auto to_str = [](const cppsas7bdat::SV& _x) {
+		      return str(_x.data(), _x.size());
+		    };
+      
       boost::python::list l;
       
       for(const auto& column: columns) {
 	switch(column.type) {
-	case cppsas7bdat::Column::Type::string: l.append(column.to_string(_p)); break;
+	case cppsas7bdat::Column::Type::string: l.append(to_str(column.get_string(_p))); break;
 	case cppsas7bdat::Column::Type::integer: l.append(column.get_integer(_p)); break;
 	case cppsas7bdat::Column::Type::number: l.append(column.get_number(_p)); break;
 	case cppsas7bdat::Column::Type::datetime: l.append(column.get_datetime(_p)); break;
