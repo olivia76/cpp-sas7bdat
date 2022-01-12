@@ -112,12 +112,20 @@ namespace cppsas7bdat {
     {
     }
     Column(const Column& _rhs) = default;
-    Column(Column&& _rhs) noexcept= default;
+    Column(Column&& _rhs) noexcept = default;
+    
+    /*Column& operator=(const Column& _rhs) = default;
+    Column& operator=(Column&& _rhs) noexcept = default;*/
+
+    bool operator==(const Column& _rhs) const noexcept
+    {
+      return name == _rhs.name;
+    }
     
     const std::string name;
     const std::string label;
     const std::string format;
-    const Type type;
+    const Type type { Type::unknown };
 
     SV       get_string(PBUF _p) const noexcept { return pimpl->get_string(_p); }
     NUMBER   get_number(PBUF _p) const noexcept { return pimpl->get_number(_p); }

@@ -8,6 +8,8 @@ project(
   LANGUAGES CXX
   )
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 
@@ -98,6 +100,8 @@ endif()
 add_subdirectory(src)
 
 add_subdirectory(apps)
+
+add_subdirectory(python)
 
 option(ENABLE_UNITY "Enable Unity builds of projects" OFF)
 if(ENABLE_UNITY)

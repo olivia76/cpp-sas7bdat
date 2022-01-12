@@ -12,6 +12,9 @@ class CppSAS7BDATProject(ConanFile):
         "nlohmann_json/3.10.4"
     )
     generators = "cmake", "gcc", "txt", "cmake_find_package"
+
+    def configure(self):
+        self.options["boost"].without_python = False
     
     def requirements(self):
         pass
