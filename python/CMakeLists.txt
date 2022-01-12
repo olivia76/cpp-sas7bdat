@@ -1,7 +1,7 @@
 # Make a .so output!
-if(APPLE)
-set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
-endif(APPLE)
+#if(APPLE)
+#set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+#endif(APPLE)
 
 find_package(PythonInterp)
 find_package(PythonLibs) # 3.8 REQUIRED)
@@ -18,9 +18,8 @@ target_link_libraries(pycppsas7bdat PRIVATE lib_cppsas7bdat)
 target_include_directories(pycppsas7bdat PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 configure_file(__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py COPYONLY)
-set_target_properties(pycppsas7bdat PROPERTIES PREFIX "")
-
-#INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+set_target_properties(pycppsas7bdat PROPERTIES PREFIX "")  # no 'lib' prefix
+set_target_properties(pycppsas7bdat PROPERTIES SUFFIX ".so")  # must be .so (not .dylib)
 
 #PYTHON_ADD_MODULE(pycppsas7bdat main)
 FILE(COPY cppsas7bdat.py DESTINATION .)
