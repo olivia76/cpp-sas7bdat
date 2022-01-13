@@ -114,7 +114,7 @@ r.read_all()
 | File                                 | cppsas7bdat -- native | cppsas7bdat -- python | SASLib.js | readstat |
 | :----------------------------------- | :-------------------: | :-------------------: | :-------: | :------: |
 | data_AHS2013/topical.sas7bdat        |        0.08 s         |         0.5 s         |    1.2 s  |   1.8 s  |
-| data_misc/numeric_1000000_2.sas7bdat |        0.02 s         |         0.8 s         |    0.1 s  |   1.1 s  |
+| data_misc/numeric_1000000_2.sas7bdat |        0.01 s         |         0.8 s         |    0.1 s  |   1.1 s  |
 
 
 ## cmake

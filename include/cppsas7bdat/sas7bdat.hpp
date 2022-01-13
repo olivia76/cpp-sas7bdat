@@ -48,7 +48,7 @@ namespace cppsas7bdat {
       Header() = default;
       Header(const Header&) noexcept = delete;
       Header& operator=(const Header&) noexcept = delete;
-      Header(Header&&) noexcept = delete;
+      Header(Header&&) noexcept = default;
       Header& operator=(Header&&) noexcept = delete;
        
       Format format{Format::bit32};
@@ -71,7 +71,7 @@ namespace cppsas7bdat {
       Metadata() = default;
       Metadata(const Metadata&) noexcept = delete;
       Metadata& operator=(const Metadata&) noexcept = delete;
-      Metadata(Metadata&&) noexcept = delete;
+      Metadata(Metadata&&) noexcept = default;
       Metadata& operator=(Metadata&&) noexcept = delete;
       
       Compression compression{Compression::none};

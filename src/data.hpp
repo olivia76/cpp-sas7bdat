@@ -88,7 +88,8 @@ namespace cppsas7bdat {
       using DataSource = _DataSource;
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
-
+      using Decompressor = _Decompressor;
+      
       constexpr static size_t integer_size = BUFFER<_endian, _format>::integer_size;
 
       mutable _Decompressor decompressor;
@@ -119,6 +120,11 @@ namespace cppsas7bdat {
 	  build_page();
 	}
       }
+
+      void set_pmetadata(const Properties::Metadata* _metadata)
+      {
+	metadata = _metadata;
+      }      
 
       bool next() {
 	if(current_row == metadata->row_count) return false;

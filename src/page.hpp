@@ -96,6 +96,11 @@ namespace cppsas7bdat {
 	  current_page_header(_rp.current_page_header)
       {
       }
+
+      void set_pheader(const Properties::Header* _header)
+      {
+	header = _header;
+      }
       
       bool read_page() {
 	current_page_header.reset();

@@ -134,4 +134,17 @@ namespace cppsas7bdat {
   {
     return m_pimpl->read_row_no_sink();
   }
+
+  Reader::PIMPL Reader::impl::build(PSOURCE&& _source, PSINK&& _sink)
+  {
+    Properties properties;
+    auto rd = READ::data(std::move(_source), &properties.header, &properties.metadata);
+    return std::visit([&](auto&& arg) -> Reader::PIMPL {
+			using T = std::decay_t<decltype(arg)>;
+			using RI = INTERNAL::ReaderImpl<T>;
+			return std::make_unique<RI>(std::move(arg), std::move(_sink), std::move(properties));
+      }, std::move(rd));
+  }
+    
+
 }
