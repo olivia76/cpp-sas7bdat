@@ -47,7 +47,7 @@ pyenv-init:
 
 .PHONY: tests-python
 tests-python:
-	pip install -e ".[tests]"
+	pip3 install -e ".[tests]"
 	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./pytest.xml
 	coverage report --show-missing
 	coverage html
