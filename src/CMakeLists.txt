@@ -7,8 +7,9 @@ find_package(Boost REQUIRED COMPONENTS date_time)
 find_package(fmt)
 find_package(spdlog)
 
-add_library(lib_cppsas7bdat
+add_library(cppsas7bdat ${LIBRARY_TYPE}
   buffer.hpp
+  column.cpp
   datasource_ifstream.cpp
   decompressors.hpp
   exceptions.hpp
@@ -27,12 +28,12 @@ add_library(lib_cppsas7bdat
   subheaders.hpp
   version.cpp
     )
-target_include_directories(lib_cppsas7bdat PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(lib_cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )
-target_link_libraries(lib_cppsas7bdat
+target_include_directories(cppsas7bdat PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )
+target_link_libraries(cppsas7bdat
   PRIVATE
   fmt::fmt
   spdlog::spdlog
   Boost::date_time 
-  PRIVATE project_options
+  project_options
   )

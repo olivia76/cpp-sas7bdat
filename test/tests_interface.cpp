@@ -191,6 +191,8 @@ namespace {
       }
       ++row_read;
     }
+    
+    void end_of_data() const noexcept {}
   };
 }
 

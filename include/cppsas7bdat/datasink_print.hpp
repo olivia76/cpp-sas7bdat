@@ -75,6 +75,9 @@ namespace cppsas7bdat {
 	}
 	fmt::print(os, "\n");
       }
+
+      void end_of_data() const noexcept {}
+
     };
   }  
 }

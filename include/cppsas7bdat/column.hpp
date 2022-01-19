@@ -37,14 +37,16 @@ namespace cppsas7bdat {
     struct FormatterConcept {
       virtual ~FormatterConcept() {}
 
-      virtual SV       get_string(PBUF _p) const noexcept = 0;
-      virtual NUMBER   get_number(PBUF _p) const noexcept = 0;
-      virtual INTEGER  get_integer(PBUF _p) const noexcept = 0;
-      virtual DATETIME get_datetime(PBUF _p) const noexcept = 0;
-      virtual DATE     get_date(PBUF _p) const noexcept = 0;
-      virtual TIME     get_time(PBUF _p) const noexcept = 0;
+      virtual SV       get_string(PBUF _p) const = 0;
+      virtual NUMBER   get_number(PBUF _p) const = 0;
+      virtual INTEGER  get_integer(PBUF _p) const = 0;
+      virtual DATETIME get_datetime(PBUF _p) const = 0;
+      virtual DATE     get_date(PBUF _p) const = 0;
+      virtual TIME     get_time(PBUF _p) const = 0;
 
       virtual STRING   to_string(PBUF _p) const = 0;
+
+      virtual size_t   length() const noexcept = 0;
     };
 
     template<typename _Fp>
@@ -59,32 +61,32 @@ namespace cppsas7bdat {
 	return std::unique_ptr<FormatterModel>(*this);
       }
 
-      SV get_string(PBUF _p) const noexcept final
+      SV get_string(PBUF _p) const final
       {
 	return formatter.get_string(_p);
       }
 	  
-      NUMBER get_number(PBUF _p) const noexcept final
+      NUMBER get_number(PBUF _p) const final
       {
 	return formatter.get_number(_p);
       }
 	  
-      INTEGER get_integer(PBUF _p) const noexcept final
+      INTEGER get_integer(PBUF _p) const final
       {
 	return formatter.get_integer(_p);
       }
       
-      DATETIME get_datetime(PBUF _p) const noexcept final
+      DATETIME get_datetime(PBUF _p) const final
       {
 	return formatter.get_datetime(_p);
       }
       
-      DATE get_date(PBUF _p) const noexcept final
+      DATE get_date(PBUF _p) const final
       {
 	return formatter.get_date(_p);
       }
       
-      TIME get_time(PBUF _p) const noexcept final
+      TIME get_time(PBUF _p) const final
       {
 	return formatter.get_time(_p);
       }
@@ -92,6 +94,11 @@ namespace cppsas7bdat {
       STRING to_string(PBUF _p) const final
       {
 	return formatter.to_string(_p);
+      }
+
+      size_t length() const noexcept final
+      {
+	return formatter.length;
       }
       
     private:
@@ -113,9 +120,6 @@ namespace cppsas7bdat {
     }
     Column(const Column& _rhs) = default;
     Column(Column&& _rhs) noexcept = default;
-    
-    /*Column& operator=(const Column& _rhs) = default;
-    Column& operator=(Column&& _rhs) noexcept = default;*/
 
     bool operator==(const Column& _rhs) const noexcept
     {
@@ -127,20 +131,34 @@ namespace cppsas7bdat {
     const std::string format;
     const Type type { Type::unknown };
 
-    SV       get_string(PBUF _p) const noexcept { return pimpl->get_string(_p); }
-    NUMBER   get_number(PBUF _p) const noexcept { return pimpl->get_number(_p); }
-    INTEGER  get_integer(PBUF _p) const noexcept { return pimpl->get_integer(_p); }
-    DATETIME get_datetime(PBUF _p) const noexcept { return pimpl->get_datetime(_p); }
-    DATE     get_date(PBUF _p) const noexcept { return pimpl->get_date(_p); }
-    TIME     get_time(PBUF _p) const noexcept { return pimpl->get_time(_p); }
+    SV       get_string(PBUF _p) const { return pimpl->get_string(_p); }
+    NUMBER   get_number(PBUF _p) const { return pimpl->get_number(_p); }
+    INTEGER  get_integer(PBUF _p) const { return pimpl->get_integer(_p); }
+    DATETIME get_datetime(PBUF _p) const { return pimpl->get_datetime(_p); }
+    DATE     get_date(PBUF _p) const { return pimpl->get_date(_p); }
+    TIME     get_time(PBUF _p) const { return pimpl->get_time(_p); }
 
     STRING   to_string(PBUF _p) const { return pimpl->to_string(_p); }
-    
+
+    size_t   length() const noexcept { return pimpl->length(); }
+      
   private:
     PIMPL pimpl;
   };
 
   using COLUMNS = std::vector<Column>;
+
+  struct Columns {
+    COLUMNS strings;
+    COLUMNS numbers;
+    COLUMNS integers;
+    COLUMNS datetimes;
+    COLUMNS dates;
+    COLUMNS times;
+    
+    Columns() = default;
+    explicit Columns(const COLUMNS& _columns);
+  };  
 
   std::string_view to_string(const Column::Type _x);
   std::ostream& operator<<(std::ostream& os, const Column::Type _x);

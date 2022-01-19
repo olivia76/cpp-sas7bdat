@@ -13,6 +13,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 
+# variable controlling whether the build is a shared or static library
+if (WIN32)
+  set(LIBRARY_TYPE STATIC CACHE STRING "type of library to make for lib_cppsas7bdat")
+else()
+  set(LIBRARY_TYPE SHARED CACHE STRING "type of library to make for lib_cppsas7bdat")
+  #set(LIBRARY_TYPE STATIC CACHE STRING "type of library to make for lib_cppsas7bdat")
+endif()
+
 #add_library(project_warnings INTERFACE)
 
 set(CMAKE_CXX_EXTENSIONS OFF)

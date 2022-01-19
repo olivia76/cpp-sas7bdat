@@ -200,6 +200,11 @@ namespace cppsas7bdat {
       m_sink->push_row(_row_index, _p);
     }
 
+    void end_of_data()
+    {
+      m_sink->end_of_data();
+    }
+
     virtual Column::PBUF read_row_no_sink() = 0;
     /*{
       auto vals = INTERNAL::read_line(m_read_data);
@@ -263,7 +268,10 @@ namespace cppsas7bdat {
       {
 	const size_t row_index = current_row_index();
 	auto vals = m_read_data.read_line();
-	if(!vals) return false;
+	if(!vals) {
+	  end_of_data();
+	  return false;
+	}
 	push_row(row_index, vals->data());
 	return true;
       }

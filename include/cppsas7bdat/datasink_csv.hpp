@@ -54,6 +54,8 @@ namespace cppsas7bdat {
 	fmt::print(os, "\n");
       }
 
+      void end_of_data() const noexcept {}
+
       void print(const SV& _x) { fmt::print(os, "\"{}\"", _x); }
       void print(const NUMBER _x) { if(!std::isnan(_x)) fmt::print(os, "{}", _x); }
       void print(const INTEGER _x) { fmt::print(os, "{}", _x); }

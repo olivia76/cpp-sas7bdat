@@ -121,6 +121,7 @@ namespace cppsas7bdat {
 
       virtual void set_properties(const Properties& _properties) = 0;
       virtual void push_row(const size_t _row_index, Column::PBUF _p) = 0;
+      virtual void end_of_data() = 0;
     };
 
     template<typename _Dp>
@@ -136,6 +137,11 @@ namespace cppsas7bdat {
       void push_row(const size_t _row_index, Column::PBUF _p) final
       {
 	dataset.push_row(_row_index, _p);
+      }
+      
+      void end_of_data() final
+      {
+	dataset.end_of_data();
       }
       
     private:
@@ -172,8 +178,8 @@ namespace cppsas7bdat {
 	       build_sink(std::forward<_Sink>(_sink)))
     {
     }
-    Reader(Reader&&) noexcept = default;
-    Reader& operator=(Reader&&) noexcept = default;
+    Reader(Reader&&) noexcept;
+    Reader& operator=(Reader&&) noexcept;
     ~Reader();
 
     const Properties& properties() const noexcept;

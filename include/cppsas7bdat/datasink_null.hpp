@@ -42,6 +42,8 @@ namespace cppsas7bdat {
       void process([[maybe_unused]]const _Tp _x) const noexcept {
       }
 
+      void end_of_data() const noexcept {}
+
     };
   }  
 }

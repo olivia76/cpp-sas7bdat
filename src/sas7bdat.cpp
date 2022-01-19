@@ -100,8 +100,12 @@ namespace cppsas7bdat {
     : m_pimpl(impl::build(std::move(_source), std::move(_sink)))
   {
   }
+
+  Reader::Reader(Reader&&) noexcept = default;
+  Reader& Reader::operator=(Reader&&) noexcept = default;
   
   Reader::~Reader() = default;
+  
   Reader::DataSourceConcept::~DataSourceConcept() = default;
   Reader::DatasetSinkConcept::~DatasetSinkConcept() = default;
 
@@ -145,6 +149,4 @@ namespace cppsas7bdat {
 			return std::make_unique<RI>(std::move(arg), std::move(_sink), std::move(properties));
       }, std::move(rd));
   }
-    
-
 }
