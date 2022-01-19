@@ -37,3 +37,4 @@ target_link_libraries(cppsas7bdat
   Boost::date_time 
   project_options
   )
+install(TARGETS cppsas7bdat)
