@@ -88,7 +88,8 @@ jobs:
       run: |
           ../test/retrieve.bash
           ctest -C $BUILD_TYPE --output-on-failure
-          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --exclude '../test/'
+	  make tests-python
+          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
 
     - name: Windows - Test and coverage
       if: runner.os == 'Windows'
