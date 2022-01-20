@@ -107,7 +107,7 @@ jobs:
         flags: ${{ runner.os }}
         name: ${{ runner.os }}-coverage
         files: ./build/coverage.xml
-	
+
     - name: Publish to codecov - python
       uses: codecov/codecov-action@v2
       with:
