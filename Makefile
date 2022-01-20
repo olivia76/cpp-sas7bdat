@@ -50,5 +50,5 @@ tests-python:
 	export CMAKE_ARGS="-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo -DENABLE_COVERAGE:BOOL=ON"; pip3 install -e ".[tests]"
 	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
 	coverage report --show-missing
-	coverage html
+	coverage html	
 	coverage xml -o coverage-python.xml
