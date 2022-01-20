@@ -90,9 +90,9 @@ jobs:
       run: |
           ../test/retrieve.bash
           ctest -C $BUILD_TYPE --output-on-failure
-	  if [ "$RUNNER_OS" == "Linux" ]; then
+          if [ "$RUNNER_OS" == "Linux" ]; then
             make -C .. tests-python
-	  fi;
+          fi;
           gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
 
     - name: Windows - Test and coverage
