@@ -106,4 +106,4 @@ jobs:
       with:
         flags: ${{ runner.os }}
         name: ${{ runner.os }}-coverage
-        files: [./build/coverage.xml, ./build/coverage-python.xml]
+        files: ./build/coverage*.xml
