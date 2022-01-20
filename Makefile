@@ -51,4 +51,4 @@ tests-python:
 	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
 	coverage report --show-missing
 	coverage html	
-	coverage xml -o coverage-python.xml
+	coverage xml -o build/coverage-python.xml
