@@ -35,8 +35,8 @@ jobs:
         #- os: windows-latest
         #  # Windows works differently
         #  ENABLE_COVERAGE: OFF
-        - os: macos-latest
-          ENABLE_COVERAGE: ON
+        #- os: macos-latest
+        #  ENABLE_COVERAGE: ON
 
     steps:
     - uses: actions/checkout@v2
