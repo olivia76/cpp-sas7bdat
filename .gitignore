@@ -9,3 +9,6 @@
 .#*
 build
 test/data_*
+.coverage
+.pytest_cache/
+pytest.xml

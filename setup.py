@@ -10,6 +10,11 @@ test_requires = [
     'pandas'
 ]
 
+def get_cmake_args():
+    args = os.getenv('CMAKE_ARGS', "")
+    #print(f"CMAKE_ARGS={args}")
+    return args.split(' ')
+
 setup(
     name="pycppsas7bdat",
     version="0.0.1",
@@ -25,5 +30,5 @@ setup(
     extras_require={
           'tests': test_requires
     },
-    configure_opts = ['-DENABLE_CONAN:BOOL=ON', os.getenv('CMAKE_ARGS', "")]  #['-DBOOST_ROOT=C:\\Users\\..\\AppData\\Local\\Programs\\boost_1_71_0']
+    configure_opts = ['-DENABLE_CONAN:BOOL=ON'] + get_cmake_args() #['-DBOOST_ROOT=C:\\Users\\..\\AppData\\Local\\Programs\\boost_1_71_0']
 )
