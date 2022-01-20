@@ -81,6 +81,8 @@ jobs:
       run: cmake --build ./build --config $BUILD_TYPE
 
     - name: Unix - Test and coverage
+      env:
+        CMAKE_ARGS: -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
       if: runner.os != 'Windows'
       working-directory: ./build
       # Execute tests defined by the CMake configuration.
@@ -88,7 +90,9 @@ jobs:
       run: |
           ../test/retrieve.bash
           ctest -C $BUILD_TYPE --output-on-failure
-          make -C .. tests-python
+	  if [ "$RUNNER_OS" == "Linux" ]; then
+            make -C .. tests-python
+	  fi;
           gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
 
     - name: Windows - Test and coverage

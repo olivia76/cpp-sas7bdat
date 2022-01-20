@@ -39,7 +39,7 @@ pyenv-venv:
 	~/.pyenv/bin/pyenv virtualenv -p python3.8 $(PYTHON_VERSION) $(VENV_NAME)
 
 pyenv-activate:
-	source $(PYENV_VIRTUAL_ENV)/bin/activate
+	source $PYENV_VIRTUAL_ENV/bin/activate
 
 pyenv-init:
 	#	source $(PYENV_VIRTUAL_ENV)/bin/activate

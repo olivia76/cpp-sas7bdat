@@ -1,4 +1,5 @@
 from cmaketools import setup
+import os
 
 install_requires = [
 ]
@@ -24,5 +25,5 @@ setup(
     extras_require={
           'tests': test_requires
     },
-    configure_opts = ['-DENABLE_CONAN:BOOL=ON']  #['-DBOOST_ROOT=C:\\Users\\..\\AppData\\Local\\Programs\\boost_1_71_0']
+    configure_opts = ['-DENABLE_CONAN:BOOL=ON', os.getenv('CMAKE_ARGS', "")]  #['-DBOOST_ROOT=C:\\Users\\..\\AppData\\Local\\Programs\\boost_1_71_0']
 )
