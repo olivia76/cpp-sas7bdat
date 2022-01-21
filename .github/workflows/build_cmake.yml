@@ -35,8 +35,8 @@ jobs:
         #- os: windows-latest
         #  # Windows works differently
         #  ENABLE_COVERAGE: OFF
-        #- os: macos-latest
-        #  ENABLE_COVERAGE: ON
+        - os: macos-latest
+          ENABLE_COVERAGE: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -70,7 +70,7 @@ jobs:
           # Add to Path
           echo "C:/Program Files/OpenCppCoverage" >> $GITHUB_PATH
         fi;
-    
+
     - name: Configure CMake
       run: |
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_CONAN:BOOL=ON -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
