@@ -52,3 +52,8 @@ tests-python:
 	coverage report --show-missing
 	coverage html	
 	coverage xml -o build/coverage-python.xml
+
+.PHONY: lint
+lint:
+	yamllint -f colored .github/workflows/
+
