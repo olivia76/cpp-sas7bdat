@@ -57,3 +57,11 @@ tests-python:
 lint:
 	yamllint -f colored .github/workflows/
 
+.PHONY: conan conan-install conan-setup
+conan: conan-install conan-setup
+
+conan-install:
+	pip install conan
+
+conan-setup:
+	conan install conanfile.py

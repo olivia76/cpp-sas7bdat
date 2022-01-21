@@ -189,6 +189,7 @@ This design pattern is very nicely explained in a talk of Klaus Iglberger - Brea
 
 ```bash
 pip install conan
+conan install conanfile.py
 ``` 
 
 ## boost
