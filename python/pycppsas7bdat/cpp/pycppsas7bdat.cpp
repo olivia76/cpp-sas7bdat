@@ -293,11 +293,11 @@ namespace {
     {
       object sink(handle<>(borrowed(_sink)));
 
-      if(PyObject_HasAttrString(_sink, "chunk") &&
+      if(PyObject_HasAttrString(_sink, "chunk_size") &&
 	 PyObject_HasAttrString(_sink, "push_rows") ) {
-	const size_t size = extract<size_t>(sink.attr("chunk"));
+	const size_t chunk_size = extract<size_t>(sink.attr("chunk_size"));
 	return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_filename),
-				   SinkChunk(_sink, size));
+				   SinkChunk(_sink, chunk_size));
       } else {
 	return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_filename),
 				   Sink(_sink));

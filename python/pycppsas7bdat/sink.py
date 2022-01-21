@@ -15,9 +15,9 @@ class Sink(object):
         return pd.DataFrame.from_records(self.rows, columns = self.columns)
 
 class SinkChunk(object):
-    def __init__(self, chunk=10000):
+    def __init__(self, chunk_size=10000):
         self.rows = []
-        self.chunk = chunk
+        self.chunk_size = chunk_size
     
     def set_properties(self, properties):
         self.columns = [col.name for col in properties.metadata.columns]

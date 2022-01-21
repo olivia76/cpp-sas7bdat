@@ -86,37 +86,95 @@ void read_sas7bdat(...)
 	// Read row by row
 	while(reader.read_row());
 	
+	// OR Read chunk by chunk
+	while(reader.read_rows(chunk_size));
+	
 	// OR read the whole file
-	reader.read();
+	reader.read_all();
 }
 
 ```
 
-```python
-import pycppsas7bdat
+2 sinks -- `Sink()` and `SinkChunk(chunk_size)` -- are provided by the
+`pycppsas7bdat` python package.  They use `pandas.DataFrame` to store
+the data.  
 
+```python
+from pycppsas7bdat import Reader
+from pycppsas7bdat.sink import Sink, SinkChunk
+
+s = Sink() # or SinkChunk()     
+r = Reader("filename.sas7bdat", s)
+# Read row by row
+while r.read_row(): pass
+
+# Read chunk by chunk
+while r.read_rows(chunk_size): pass
+
+# OR read the whole file
+r.read_all()
+
+# export to pandas.DataFrame
+print(s.df)
+```
+
+It is easy to write your own sinks:
+
+```python
 class MySink(object):
     rows = []
 
-    def set_properties(self, properties):
-        pass
+    def set_properties(self, properties): # This method must be defined
+		"""
+		@brief: Called once after reading the header and metadata
+		@param properties: A Properties object with the header, metadata and columns definition
+		"""
+        self.columns = [col.name for col in properties.metadata.columns]
 
-    def push_row(self, irow, row):
+    def push_row(self, irow, row): # This method must be defined
+		"""
+		@brief: Called for every row
+		@param irow: Zero-based index of the row
+		@param row: A list of value, one for each column. 
+		"""
         self.rows.append(row)
+		
+class MySinkChunk(object):
+	chunks = []
+	chunk_size = 10000   # This member must be present for a SinkChunk
+	
+	def set_properties(self, properties): # This method must be defined
+        """
+		@brief: Called once after reading the header and metadata
+		@param properties: A Properties object with the header, metadata and columns definition
+		"""
+		self.columns = [col.name for col in properties.metadata.columns]
 
-s = MySink()        
-r = pycppsas7bdat.Reader("filename.sas7bdat", s)
-r.read_all()
+    def push_rows(self, istartrow, iendrow, rows): # This method must be defined
+		"""
+		@brief: Called for every read chunk of data
+		@param istartrow: Zero-based index for the start row
+		@param iendrow: Zero-based index for the end row (included)
+		@param rows: A dict of list of values. The keys are the columns'names.
+		"""
+		chunks.append(rows)
 ```
+
 
 ## Performance
 
 
-| File                                 | cppsas7bdat -- native | cppsas7bdat -- python | SASLib.js | readstat |
+| File | cppsas7bdat -- native | cppsas7bdat -- python | SASLib.js | readstat |
 | :----------------------------------- | :-------------------: | :-------------------: | :-------: | :------: |
 | data_AHS2013/topical.sas7bdat        |        0.08 s         |         0.5 s         |    1.2 s  |   1.8 s  |
 | data_misc/numeric_1000000_2.sas7bdat |        0.01 s         |         0.8 s         |    0.1 s  |   1.1 s  |
 
+
+## Unit tests
+
+The unit tests use more than 170 files from different
+[sources](test/files.txt) with different encodings, compressions and
+endianness.
 
 ## cmake
 
