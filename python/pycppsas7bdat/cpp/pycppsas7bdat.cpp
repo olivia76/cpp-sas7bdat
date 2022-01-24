@@ -21,7 +21,8 @@ using namespace boost::python;
 namespace {
 
   struct SinkBase {
-    using STRING = boost::python::str;
+    //using STRING = boost::python::str;
+    using STRING = boost::python::object;
     
     SinkBase(PyObject* _self)
       : self(_self)
@@ -45,9 +46,16 @@ namespace {
 
     void end_of_data() const noexcept {}
     
-    static auto to_str(const cppsas7bdat::SV& _x)
+    /*static auto to_str(const cppsas7bdat::SV& _x)
     {
       return STRING(_x.data(), _x.size());
+      };*/
+    
+    static auto to_str(const cppsas7bdat::SV& _x)
+    {
+      auto pyObj = PyBytes_FromStringAndSize(_x.data(), _x.size());
+      boost::python::handle<> handle(pyObj);
+      return boost::python::object(handle);
     };
 
   protected:

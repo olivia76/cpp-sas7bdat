@@ -1,0 +1,47 @@
+import pycppsas7bdat
+#import pandas as pd
+import os, sys, getopt
+
+print(pycppsas7bdat.getVersion())
+
+class MySink(object):
+    def __init__(self):
+        self.rows = []
+    
+    def set_properties(self, properties):
+        self.columns = [col.name for col in properties.metadata.columns]
+
+    def push_row(self, irow, row):
+        self.rows.append(row)
+
+class MySinkChunk(object):
+    def __init__(self, chunk=10000):
+        self.rows = []
+        self.chunk_size = chunk
+    
+    def set_properties(self, properties):
+        self.columns = [col.name for col in properties.metadata.columns]
+
+    def push_rows(self, istartrow, iendrow, rows):
+        self.rows.append(rows)
+   
+def main(argv):
+    try:
+        opts, args = getopt.getopt(argv,
+                                   "f:s:",
+                                   ["file=", "sink="])
+    except getopt.GetoptError:
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt in ('-f', '--file'):
+            inputfilename = arg
+        elif opt in ('-s', '--sink'):
+            sinktype = arg
+
+    sink = {'sink': MySink(), 'chunk': MySinkChunk()}[sinktype]
+    reader = pycppsas7bdat.Reader(inputfilename, sink)
+    reader.read_all()
+            
+if __name__ == "__main__":
+    main(sys.argv[1:])

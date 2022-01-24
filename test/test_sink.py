@@ -31,6 +31,9 @@ def check_row(row, ref_row):
             assert(a.isoformat() == b)
         elif isinstance(a, datetime.time):
             assert(a.isoformat() == b)
+        elif isinstance(b, str):
+            b = b.encode('utf8')
+            assert(a == b)
         else:
             assert(a == b)            
     
