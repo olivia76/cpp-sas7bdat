@@ -164,8 +164,7 @@ class MySinkChunk(object):
 ## Performance
 
 
-| File | cppsas7bdat -- native | cppsas7bdat -- python | SASLib.js | readstat | sas7bdat -- python |
-|      | *a* | *a* | *b* | *a* | *a* |
+| File | cppsas7bdat -- native *a* | cppsas7bdat -- python *a* | SASLib.js *b* | readstat *a* | sas7bdat -- python *a* |
 | :----------------------------------- | :-------: | :------: | :--------: | :------: | :------: |
 | data_AHS2013/topical.sas7bdat        |  0.080 s  |  0.45 s  |    1.1 s   |   1.8 s  |    28 s  |
 | data_misc/numeric_1000000_2.sas7bdat |  0.013 s  |  0.21 s  |   0.085 s  |   1.1 s  |   5.5 s  |
