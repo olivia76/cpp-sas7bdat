@@ -47,7 +47,8 @@ pyenv-init:
 
 .PHONY: tests-python
 tests-python:
-	export CMAKE_ARGS="-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo -DENABLE_COVERAGE:BOOL=ON"; pip3 install -e ".[tests]"
+	#export CMAKE_ARGS="-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo -DENABLE_COVERAGE:BOOL=ON"; pip3 install -e ".[tests]"
+	pip3 install -e ".[tests]"
 	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
 	coverage report --show-missing
 	coverage html	
@@ -65,3 +66,7 @@ conan-install:
 
 conan-setup:
 	conan install conanfile.py
+
+.PHONY: benchmark
+benchmark:
+	make -C benchmark
