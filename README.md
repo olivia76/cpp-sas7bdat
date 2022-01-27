@@ -204,8 +204,8 @@ r$read_all(); OR r$read_row(); OR r$read_rows(chunk_size)
 | data_misc/numeric_1000000_2.sas7bdat *ᵇ* |  0.013 s  |  0.21 s  |  0.019s  |   0.085 s  |   1.1 s  |   0.9s   |   5.5 s  |
 
 > *¹* Measurements done with [hyperfine](https://github.com/sharkdp/hyperfine)  
-> *²*
-> *³* Measurements done with Julia/BenchmarkTools   
+> *²* Measurements done with rbenchmark  
+> *³* Measurements done with Julia/BenchmarkTools  
 > *ᵃ* 13M, 84355 rows x 114 cols  
 > *ᵇ* 16M, 1000000 rows x 2 cols  
 

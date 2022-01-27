@@ -15,6 +15,10 @@ build:
 	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DENABLE_R:BOOL=${ENABLE_R}
 	cmake --build ./build --config ${BUILD_TYPE}
 
+.PHONY: build-R
+build-R:
+	make -C R build
+
 .PHONY: tests
 tests:
 	cd ./build; ctest -C ${BUILD_TYPE} --output-on-failure
@@ -55,6 +59,10 @@ tests-python:
 	coverage report --show-missing
 	coverage html	
 	coverage xml -o build/coverage-python.xml
+
+.PHONY: tests-R
+tests-R:
+
 
 .PHONY: lint
 lint:

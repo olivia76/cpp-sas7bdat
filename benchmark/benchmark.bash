@@ -12,4 +12,6 @@ hyperfine --warmup 1 \
 	  #"python3 ./pysas7bdat.py $1" \
 	  #"julia -e 'using SASLib; readsas(ARGS[1]);' $1" \
 
+Rscript benchmark.R $1
+	  
 julia -e 'using BenchmarkTools; using SASLib; @btime redirect_stdout(open(tempname(), "w")) do; readsas(ARGS[1]) end;' $1	  
