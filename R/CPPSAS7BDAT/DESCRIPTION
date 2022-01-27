@@ -1,0 +1,12 @@
+Package: CPPSAS7BDAT
+Type: Package
+Title: What the package does (short line)
+Version: 1.0.0.0
+Date: 2022-01-25
+Author: Olivia Quinet
+Maintainer: Olivia Quinet <olivia.quinet@gmail.com>
+Description: SAS7BDAT file reader
+License: GPL (>= 2)
+Imports: methods, RInside, Rcpp
+Depends: 
+LinkingTo: RInside, Rcpp

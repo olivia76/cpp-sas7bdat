@@ -4,7 +4,10 @@ hyperfine --warmup 1 \
 	  "../build/apps/cppsas7bdat-ci null $1" \
 	  "python3 ./cppsas7bdat.py -f $1 -s sink" \
 	  "python3 ./cppsas7bdat.py -f $1 -s chunk" \
+	  "python3 ./cppsas7bdat.py -f $1 -s pd_sink" \
+	  "python3 ./cppsas7bdat.py -f $1 -s pd_chunk" \
 	  "readstat -f $1 /tmp/a.csv" \
+	  "python3 ./pypandas.py $1" \
 	  
 	  #"python3 ./pysas7bdat.py $1" \
 	  #"julia -e 'using SASLib; readsas(ARGS[1]);' $1" \

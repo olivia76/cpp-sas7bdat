@@ -1,0 +1,3 @@
+useDynLib(CPPSAS7BDAT)
+exportPattern("^[[:alpha:]]+")
+import(methods, Rcpp)

@@ -77,6 +77,8 @@ struct MyDataSink {
 	void set_properties(const cppsas7bdat::Properties& _properties) { /* ... */ }
 	/// This method is called for each new row.
 	void push_row(const size_t _irow, cppsas7bdat::Column::PBUF _p) { /* ... */ }
+	/// This method is called at the end of data
+	void end_of_data() { /* ... */ }
 };
 
 void read_sas7bdat(...)
@@ -160,17 +162,50 @@ class MySinkChunk(object):
 		chunks.append(rows)
 ```
 
+```R
+require(CPPSAS7BDAT)
+library(R6)
+
+MySink <- R6Class("MySink",
+     public=list(
+        initialize = function() {
+        },
+        set_properties = function(properties) {
+        },
+        push_row = function(irow, row) {
+        }
+     )
+);
+
+MySinkChunk <- R6Class("MySinkChunk",
+     public=list(
+        chunk_size = NULL,
+        initialize = function(chunk_size=10000) {
+            self$chunk_size = chunk_size;
+        },
+        set_properties = function(properties) {
+        },
+        push_rows = function(istartrow, iendrow, rows) {
+        }
+     )
+);
+
+sink <- MySink$new(); # OR MySinkChunk$new(10000);
+r <- CPPSAS7BDAT::Reader("path/to/file.sas7bdat", sink);
+r$read_all(); OR r$read_row(); OR r$read_rows(chunk_size)
+```
 
 ## Performance
 
 
-| File | cppsas7bdat -- native *¹* | cppsas7bdat -- python *¹* | SASLib.js *²* | readstat *¹* | sas7bdat -- python *¹* |
-| :--------------------------------------- | :-------: | :------: | :--------: | :------: | :------: |
-| data_AHS2013/topical.sas7bdat *ᵃ*        |  0.080 s  |  0.45 s  |    1.1 s   |   1.8 s  |    28 s  |
-| data_misc/numeric_1000000_2.sas7bdat *ᵇ* |  0.013 s  |  0.21 s  |   0.085 s  |   1.1 s  |   5.5 s  |
+| File | cppsas7bdat -- native *¹* | cppsas7bdat -- python *¹* | cppsas7bdat -- R *²* | SASLib.js *³* | readstat *¹* | pandas *¹* | sas7bdat -- python *¹* |
+| :--------------------------------------- | :-------: | :------: | :------: | :--------: | :------: | :------: | :------: |
+| data_AHS2013/topical.sas7bdat *ᵃ*        |  0.080 s  |  0.45 s  |   0.30s  |    1.1 s   |   1.8 s  |    11s   |   28 s   |
+| data_misc/numeric_1000000_2.sas7bdat *ᵇ* |  0.013 s  |  0.21 s  |  0.019s  |   0.085 s  |   1.1 s  |   0.9s   |   5.5 s  |
 
 > *¹* Measurements done with [hyperfine](https://github.com/sharkdp/hyperfine)  
-> *²* Measurements done with Julia/BenchmarkTools  
+> *²*
+> *³* Measurements done with Julia/BenchmarkTools   
 > *ᵃ* 13M, 84355 rows x 114 cols  
 > *ᵇ* 16M, 1000000 rows x 2 cols  
 

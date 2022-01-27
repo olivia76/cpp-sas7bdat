@@ -30,5 +30,5 @@ setup(
     extras_require={
           'tests': test_requires
     },
-    configure_opts = ['-DENABLE_CONAN:BOOL=ON'] + get_cmake_args() #['-DBOOST_ROOT=C:\\Users\\..\\AppData\\Local\\Programs\\boost_1_71_0']
+    configure_opts = ['-DENABLE_PYTHON:BOOL=ON', '-DENABLE_CONAN:BOOL=ON'] + get_cmake_args() #['-DBOOST_ROOT=C:\\Users\\..\\AppData\\Local\\Programs\\boost_1_71_0']
 )

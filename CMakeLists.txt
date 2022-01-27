@@ -109,7 +109,17 @@ add_subdirectory(src)
 
 add_subdirectory(apps)
 
-add_subdirectory(python)
+option(ENABLE_PYTHON "Enable building python module" OFF)
+if(ENABLE_PYTHON)
+  message("Building python module")
+  add_subdirectory(python)
+endif()
+
+option(ENABLE_R "Enable build R module" OFF)
+if(ENABLE_R)
+  message("Building R module")
+  add_subdirectory(R/CPPSAS7BDAT/src)
+endif()
 
 option(ENABLE_UNITY "Enable Unity builds of projects" OFF)
 if(ENABLE_UNITY)
