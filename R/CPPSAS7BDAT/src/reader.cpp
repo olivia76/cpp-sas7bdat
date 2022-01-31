@@ -16,17 +16,39 @@ namespace {
 
   std::string to_string(const cppsas7bdat::DATETIME _x)
   {
-    return boost::posix_time::to_simple_string(_x);
+    char szBuffer[80];
+    const auto ymd = _x.date().year_month_day();
+    const auto t = _x.time_of_day();
+    std::sprintf(szBuffer, "%04d-%02d-%02d %02d:%02d:%02d.%06d", (int)ymd.year, (int)ymd.month, (int)ymd.day, (int)t.hours(), (int)t.minutes(), (int)t.seconds(), (int)t.fractional_seconds());
+    return szBuffer;
   }
   
   std::string to_string(const cppsas7bdat::DATE _x)
   {
-    return boost::gregorian::to_simple_string(_x);
+    return boost::gregorian::to_iso_extended_string(_x);
   }
   
   std::string to_string(const cppsas7bdat::TIME _x)
   {
     return boost::posix_time::to_simple_string(_x);
+  }
+
+  SEXP to_string_or_null(const cppsas7bdat::DATETIME _x)
+  {
+    if(_x.is_not_a_date_time()) return R_NilValue;
+    else return Rcpp::wrap(to_string(_x));
+  }
+
+  SEXP to_string_or_null(const cppsas7bdat::DATE _x)
+  {
+    if(_x.is_not_a_date()) return R_NilValue;
+    else return Rcpp::wrap(to_string(_x));
+  }
+
+  SEXP to_string_or_null(const cppsas7bdat::TIME _x)
+  {
+    if(_x.is_not_a_date_time()) return R_NilValue;
+    else return Rcpp::wrap(to_string(_x));
   }
 
 }
@@ -119,6 +141,40 @@ namespace {
       columns = cppsas7bdat::COLUMNS(_properties.metadata.columns);
       setup_col_names();
     }
+
+    void process_value(const size_t icol, const cppsas7bdat::SV _x)
+    {
+      row[icol] = std::string(_x);
+    }
+
+    void process_value(const size_t icol, const cppsas7bdat::INTEGER _x)
+    {
+      row[icol] = _x;
+    }
+
+    void process_value(const size_t icol, const cppsas7bdat::NUMBER _x)
+    {
+      if(std::isnan(_x)) row[icol] = NA_REAL;
+      else row[icol] = _x;
+    }
+
+    void process_value(const size_t icol, const cppsas7bdat::DATETIME _x)
+    {
+      if(_x.is_not_a_date_time()) row[icol] = R_NilValue;
+      else row[icol] = to_string(_x);
+    }    
+
+    void process_value(const size_t icol, const cppsas7bdat::DATE _x)
+    {
+      if(_x.is_not_a_date()) row[icol] = R_NilValue;
+      else row[icol] = to_string(_x);
+    }
+    
+    void process_value(const size_t icol, const cppsas7bdat::TIME _x)
+    {
+      if(_x.is_not_a_date_time()) row[icol] = R_NilValue;
+      else row[icol] = to_string(_x);
+    }       
     
     void push_row([[maybe_unused]]const size_t _irow,
 		  [[maybe_unused]]cppsas7bdat::Column::PBUF _p) {
@@ -126,12 +182,12 @@ namespace {
       for(size_t icol = 0; icol<ncols; ++icol) {
 	const auto& column = columns[icol];
 	switch(column.type) {
-	case cppsas7bdat::Column::Type::string: row[icol] = std::string(column.get_string(_p)); break;
-	case cppsas7bdat::Column::Type::integer: row[icol] = column.get_integer(_p); break;
-	case cppsas7bdat::Column::Type::number: row[icol] = column.get_number(_p); break;
-	case cppsas7bdat::Column::Type::datetime: row[icol] = to_string(column.get_datetime(_p)); break;
-	case cppsas7bdat::Column::Type::date: row[icol] = to_string(column.get_date(_p)); break;
-	case cppsas7bdat::Column::Type::time: row[icol] = to_string(column.get_time(_p)); break;
+	case cppsas7bdat::Column::Type::string: process_value(icol, column.get_string(_p)); break;
+	case cppsas7bdat::Column::Type::integer: process_value(icol, column.get_integer(_p)); break;
+	case cppsas7bdat::Column::Type::number: process_value(icol, column.get_number(_p)); break;
+	case cppsas7bdat::Column::Type::datetime: process_value(icol, column.get_datetime(_p)); break;
+	case cppsas7bdat::Column::Type::date: process_value(icol, column.get_date(_p)); break;
+	case cppsas7bdat::Column::Type::time: process_value(icol, column.get_time(_p)); break;
 	}
       }
       f_push_row(_irow, row);
@@ -166,10 +222,10 @@ namespace {
 
     using COL_NUMBERS = Rcpp::NumericVector;
     using COL_INTEGERS = Rcpp::IntegerVector;
-    using COL_DATETIMES = Rcpp::StringVector;
-    using COL_DATES = Rcpp::StringVector;
-    using COL_TIMES = Rcpp::StringVector;
-    using COL_STRINGS = Rcpp::StringVector;
+    using COL_DATETIMES = Rcpp::CharacterVector;
+    using COL_DATES = Rcpp::CharacterVector;
+    using COL_TIMES = Rcpp::CharacterVector;
+    using COL_STRINGS = Rcpp::CharacterVector;
 
     std::vector<COL_NUMBERS> col_numbers;
     std::vector<COL_INTEGERS> col_integers;
@@ -190,7 +246,8 @@ namespace {
     static void prepare_values(const cppsas7bdat::COLUMNS& _columns, _Values& _values, const size_t _size)
     {
       using COL = typename _Values::value_type;
-      _values.resize(_columns.size(), COL(_size));
+      _values.resize(_columns.size());
+      for(auto& val: _values) val = COL(_size);
     }
 
     void prepare_values(const size_t _size)
@@ -212,12 +269,45 @@ namespace {
       setup_col_names();
     }
 
+    static void push_value(COL_STRINGS& _values, const size_t _idata, const cppsas7bdat::SV _x)
+    {
+      _values[_idata] = std::string(_x);
+    }
+
+    static void push_value(COL_NUMBERS& _values, const size_t _idata, const cppsas7bdat::NUMBER _x)
+    {
+      _values[_idata] = _x;
+    }
+
+    static void push_value(COL_INTEGERS& _values, const size_t _idata, const cppsas7bdat::INTEGER _x)
+    {
+      _values[_idata] = _x;
+    }
+
+    static void push_value(COL_DATETIMES& _values, const size_t _idata, const cppsas7bdat::DATETIME _x)
+    {
+      if(_x.is_not_a_date_time()) _values[_idata] = NA_STRING; //R_NilValue;
+      else _values[_idata] = to_string(_x);
+    }
+
+    static void push_value(COL_DATES& _values, const size_t _idata, const cppsas7bdat::DATE _x)
+    {
+      if(_x.is_not_a_date()) _values[_idata] = NA_STRING; //R_NilValue;
+      else _values[_idata] = to_string(_x);
+    }
+
+    static void push_value(COL_TIMES& _values, const size_t _idata, const cppsas7bdat::TIME _x)
+    {
+      if(_x.is_not_a_date_time()) _values[_idata] = NA_STRING; //R_NilValue;
+      else _values[_idata] = to_string(_x);
+    }
+
     template<typename _Values, typename _Fct>
     void push_values(cppsas7bdat::Column::PBUF _p, const cppsas7bdat::COLUMNS& _columns, _Values& _values, _Fct fct)
     {
       const size_t ncols = _columns.size();
       for(size_t icol = 0; icol < ncols; ++icol) {
-	_values[icol][idata] = fct(_columns[icol], _p);
+	push_value(_values[icol], idata, fct(_columns[icol], _p));
       }
     }    
     
@@ -225,10 +315,10 @@ namespace {
 		  [[maybe_unused]]cppsas7bdat::Column::PBUF _p) {
       push_values(_p, columns.numbers, col_numbers, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_number(_p); });
       push_values(_p, columns.integers, col_integers, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_integer(_p); });
-      push_values(_p, columns.datetimes, col_datetimes, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return to_string(column.get_datetime(_p)); });
-      push_values(_p, columns.dates, col_dates, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return to_string(column.get_date(_p)); });
-      push_values(_p, columns.times, col_times, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return to_string(column.get_time(_p)); });
-      push_values(_p, columns.strings, col_strings, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return std::string(column.get_string(_p)); });
+      push_values(_p, columns.datetimes, col_datetimes, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_datetime(_p); });
+      push_values(_p, columns.dates, col_dates, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_date(_p); });
+      push_values(_p, columns.times, col_times, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_time(_p); });
+      push_values(_p, columns.strings, col_strings, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_string(_p); });
       
       iendrow = _irow;
       ++idata;
@@ -248,6 +338,8 @@ namespace {
 
     void flush()
     {
+      if(istartrow > iendrow) return;
+      
       size_t icol={0};
       auto set_values = [&](const auto& _values) {
 			  for(const auto& v: _values) {

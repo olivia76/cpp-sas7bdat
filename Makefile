@@ -62,7 +62,7 @@ tests-python:
 
 .PHONY: tests-R
 tests-R:
-
+	cd test; Rscript testthat.R
 
 .PHONY: lint
 lint:
