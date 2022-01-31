@@ -26,7 +26,7 @@ def check_row(row, ref_row):
         if b is None:
             assert pd.isnull(a)
         elif isinstance(a, datetime.datetime):
-            assert(str(a) == b)
+            assert(a.strftime("%Y-%m-%d %H:%M:%S.%f") == b)
         elif isinstance(a, datetime.date):
             assert(a.isoformat() == b)
         elif isinstance(a, datetime.time):
