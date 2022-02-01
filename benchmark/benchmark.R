@@ -11,17 +11,23 @@ fct1 <- function(sink) {
      r$read_all();
 }
 
-benchmark("Sink" = {
-		 print("Sink")
-		 sink <- Sink$new();
-		 fct1(sink)
-		 print(sink$df)
-		 },
+benchmark(#"Sink" = {
+	#	 print("Sink")
+	#	 sink <- Sink$new();
+	#	 fct1(sink)
+	#	 #print(sink$df)
+	#	 },
           "SinkChunk" = {
 		 print("SinkChunk")
 		 sink <- SinkChunk$new(10000);
 		 fct1(sink)
-		 print(sink$df)
+		 #print(sink$df)
+		 },
+          "SinkData" = {
+		 print("SinkData")
+		 sink <- SinkData$new();
+		 fct1(sink)
+		 #print(sink$df)
 		 },
           replications=1,
 	  columns = c("test", "replications", "elapsed",

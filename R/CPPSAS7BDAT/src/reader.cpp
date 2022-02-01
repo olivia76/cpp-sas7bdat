@@ -33,7 +33,7 @@ namespace {
     return boost::posix_time::to_simple_string(_x);
   }
 
-  SEXP to_string_or_null(const cppsas7bdat::DATETIME _x)
+  /*SEXP to_string_or_null(const cppsas7bdat::DATETIME _x)
   {
     if(_x.is_not_a_date_time()) return R_NilValue;
     else return Rcpp::wrap(to_string(_x));
@@ -49,7 +49,7 @@ namespace {
   {
     if(_x.is_not_a_date_time()) return R_NilValue;
     else return Rcpp::wrap(to_string(_x));
-  }
+    }*/
 
 }
 
@@ -215,10 +215,9 @@ namespace {
     Rcpp::List row;
   };
 
-  struct SinkChunk : public SinkBase {
+  struct SinkByColumns : public SinkBase {
     const size_t size;
-    size_t idata{0};
-    size_t istartrow{0}, iendrow{0}, ilastrow{0};
+    size_t idata{0}, ilastrow{0};
 
     using COL_NUMBERS = Rcpp::NumericVector;
     using COL_INTEGERS = Rcpp::IntegerVector;
@@ -233,13 +232,11 @@ namespace {
     std::vector<COL_DATES> col_dates;
     std::vector<COL_TIMES> col_times;
     std::vector<COL_STRINGS> col_strings;
-    
-    explicit SinkChunk(Environment _sink, const size_t _size)
+
+    explicit SinkByColumns(Environment _sink, const size_t _size)
       : SinkBase(_sink),
-	f_push_rows(sink["push_rows"]),
 	size(_size)
     {
-      //std::cerr << "SinkChunk::SinkChunk(" << size << ')' << std::endl;
     }
     
     template<typename _Values>
@@ -265,7 +262,7 @@ namespace {
       ilastrow = _properties.metadata.row_count;
       SinkBase::set_properties(_properties);
       columns = cppsas7bdat::Columns(_properties.metadata.columns);
-      prepare_values(size);
+      prepare_values(size ? std::min(size, ilastrow) : ilastrow);
       setup_col_names();
     }
 
@@ -320,26 +317,12 @@ namespace {
       push_values(_p, columns.times, col_times, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_time(_p); });
       push_values(_p, columns.strings, col_strings, [](const cppsas7bdat::Column& column, cppsas7bdat::Column::PBUF _p) { return column.get_string(_p); });
       
-      iendrow = _irow;
       ++idata;
-      if(idata == size) {
-	flush();
-	// Check if the were starting the last chunk => resize to a smaller chunk
-	if(istartrow + size > ilastrow && istartrow < ilastrow) {
-	  prepare_values(ilastrow-istartrow);
-	}
-      }
     }
 
-    void end_of_data()
+  protected:
+    void set_values()
     {
-      flush();
-    }
-
-    void flush()
-    {
-      if(istartrow > iendrow) return;
-      
       size_t icol={0};
       auto set_values = [&](const auto& _values) {
 			  for(const auto& v: _values) {
@@ -353,13 +336,8 @@ namespace {
       set_values(col_dates);
       set_values(col_times);
       set_values(col_strings);
-
-      f_push_rows(istartrow, iendrow, rows);
-      idata = 0;
-      istartrow = iendrow+1;
     }
-
-  protected:
+    
     void setup_col_names()
     {
       auto add_col_name = [&](const cppsas7bdat::COLUMNS& _columns) {
@@ -379,9 +357,72 @@ namespace {
     }
     
     cppsas7bdat::Columns columns;  
-    Function f_push_rows;  
     Rcpp::StringVector col_names;
     Rcpp::List rows;
+  };
+
+  struct SinkChunk : public SinkByColumns {
+    size_t istartrow{0}, iendrow{0};
+    
+    explicit SinkChunk(Environment _sink, const size_t _size)
+      : SinkByColumns(_sink, _size),
+	f_push_rows(sink["push_rows"])
+    {
+      //std::cerr << "SinkChunk::SinkChunk(" << size << ')' << std::endl;
+    }
+    
+    void push_row([[maybe_unused]]const size_t _irow,
+		  [[maybe_unused]]cppsas7bdat::Column::PBUF _p) {
+      SinkByColumns::push_row(_irow, _p);
+      
+      iendrow = _irow;
+      if(idata == size) {
+	flush();
+	// Check if the were starting the last chunk => resize to a smaller chunk
+	if(istartrow + size > ilastrow && istartrow < ilastrow) {
+	  prepare_values(ilastrow-istartrow);
+	}
+      }
+    }
+
+    void end_of_data()
+    {
+      flush();
+    }
+
+    void flush()
+    {
+      if(istartrow > iendrow) return;
+      SinkByColumns::set_values();
+      f_push_rows(istartrow, iendrow, rows);
+      idata = 0;
+      istartrow = iendrow+1;
+    }
+
+  protected:
+    Function f_push_rows;  
+  };
+
+  struct SinkData : public SinkByColumns {
+    SinkData(Environment _sink)
+      : SinkByColumns(_sink, 0),
+	f_set_data(sink["set_data"])
+    {
+    }
+
+    void end_of_data()
+    {
+      flush();
+    }
+
+    void flush()
+    {
+      SinkByColumns::set_values();
+      f_set_data(rows);
+    }
+
+  protected:
+    Function f_set_data;    
   };
 }
 
@@ -394,14 +435,21 @@ cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEX
 {
   Environment sink(_sink);
 
-  if(sink.exists("chunk_size") &&
+  if(sink.exists("set_properties") &&
+     sink.exists("chunk_size") &&
      sink.exists("push_rows")) {
     const size_t chunk_size = sink["chunk_size"];
     //std::cerr << "Reader::_build::SinkChunk(" << chunk_size << ')' << std::endl;
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()), SinkChunk(sink, chunk_size));
-  } else {
+  } else if(sink.exists("set_properties") &&
+	    sink.exists("set_data")) {
+    return  cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()), SinkData(sink));
+  } else if(sink.exists("set_properties") &&
+	    sink.exists("push_row")) {
     //std::cerr << "Reader::_build::Sink()" << std::endl;
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()), Sink(sink));
+  } else {
+    throw std::runtime_error("Not a valid sink");
   }
 }
 

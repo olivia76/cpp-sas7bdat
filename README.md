@@ -202,7 +202,7 @@ r$read_all(); OR r$read_row(); OR r$read_rows(chunk_size)
 | File | cppsas7bdat -- native *¹* | cppsas7bdat -- python *¹* | cppsas7bdat -- R *²* | SASLib.js *³* | readstat *¹* | pandas *¹* | sas7bdat -- python *¹* |
 | :--------------------------------------- | :-------: | :------: | :------: | :--------: | :------: | :------: | :------: |
 | data_AHS2013/topical.sas7bdat *ᵃ*        |  0.080 s  |  0.45 s  |   0.30s  |    1.1 s   |   1.8 s  |    11s   |   28 s   |
-| data_misc/numeric_1000000_2.sas7bdat *ᵇ* |  0.013 s  |  0.21 s  |  0.019s  |   0.085 s  |   1.1 s  |   0.9s   |   5.5 s  |
+| data_misc/numeric_1000000_2.sas7bdat *ᵇ* |  0.013 s  |  0.21 s  |  0.02s  |   0.085 s  |   1.1 s  |   0.9s   |   5.5 s  |
 
 > *¹* Measurements done with [hyperfine](https://github.com/sharkdp/hyperfine)  
 > *²* Measurements done with rbenchmark  

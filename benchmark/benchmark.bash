@@ -6,6 +6,7 @@ hyperfine --warmup 1 \
 	  "python3 ./cppsas7bdat.py -f $1 -s chunk" \
 	  "python3 ./cppsas7bdat.py -f $1 -s pd_sink" \
 	  "python3 ./cppsas7bdat.py -f $1 -s pd_chunk" \
+	  "python3 ./cppsas7bdat.py -f $1 -s pd_data" \
 	  "readstat -f $1 /tmp/a.csv" \
 	  "python3 ./pypandas.py $1" \
 	  
