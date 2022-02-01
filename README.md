@@ -6,9 +6,10 @@
 
 
 ## Summary
-This is a toy project with cmake and C++ external polymorphism.
 
-This project is a C++17 implementation of a SAS7BDAT file reader based
+This is a c++ 17 implementation of a SAS7BDAT file reader.  This project also provides a python and R interface.  
+
+This is a toy project with cmake and C++ external polymorphism based
 on different existing projects:
 
 - https://github.com/WizardMac/ReadStat/
