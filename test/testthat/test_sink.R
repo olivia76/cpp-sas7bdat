@@ -11,6 +11,10 @@ library(R6)
 files = RJSONIO::fromJSON("../files.json")
 
 ts <- function(x) { substr(x, 0, 19); }
+str <- function(x) { if(is.null(x)) { ""; } else { x; }; };
+compression <- function(x) { if(is.null(x)) { "none"; } else if(x == "SASYZCRL") { "RLE"; } else { "RDC"; } };
+cf <- function(x) { if(x == "string") { x; } else { "notstring"; } };
+
 
 TestSink <- R6Class("TestSink",
      public=list(
@@ -27,10 +31,6 @@ TestSink <- R6Class("TestSink",
 	  #print(properties$metadata$columns);
 	  #print(self$ref$Columns)
 
-	  str <- function(x) { if(is.null(x)) { ""; } else { x; }; };
-	  compression <- function(x) { if(is.null(x)) { "none"; } else if(x == "SASYZCRL") { "RLE"; } else { "RDC"; } };
-	  cf <- function(x) { if(x == "string") { x; } else { "notstring"; } };
-	
 	  expect_equal(properties$header$endianness, self$ref$Header$endianess);
 	  expect_equal(properties$header$platform, self$ref$Header$platform);
 	  expect_equal(ts(properties$header$date_created), ts(self$ref$Header$date_created));
@@ -138,10 +138,6 @@ TestSinkChunk <- R6Class("TestSinkChunk",
         set_properties = function(properties) {
 	  #print(properties$metadata$columns);
 	  #print(self$ref$Columns)
-
-	  str <- function(x) { if(is.null(x)) { ""; } else { x; }; };
-	  compression <- function(x) { if(is.null(x)) { "none"; } else if(x == "SASYZCRL") { "RLE"; } else { "RDC"; } };
-	  cf <- function(x) { if(x == "string") { x; } else { "notstring"; } };
 	
 	  expect_equal(properties$header$endianness, self$ref$Header$endianess);
 	  expect_equal(properties$header$platform, self$ref$Header$platform);
@@ -258,10 +254,6 @@ TestSinkData <- R6Class("TestSinkData",
 	  #print(self$ref$Columns)
 
 	  self$row_count = properties$metadata$row_count;
-
-	  str <- function(x) { if(is.null(x)) { ""; } else { x; }; };
-	  compression <- function(x) { if(is.null(x)) { "none"; } else if(x == "SASYZCRL") { "RLE"; } else { "RDC"; } };
-	  cf <- function(x) { if(x == "string") { x; } else { "notstring"; } };
 	
 	  expect_equal(properties$header$endianness, self$ref$Header$endianess);
 	  expect_equal(properties$header$platform, self$ref$Header$platform);
