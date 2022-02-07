@@ -2,6 +2,7 @@
 benchmark:
 	./benchmark.bash ../test/data_AHS2013/topical.sas7bdat
 	./benchmark.bash ../test/data_misc/numeric_1000000_2.sas7bdat
+	./benchmark.bash ../test/data_gov/pss1718_pu.sas7bdat
 
 .PHONY: install
 install:

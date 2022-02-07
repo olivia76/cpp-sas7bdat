@@ -192,6 +192,21 @@ namespace {
   };
 }
 
+PyObject* pycppsas7bdat::to_python(boost::posix_time::ptime const& pt)
+{
+  return ptime_to_python_datetime::convert(pt);
+}
+
+PyObject* pycppsas7bdat::to_python(boost::posix_time::time_duration td)
+{
+  return tduration_to_python_delta::convert(td);
+}
+
+PyObject* pycppsas7bdat::to_python(boost::gregorian::date const& date)
+{
+  return gregorian_date_to_python_date::convert(date);
+}
+
 void pycppsas7bdat::bind_datetime()
 {
   using namespace boost::python;

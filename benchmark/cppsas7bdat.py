@@ -1,5 +1,5 @@
 import pycppsas7bdat
-from pycppsas7bdat.sink import Sink, SinkChunk
+from pycppsas7bdat.sink import Sink, SinkChunk, SinkData
 import sys, getopt
 
 print(pycppsas7bdat.getVersion())
@@ -51,7 +51,8 @@ def main(argv):
         'sink': MySink(),
         'chunk': MySinkChunk(),
         'pd_sink': pycppsas7bdat.sink.Sink(),
-        'pd_chunk': pycppsas7bdat.sink.SinkChunk()
+        'pd_chunk': pycppsas7bdat.sink.SinkChunk(),
+        'pd_data': pycppsas7bdat.sink.SinkData(),
     }[sinktype]
     reader = pycppsas7bdat.Reader(inputfilename, sink)
     reader.read_all()
