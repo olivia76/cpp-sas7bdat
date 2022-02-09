@@ -1,6 +1,6 @@
 import pandas as pd
 
-class SinkBase(object):
+class _SinkBase(object):
     def __init__(self):
         self.properties = None
         self.columns = None
@@ -9,7 +9,7 @@ class SinkBase(object):
         self.properties = properties
         self.columns = [col.name for col in properties.metadata.columns]
 
-class Sink(SinkBase):
+class SinkByRow(_SinkBase):
     def __init__(self):
         self.rows = []
     
@@ -20,7 +20,7 @@ class Sink(SinkBase):
     def df(self):
         return pd.DataFrame.from_records(self.rows, columns = self.columns)
 
-class SinkChunk(SinkBase):
+class SinkByChunk(_SinkBase):
     def __init__(self, chunk_size=10000):
         self.rows = []
         self.chunk_size = chunk_size
@@ -33,8 +33,8 @@ class SinkChunk(SinkBase):
     def df(self):
         return pd.concat(self.rows)
 
-class SinkData(SinkBase):
-    def __init__(self, chunk_size=10000):
+class SinkWholeData(_SinkBase):
+    def __init__(self):
         self.df = None
 
     def set_data(self, columns):

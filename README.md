@@ -98,15 +98,23 @@ void read_sas7bdat(...)
 
 ```
 
-2 sinks -- `Sink()` and `SinkChunk(chunk_size)` -- are provided by the
+3 sinks -- `SinkByRow()`, `SinkByChunk(chunk_size)` and `SinkWholeData()` -- are provided by the
 `pycppsas7bdat` python package.  They use `pandas.DataFrame` to store
 the data.  
 
+
+```python
+from pycppsas7bdat.read_sas import read_sas
+
+s = read_sas("filename.sas7bdat")
+print(s.df)
+```
+
 ```python
 from pycppsas7bdat import Reader
-from pycppsas7bdat.sink import Sink, SinkChunk
+from pycppsas7bdat.sink import SinkByRow, SinkByChunk, SinkWholeData
 
-s = Sink() # or SinkChunk()     
+s = SinkByRow() # or SinkByChunk() or SinkWholeData()   
 r = Reader("filename.sas7bdat", s)
 # Read row by row
 while r.read_row(): pass

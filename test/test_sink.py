@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import pytest
 from pycppsas7bdat import Reader
-from pycppsas7bdat.sink import Sink, SinkChunk, SinkData
+from pycppsas7bdat.sink import SinkByRow, SinkByChunk, SinkWholeData
+from pycppsas7bdat.read_sas import read_sas
 import os
 import json
 import datetime
@@ -41,9 +42,9 @@ class TestSink(object):
 
     # Need to use a lambda to create a new sink for each call
     @pytest.mark.parametrize("sink_factory", [
-        lambda: Sink(),
-        lambda: SinkChunk(),
-        lambda: SinkData()
+        lambda: SinkByRow(),
+        lambda: SinkByChunk(),
+        lambda: SinkWholeData()
         ])
     def test_files_sink(self, files, sink_factory):
         f, ref_values = files
@@ -60,3 +61,15 @@ class TestSink(object):
             irow = int(irow)
             check_row(df.iloc[irow].tolist(), ref_row)
 
+class Test_read_sas(object):
+    def test_read_sas(self, files):
+        f, ref_values = files
+        if f.find('big5') != -1: return
+        if f.find('zero_variables') != -1: return
+        f = datafilename(f)
+        sink = read_sas(f)
+        df = sink.df
+        for irow, ref_row in ref_values["Data"].items():
+            irow = int(irow)
+            check_row(df.iloc[irow].tolist(), ref_row)
+        
