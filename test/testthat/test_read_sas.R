@@ -17,9 +17,10 @@ cf <- function(x) { if(x == "string") { x; } else { "notstring"; } };
 
 test_that("I can read a SAS7BDAT file with the read_sas function", {
     for(file in names(files)) {
+    #file="data_AHS2013/homimp.sas7bdat"; {
         ref = files[[file]]
         file=paste0("../", file);
-	print(file);
+	print(paste("read_sas:", file));
 	#print(ref)
 	# Skip big5 and test16: json unicode cannot be decoded correctly 
 	if(grepl("big5", file, fixed=TRUE) == FALSE &&
@@ -86,7 +87,8 @@ test_that("I can read a SAS7BDAT file with the read_sas function", {
 	       ref_idata = ref_idata+1;
 	       ref_irow = ref_irows[ref_idata];
 	     }
-	  }
+	   }
+	   rm(sink);
 	}
     }
 })

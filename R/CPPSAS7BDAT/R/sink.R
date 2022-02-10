@@ -5,7 +5,7 @@
 
 library(R6)
 
-Sink <- R6Class("Sink",
+SinkByRow <- R6Class("SinkByRow",
      public=list(
 	df = NULL,
 	properties = NULL,
@@ -26,7 +26,7 @@ Sink <- R6Class("Sink",
      )
 );
 
-SinkChunk <- R6Class("SinkChunk",
+SinkByChunk <- R6Class("SinkByChunk",
      public=list(
 	df = NULL,
 	properties = NULL,
@@ -47,7 +47,7 @@ SinkChunk <- R6Class("SinkChunk",
      )
 );
 
-SinkData <- R6Class("SinkData",
+SinkWholeData <- R6Class("SinkWholeData",
      public=list(
 	df = NULL,
 	properties = NULL,
