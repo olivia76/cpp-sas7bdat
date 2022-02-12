@@ -96,8 +96,8 @@ namespace cppsas7bdat {
     return os;
   }
 
-  Reader::Reader(PSOURCE&& _source, PSINK&& _sink)
-    : m_pimpl(impl::build(std::move(_source), std::move(_sink)))
+  Reader::Reader(PSOURCE&& _source, PSINK&& _sink, PFILTER&& _filter)
+    : m_pimpl(impl::build(std::move(_source), std::move(_sink), std::move(_filter)))
   {
   }
 
@@ -108,6 +108,7 @@ namespace cppsas7bdat {
   
   Reader::DataSourceConcept::~DataSourceConcept() = default;
   Reader::DatasetSinkConcept::~DatasetSinkConcept() = default;
+  Reader::FilterConcept::~FilterConcept() = default;
 
   const Properties& Reader::properties() const noexcept
   {
@@ -139,10 +140,10 @@ namespace cppsas7bdat {
     return m_pimpl->read_row_no_sink();
   }
 
-  Reader::PIMPL Reader::impl::build(PSOURCE&& _source, PSINK&& _sink)
+  Reader::PIMPL Reader::impl::build(PSOURCE&& _source, PSINK&& _sink, PFILTER&& _filter)
   {
     Properties properties;
-    auto rd = READ::data(std::move(_source), &properties.header, &properties.metadata);
+    auto rd = READ::data(std::move(_source), &properties.header, &properties.metadata, _filter);
     return std::visit([&](auto&& arg) -> Reader::PIMPL {
 			using T = std::decay_t<decltype(arg)>;
 			using RI = INTERNAL::ReaderImpl<T>;

@@ -11,83 +11,11 @@
 
 #include <cppsas7bdat/version.hpp>
 #include <cppsas7bdat/column.hpp>
-
-#include <string>
+#include <cppsas7bdat/column-filter.hpp>
+#include <cppsas7bdat/properties.hpp>
 #include <memory>
-#include <fstream>
-#include <vector>
 
 namespace cppsas7bdat {
-
-  enum class Endian {
-    unknown, little, big
-  };
-  enum class Format {
-    bit32, bit64 		     
-  };
-  enum class Platform {
-    unknown, unix, windows		       
-  };
-  enum class Compression {
-    none, RLE, RDC
-  };
-
-  std::string_view to_string(const Endian _x);
-  std::string_view to_string(const Format _x);
-  std::string_view to_string(const Platform _x);
-  std::string_view to_string(const Compression _x);
-  
-  std::ostream& operator<<(std::ostream& os, const Endian _x);
-  std::ostream& operator<<(std::ostream& os, const Format _x);
-  std::ostream& operator<<(std::ostream& os, const Platform _x);
-  std::ostream& operator<<(std::ostream& os, const Compression _x);
-  
-  struct Properties {
-    std::string filename;
-    struct Header {
-      Header() = default;
-      Header(const Header&) noexcept = delete;
-      Header& operator=(const Header&) noexcept = delete;
-      Header(Header&&) noexcept = default;
-      Header& operator=(Header&&) noexcept = delete;
-       
-      Format format{Format::bit32};
-      Endian endianness{Endian::unknown};
-      Platform platform{Platform::unknown};
-      DATETIME date_created;
-      DATETIME date_modified;
-      std::string dataset_name;
-      std::string encoding;
-      std::string file_type;
-      std::string sas_release;
-      std::string sas_server_type;
-      std::string os_type;
-      std::string os_name;
-      size_t header_length{0};
-      size_t page_length{0};
-      size_t page_count{0};
-    } header;
-    struct Metadata {
-      Metadata() = default;
-      Metadata(const Metadata&) noexcept = delete;
-      Metadata& operator=(const Metadata&) noexcept = delete;
-      Metadata(Metadata&&) noexcept = default;
-      Metadata& operator=(Metadata&&) noexcept = delete;
-      
-      Compression compression{Compression::none};
-      std::string creator;
-      std::string creator_proc;
-      size_t row_length{0};
-      size_t row_count{0};
-      size_t column_count{0};
-      size_t col_count_p1{0};
-      size_t col_count_p2{0};
-      size_t mix_page_row_count{0};
-      size_t lcs{0};
-      size_t lcp{0};
-      COLUMNS columns;
-    } metadata;
-  };
 
   class Reader {
   private:
@@ -99,7 +27,7 @@ namespace cppsas7bdat {
     };
 
     template<typename _Sp>
-    struct DataSourceModel : DataSourceConcept {
+    struct DataSourceModel : public DataSourceConcept {
       DataSourceModel(_Sp&& _source)
 	: source(std::forward<_Sp>(_source))
       {
@@ -125,7 +53,7 @@ namespace cppsas7bdat {
     };
 
     template<typename _Dp>
-    struct DatasetSinkModel : DatasetSinkConcept {
+    struct DatasetSinkModel : public DatasetSinkConcept {
       DatasetSinkModel(_Dp&& _dataset)
 	: dataset(std::forward<_Dp>(_dataset)) {}
 
@@ -148,11 +76,31 @@ namespace cppsas7bdat {
       _Dp dataset;
     };
 
+    struct FilterConcept {
+      virtual ~FilterConcept();
+
+      virtual bool accept(const Column& _column) const = 0;
+    };
+
+    template<typename _Fp>
+    struct FilterModel : public FilterConcept {
+      FilterModel(_Fp&& _filter)
+	: filter(std::forward<_Fp>(_filter))
+      {
+      }
+
+      bool accept(const Column& _column) const final { return filter.accept(_column); }
+
+    private:
+      _Fp filter;
+    };
+
   public:
     class impl;
     using PIMPL = std::unique_ptr<impl>;
     using PSOURCE = std::unique_ptr<DataSourceConcept>;
     using PSINK = std::unique_ptr<DatasetSinkConcept>;
+    using PFILTER = std::unique_ptr<FilterConcept>;
 
     template<typename _Source>
     static PSOURCE build_source(_Source&& _source)
@@ -164,18 +112,26 @@ namespace cppsas7bdat {
     {
       return std::make_unique< DatasetSinkModel<_Sink> >(std::forward<_Sink>(_sink));
     }
+    template<typename _Filter>
+    static PFILTER build_filter(_Filter&& _filter)
+    {
+      return std::make_unique< FilterModel<_Filter> >(std::forward<_Filter>(_filter));
+    }
 
   private:
     PIMPL m_pimpl;
 
   protected:
-    Reader(PSOURCE&& _source, PSINK&& _sink);
+    Reader(PSOURCE&& _source, PSINK&& _sink, PFILTER&& _filter);
     
   public:
-    template<typename _Source, typename _Sink>
-    explicit Reader(_Source&& _source, _Sink&& _sink)
-      : Reader(build_source(std::forward<_Source>(_source)),
-	       build_sink(std::forward<_Sink>(_sink)))
+    template<typename _Source, typename _Sink, typename _Filter=ColumnFilter::AcceptAll>
+    explicit Reader(_Source&& _source, _Sink&& _sink, _Filter&& _filter={})
+      : Reader(
+	       build_source(std::forward<_Source>(_source)),
+	       build_sink(std::forward<_Sink>(_sink)),
+	       build_filter(std::forward<_Filter>(_filter))
+	       )
     {
     }
     Reader(Reader&&) noexcept;

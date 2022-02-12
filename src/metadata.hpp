@@ -120,11 +120,11 @@ namespace cppsas7bdat {
       {
       }
 
-      void set_metadata(Properties::Metadata* _metadata) {
+      void set_metadata(Properties::Metadata* _metadata, const Reader::PFILTER& _filter) {
 	while(read_page()) {
 	  if(process_page(_metadata)) break;
 	}
-	create_columns(_metadata);
+	create_columns(_metadata, _filter);
       }
 
       bool process_page(Properties::Metadata* _metadata) {
@@ -308,7 +308,7 @@ namespace cppsas7bdat {
 	data_subheaders.emplace_back(_subheader);
       } 
 
-      void create_columns(Properties::Metadata* _metadata)
+      void create_columns(Properties::Metadata* _metadata, const Reader::PFILTER& _filter)
       {
 	const size_t ncols = _metadata->column_count;
 	_metadata->columns.reserve(ncols);	
@@ -334,7 +334,10 @@ namespace cppsas7bdat {
 	  auto add_column = [&](auto&& formatter) {
 			      D(spdlog::info("add_column: {}, {}, {}, {}, {}, {}\n", column_name, column_label, column_format, column_offset, column_length, column_type));
 			      column_type_not_supported = false;
-			      _metadata->columns.emplace_back(column_name, column_label, column_format, std::move(formatter));
+			      
+			      Column column(column_name, column_label, column_format, std::move(formatter));
+			      if(!_filter || _filter->accept(column))
+				_metadata->columns.emplace_back(std::move(column)); //column_name, column_label, column_format, std::move(formatter));
 			    };
 
 	  if(column_type == Type::string) add_column(FORMATTER::StringFormatter(column_offset, column_length));

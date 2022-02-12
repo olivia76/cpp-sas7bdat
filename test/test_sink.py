@@ -53,7 +53,6 @@ class TestSink(object):
         f = datafilename(f)
         print(f)
         sink = sink_factory()
-        print(sink)
         test = Reader(f, sink)
         test.read_all()
         df = sink.df
@@ -73,3 +72,76 @@ class Test_read_sas(object):
             irow = int(irow)
             check_row(df.iloc[irow].tolist(), ref_row)
         
+class Test_IncludeExclude(object):
+    
+    @pytest.mark.parametrize("sink_factory", [
+        lambda: SinkByRow(),
+        lambda: SinkByChunk(),
+        lambda: SinkWholeData()
+        ])
+    def test_NoIncludeExclude(self, sink_factory):
+        f = "data_AHS2013/homimp.sas7bdat"
+        f = datafilename(f)
+        print(f)
+        sink = sink_factory()
+        test = Reader(f, sink, include=None, exclude=None)
+        test.read_all()
+        assert [c.name for c in sink.properties.metadata.columns] == ["RAS", "RAH", "RAD", "JRAS", "JRAD", "CONTROL"]
+    
+    @pytest.mark.parametrize("sink_factory", [
+        lambda: SinkByRow(),
+        lambda: SinkByChunk(),
+        lambda: SinkWholeData()
+        ])
+    def test_BadInclude(self, sink_factory):
+        f = "data_AHS2013/homimp.sas7bdat"
+        f = datafilename(f)
+        print(f)
+        sink = sink_factory()
+        with pytest.raises(Exception) as e:
+            test = Reader(f, sink, include="A")
+        with pytest.raises(Exception) as e:
+            test = Reader(f, sink, include=["A", None])
+            
+    @pytest.mark.parametrize("sink_factory", [
+        lambda: SinkByRow(),
+        lambda: SinkByChunk(),
+        lambda: SinkWholeData()
+        ])
+    def test_BadExclude(self, sink_factory):
+        f = "data_AHS2013/homimp.sas7bdat"
+        f = datafilename(f)
+        print(f)
+        sink = sink_factory()
+        with pytest.raises(Exception) as e:
+            test = Reader(f, sink, exclude="A")
+        with pytest.raises(Exception) as e:
+            test = Reader(f, sink, exclude=["A", 1])
+    
+    @pytest.mark.parametrize("sink_factory", [
+        lambda: SinkByRow(),
+        lambda: SinkByChunk(),
+        lambda: SinkWholeData()
+        ])
+    def test_Include(self, sink_factory):
+        f = "data_AHS2013/homimp.sas7bdat"
+        f = datafilename(f)
+        print(f)
+        sink = sink_factory()
+        test = Reader(f, sink, include=["RAS",])
+        test.read_all()
+        assert [c.name for c in sink.properties.metadata.columns] == ["RAS"]
+    
+    @pytest.mark.parametrize("sink_factory", [
+        lambda: SinkByRow(),
+        lambda: SinkByChunk(),
+        lambda: SinkWholeData()
+        ])
+    def test_Exclude(self, sink_factory):
+        f = "data_AHS2013/homimp.sas7bdat"
+        f = datafilename(f)
+        print(f)
+        sink = sink_factory()
+        test = Reader(f, sink, exclude=["RAS", ])
+        test.read_all()
+        assert [c.name for c in sink.properties.metadata.columns] == ["RAH", "RAD", "JRAS", "JRAD", "CONTROL"]

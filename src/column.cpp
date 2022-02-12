@@ -7,19 +7,22 @@
  */
 
 #include <cppsas7bdat/column.hpp>
+#include <cppsas7bdat/column-filter.hpp>
 
-namespace {
-  cppsas7bdat::COLUMNS get_columns(const cppsas7bdat::COLUMNS& _columns, cppsas7bdat::Column::Type _type)
+namespace cppsas7bdat {
+
+  Column::FormatterConcept::~FormatterConcept()
   {
-    cppsas7bdat::COLUMNS columns;
-    for(auto column: _columns) {
+  }
+
+  COLUMNS get_columns(const COLUMNS& _columns, Column::Type _type)
+  {
+    COLUMNS columns;
+    for(const auto& column: _columns) {
       if(column.type == _type) columns.emplace_back(column);
     }    
     return columns;
   }
-}
-
-namespace cppsas7bdat {
   
   Columns::Columns(const COLUMNS& _columns)
     : strings(get_columns(_columns, Column::Type::string)),

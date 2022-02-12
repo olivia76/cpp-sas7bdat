@@ -61,7 +61,7 @@ tests-python:
 	coverage xml -o build/coverage-python.xml
 
 .PHONY: tests-R
-tests-R:
+tests-R: build-R
 	cd test; Rscript testthat.R
 
 .PHONY: lint

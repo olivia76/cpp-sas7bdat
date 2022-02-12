@@ -62,10 +62,11 @@ namespace cppsas7bdat {
     template<Endian _endian, Format _format>
     inline READ_METADATA<DATASOURCE, _endian, _format> _read_metadata(READ_HEADER<DATASOURCE, _endian, _format>&& rh,
 								      const Properties::Header* _header,
-								      Properties::Metadata* _metadata)
+								      Properties::Metadata* _metadata,
+								      const Reader::PFILTER& _filter)
     {
       READ_METADATA<DATASOURCE, _endian, _format> rm(std::move(rh), _header);
-      rm.set_metadata(_metadata);
+      rm.set_metadata(_metadata, _filter);
       return rm;
     }
 
@@ -113,11 +114,12 @@ namespace cppsas7bdat {
 
     inline RM read_metadata(RH&& rh,
 			    const Properties::Header* _header,
-			    Properties::Metadata* _metadata)
+			    Properties::Metadata* _metadata,
+			    const Reader::PFILTER& _filter)
     {
       return std::visit([&](auto&& arg) -> RM {
 			  using T = std::decay_t<decltype(arg)>;
-			  return _read_metadata<T::endian, T::format>(std::move(arg), _header, _metadata);
+			  return _read_metadata<T::endian, T::format>(std::move(arg), _header, _metadata, _filter);
 			}, rh);
     }
 
@@ -161,16 +163,18 @@ namespace cppsas7bdat {
 
     inline INTERNAL::RM metadata(INTERNAL::DATASOURCE&& _source,
 				 Properties::Header* _header,
-				 Properties::Metadata* _metadata)
+				 Properties::Metadata* _metadata,
+				 const Reader::PFILTER& _filter)
     {
-      return INTERNAL::read_metadata(READ::header(std::move(_source), _header), _header, _metadata);
+      return INTERNAL::read_metadata(READ::header(std::move(_source), _header), _header, _metadata, _filter);
     }
 
     inline INTERNAL::RD data(INTERNAL::DATASOURCE&& _source,
 			     Properties::Header* _header,
-			     Properties::Metadata* _metadata)
+			     Properties::Metadata* _metadata,
+			     const Reader::PFILTER& _filter)
     {
-      return INTERNAL::read_data(INTERNAL::read_metadata(INTERNAL::read_header(INTERNAL::check_header(std::move(_source), _header), _header), _header, _metadata), _metadata);
+      return INTERNAL::read_data(INTERNAL::read_metadata(INTERNAL::read_header(INTERNAL::check_header(std::move(_source), _header), _header), _header, _metadata, _filter), _metadata);
     }
     
   }
@@ -178,7 +182,7 @@ namespace cppsas7bdat {
   class Reader::impl {
   public:
 
-    static PIMPL build(PSOURCE&& _source, PSINK&& _sink);
+    static PIMPL build(PSOURCE&& _source, PSINK&& _sink, PFILTER&& _filter);
     
     //explicit impl(PSOURCE&& _source, PSINK&& _sink)
     explicit impl(PSINK&& _sink, Properties&& _properties)

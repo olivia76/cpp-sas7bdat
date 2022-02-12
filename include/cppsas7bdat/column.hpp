@@ -35,7 +35,7 @@ namespace cppsas7bdat {
     using PIMPL = std::shared_ptr<FormatterConcept>;
 
     struct FormatterConcept {
-      virtual ~FormatterConcept() {}
+      virtual ~FormatterConcept();
 
       virtual SV       get_string(PBUF _p) const = 0;
       virtual NUMBER   get_number(PBUF _p) const = 0;
@@ -155,7 +155,7 @@ namespace cppsas7bdat {
     COLUMNS datetimes;
     COLUMNS dates;
     COLUMNS times;
-    
+
     Columns() = default;
     explicit Columns(const COLUMNS& _columns);
   };  

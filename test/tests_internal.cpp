@@ -131,7 +131,7 @@ SCENARIO("When I read a file, the metadata is set properly", "[internal][read_me
     cppsas7bdat::Properties::Header header;
     cppsas7bdat::Properties::Metadata metadata;
     WHEN("The metadata is read") {
-      cppsas7bdat::READ::metadata(open_file(filename), &header, &metadata);
+      cppsas7bdat::READ::metadata(open_file(filename), &header, &metadata, {});
       THEN("The metadata values are correct") {
 	CHECK(metadata.creator == get_string(ref_header["creator"]));
 	CHECK(metadata.creator_proc == get_string(ref_header["creator_proc"]));
@@ -190,7 +190,7 @@ SCENARIO("When I read a file, the data are read properly", "[internal][read_data
     cppsas7bdat::Properties::Header header;
     cppsas7bdat::Properties::Metadata metadata;
     WHEN("The data is read") {
-      auto rd = cppsas7bdat::READ::data(open_file(filename), &header, &metadata);
+      auto rd = cppsas7bdat::READ::data(open_file(filename), &header, &metadata, {});
       THEN("The data values are correct") {
 	size_t row_read = 0;
 
