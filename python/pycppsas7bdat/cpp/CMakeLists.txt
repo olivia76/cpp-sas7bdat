@@ -1,9 +1,12 @@
+find_package(fmt)
+
 get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 Python3_add_library(${TARGET} MODULE pycppsas7bdat.cpp import_datetime.cpp import_datetime.hpp reader.cpp reader.hpp sink.hpp)
 set_target_properties(${TARGET} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
 set_target_properties(${TARGET} PROPERTIES SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
 target_link_libraries(${TARGET} PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(${TARGET} PRIVATE fmt::fmt)
 target_link_libraries(${TARGET} PRIVATE ${BOOST_PYTHON_LIBRARY} Python3::NumPy)
 target_link_libraries(${TARGET} PRIVATE cppsas7bdat)
 
