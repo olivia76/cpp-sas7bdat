@@ -114,7 +114,7 @@ test_that("I can read a SAS7BDAT file with the default Sink", {
         file=paste0("../", file);
 	print(paste("Default sink:", file));
       	sink = TestSink$new(ref);
-        reader = CPPSAS7BDAT::Reader(file, sink);
+        reader <- CPPSAS7BDAT::sas_reader(file, sink);
 	# Skip big5 and test16: json unicode cannot be decoded correctly 
 	if(grepl("big5", file, fixed=TRUE) == FALSE &&
 	   grepl("test16", file, fixed=TRUE) == FALSE) {
@@ -230,7 +230,7 @@ test_that("I can read a SAS7BDAT file with the Chunk Sink", {
         file=paste0("../", file);
 	print(paste("Chunk sink:", file));
       	sink = TestSinkChunk$new(ref);
-        reader = CPPSAS7BDAT::Reader(file, sink);
+        reader = CPPSAS7BDAT::sas_reader(file, sink);
 	# Skip big5 and test16: json unicode cannot be decoded correctly 
 	if(grepl("big5", file, fixed=TRUE) == FALSE &&
 	   grepl("test16", file, fixed=TRUE) == FALSE) {
@@ -348,7 +348,7 @@ test_that("I can read a SAS7BDAT file with the Data Sink", {
         file=paste0("../", file);
 	print(paste("Data sink", file));
       	sink = TestSinkData$new(ref);
-        reader = CPPSAS7BDAT::Reader(file, sink);
+        reader = CPPSAS7BDAT::sas_reader(file, sink);
 	# Skip big5 and test16: json unicode cannot be decoded correctly 
 	if(grepl("big5", file, fixed=TRUE) == FALSE &&
 	   grepl("test16", file, fixed=TRUE) == FALSE) {

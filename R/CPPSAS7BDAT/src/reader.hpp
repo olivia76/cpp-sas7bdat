@@ -13,9 +13,9 @@ namespace Rcppsas7bdat {
 
   class Reader : public cppsas7bdat::Reader {
   public:
-    static SEXP build(std::string _inputfilename, SEXP _sink);
+    static SEXP build(std::string inputfilename, SEXP sink, SEXP include, SEXP exclude);
     
-    Reader(std::string _inputfilename, SEXP _sink);
+    Reader(std::string inputfilename, SEXP sink, SEXP include, SEXP exclude);
 
     SEXP properties() const;
 
@@ -25,7 +25,7 @@ namespace Rcppsas7bdat {
     size_t current_row_index() const;
 
   protected:
-    static cppsas7bdat::Reader _build(std::string _inputfilename, SEXP _sink);
+    static cppsas7bdat::Reader _build(std::string _inputfilename, SEXP _sink, SEXP _include, SEXP _exclude);
   };
   
 }

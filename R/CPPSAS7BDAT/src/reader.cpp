@@ -9,6 +9,8 @@
 #include "reader.hpp"
 #include "wrap_object.hpp"
 #include <cppsas7bdat/datasource_ifstream.hpp>
+#include <cppsas7bdat/column-filter.hpp>
+#include <fmt/core.h>
 
 using namespace Rcpp;
 
@@ -426,12 +428,35 @@ namespace {
   };
 }
 
-Rcppsas7bdat::Reader::Reader(std::string _inputfilename, SEXP _sink)
-  : cppsas7bdat::Reader(_build(_inputfilename, _sink))
+Rcppsas7bdat::Reader::Reader(std::string _inputfilename, SEXP _sink, SEXP _include, SEXP _exclude)
+  : cppsas7bdat::Reader(_build(_inputfilename, _sink, _include, _exclude))
 {
 }
 
-cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEXP _sink)
+namespace {
+  cppsas7bdat::ColumnFilter::IncludeExclude filter(SEXP _include, SEXP _exclude)
+  {
+    auto list_to_set = [](std::string _context, auto& _set, SEXP _object) -> void {
+			 if(Rf_isNull(_object)) return;
+			 if(TYPEOF(_object) != STRSXP) {
+			   throw std::runtime_error(fmt::format("{} argument is not a vector of character", _context));
+			 }
+			 Rcpp::CharacterVector list(_object);
+			 const int n = list.size();
+			 for (int i = 0; i<n; ++i) {
+			   std::cerr << "#" << i << '/' << n << ':' << Rcpp::as<std::string>(list[i]) << std::endl;
+			   _set.insert(Rcpp::as<std::string>(list[i]));
+			 }
+		       };
+    
+    cppsas7bdat::ColumnFilter::IncludeExclude f;
+    list_to_set("include", f.included, _include);
+    list_to_set("exclude", f.excluded, _exclude);      
+    return f;
+  }
+}
+
+cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEXP _sink, SEXP _include, SEXP _exclude)
 {
   Environment sink(_sink);
 
@@ -440,22 +465,28 @@ cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEX
      sink.exists("push_rows")) {
     const size_t chunk_size = sink["chunk_size"];
     //std::cerr << "Reader::_build::SinkChunk(" << chunk_size << ')' << std::endl;
-    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()), SinkChunk(sink, chunk_size));
+    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()),
+			       SinkChunk(sink, chunk_size),
+			       filter(_include, _exclude));
   } else if(sink.exists("set_properties") &&
 	    sink.exists("set_data")) {
-    return  cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()), SinkData(sink));
+    return  cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()),
+				SinkData(sink),
+				filter(_include, _exclude));
   } else if(sink.exists("set_properties") &&
 	    sink.exists("push_row")) {
     //std::cerr << "Reader::_build::Sink()" << std::endl;
-    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()), Sink(sink));
+    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()),
+			       Sink(sink),
+			       filter(_include, _exclude));
   } else {
     throw std::runtime_error("Not a valid sink");
   }
 }
 
-SEXP Rcppsas7bdat::Reader::build(std::string _inputfilename, SEXP _sink)
+SEXP Rcppsas7bdat::Reader::build(std::string _inputfilename, SEXP _sink, SEXP _include, SEXP _exclude)
 {
-  return Rcpp::wrap_object(Reader(_inputfilename, _sink));
+  return Rcpp::wrap_object(Reader(_inputfilename, _sink, _include, _exclude));
 }
 
 SEXP Rcppsas7bdat::Reader::properties() const

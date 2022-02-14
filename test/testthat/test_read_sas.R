@@ -25,7 +25,7 @@ test_that("I can read a SAS7BDAT file with the read_sas function", {
 	# Skip big5 and test16: json unicode cannot be decoded correctly 
 	if(grepl("big5", file, fixed=TRUE) == FALSE &&
 	   grepl("test16", file, fixed=TRUE) == FALSE) {
-	   sink <- read_sas(file);
+	   sink <- CPPSAS7BDAT::read_sas(file);
            properties <- sink$properties;
 	   expect_equal(properties$header$endianness, ref$Header$endianess);
 	   expect_equal(properties$header$platform, ref$Header$platform);

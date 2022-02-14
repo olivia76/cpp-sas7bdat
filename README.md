@@ -106,7 +106,7 @@ the data.
 ```python
 from pycppsas7bdat.read_sas import read_sas
 
-s = read_sas("filename.sas7bdat")
+s = read_sas("filename.sas7bdat", include=[...], exclude=[...])
 print(s.df)
 ```
 
@@ -115,7 +115,7 @@ from pycppsas7bdat import Reader
 from pycppsas7bdat.sink import SinkByRow, SinkByChunk, SinkWholeData
 
 s = SinkByRow() # or SinkByChunk() or SinkWholeData()   
-r = Reader("filename.sas7bdat", s)
+r = Reader("filename.sas7bdat", s, include=[...], exclude=[...])
 # Read row by row
 while r.read_row(): pass
 
@@ -175,6 +175,8 @@ class MySinkChunk(object):
 require(CPPSAS7BDAT)
 library(R6)
 
+sink <- CPPSAS7BDAT::read_sas("path/to/file.sas7bdat", include=c(...), exclude=c(...));
+
 MySink <- R6Class("MySink",
      public=list(
         initialize = function() {
@@ -200,7 +202,7 @@ MySinkChunk <- R6Class("MySinkChunk",
 );
 
 sink <- MySink$new(); # OR MySinkChunk$new(10000);
-r <- CPPSAS7BDAT::Reader("path/to/file.sas7bdat", sink);
+r <- CPPSAS7BDAT::sas_reader("path/to/file.sas7bdat", sink, include=c(...), exclude=c(...));
 r$read_all(); OR r$read_row(); OR r$read_rows(chunk_size)
 ```
 

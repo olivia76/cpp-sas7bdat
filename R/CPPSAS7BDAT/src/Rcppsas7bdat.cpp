@@ -15,7 +15,7 @@ RCPP_MODULE(Rcppsas7bdat) {
 
   ::Rcpp::function("Reader", &::Rcppsas7bdat::Reader::build);
   ::Rcpp::class_< ::Rcppsas7bdat::Reader > ("Reader")
-      .constructor< std::string, SEXP >()
+      .constructor< std::string, SEXP, SEXP, SEXP >()
       .method( "properties", &::Rcppsas7bdat::Reader::properties )
       .method( "read_all", &::Rcppsas7bdat::Reader::read_all )
       .method( "read_row", &::Rcppsas7bdat::Reader::read_row )
