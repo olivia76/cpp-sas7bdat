@@ -57,7 +57,7 @@ jobs:
         pip3 install --upgrade pip
         pip3 install wheel setuptools gcovr numpy cmaketools
         pip3 install conan --upgrade
-	
+
     - name: Install conan on windows
       if: runner.os == 'Windows'
       run: |
