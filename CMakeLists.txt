@@ -16,9 +16,11 @@ include(cmake/PreventInSourceBuilds.cmake)
 # variable controlling whether the build is a shared or static library
 if (WIN32)
   set(LIBRARY_TYPE STATIC CACHE STRING "type of library to make for lib_cppsas7bdat")
+  set(Boost_USE_STATIC_LIBS ON)
 else()
   #set(LIBRARY_TYPE SHARED CACHE STRING "type of library to make for lib_cppsas7bdat")
   set(LIBRARY_TYPE STATIC CACHE STRING "type of library to make for lib_cppsas7bdat")
+  set(Boost_USE_STATIC_LIBS ON)
 endif()
 
 #add_library(project_warnings INTERFACE)
@@ -98,6 +100,7 @@ endif()
 
 find_package(Boost REQUIRED COMPONENTS date_time)
 message(STATUS "Boost version: ${Boost_VERSION}")
+message(STATUS "BOOST LIBRARIES LOCATION: " ${Boost_LIBRARIES})
 include_directories( ${Boost_INCLUDE_DIR} )
 
 if(ENABLE_TESTING)
