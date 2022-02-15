@@ -26,7 +26,13 @@ endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-add_compile_options(-Wall -Wextra -pedantic -O3)
+
+if (WIN32)
+  #
+else()
+  #
+  add_compile_options(-Wall -Wextra -pedantic -O3)
+endif()
 
 # Link this 'library' to set the c++ standard / compile-time options requested
 add_library(project_options INTERFACE)
