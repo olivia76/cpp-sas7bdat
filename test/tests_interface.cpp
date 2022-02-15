@@ -160,7 +160,7 @@ namespace {
 	  INFO("Colname=" << column.name << '[' << icol << "] row=" << ref_irow);
 	  switch(column.type) {
 	  case cppsas7bdat::Column::Type::string:
-	    CHECK(column.get_string(_p) == refval);
+	    CHECK(std::string(column.get_string(_p)) == refval);
 	    break;
 	  case cppsas7bdat::Column::Type::integer:
 	    CHECK(column.get_integer(_p) == refval);

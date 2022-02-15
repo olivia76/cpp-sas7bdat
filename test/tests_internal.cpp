@@ -206,7 +206,7 @@ SCENARIO("When I read a file, the data are read properly", "[internal][read_data
 	      INFO("Colname=" << column.name << '[' << icol << "] row=" << ref_irow);
 	      switch(column.type) {
 	      case cppsas7bdat::Column::Type::string:
-		CHECK(column.get_string(p) == refval);
+		CHECK(std::string(column.get_string(p)) == refval);
 		break;
 	      case cppsas7bdat::Column::Type::integer:
 		CHECK(column.get_integer(p) == refval);
