@@ -89,8 +89,9 @@ namespace cppsas7bdat {
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
       using Decompressor = _Decompressor;
-      
-      constexpr static size_t integer_size = BUFFER<_endian, _format>::integer_size;
+
+      using CBUFFER = BUFFER<_endian, _format>;
+      constexpr static size_t integer_size = CBUFFER::integer_size;
 
       mutable _Decompressor decompressor;
       const Properties::Metadata* metadata;
