@@ -64,6 +64,7 @@ jobs:
         pip3 install --user --upgrade pip
         pip3 install --user wheel setuptools gcovr numpy cmaketools
         pip3 install --user conan --upgrade
+	echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH 
 
     - name: Install / Configure dependencies
       shell: bash
