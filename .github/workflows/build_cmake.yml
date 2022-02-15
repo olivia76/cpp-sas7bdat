@@ -28,15 +28,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'macos-latest']   # , 'macos-latest', 'windows-latest'
+        os: [windows-latest]   #['ubuntu-latest', 'macos-latest']   # , 'macos-latest', 'windows-latest'
         include:
-        - os: ubuntu-latest
-          ENABLE_COVERAGE: ON
-        #- os: windows-latest
-        #  # Windows works differently
-        #  ENABLE_COVERAGE: OFF
-        - os: macos-latest
-          ENABLE_COVERAGE: ON
+        #- os: ubuntu-latest
+        #  ENABLE_COVERAGE: ON
+        - os: windows-latest
+          # Windows works differently
+          ENABLE_COVERAGE: OFF
+        #- os: macos-latest
+        #  ENABLE_COVERAGE: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -99,7 +99,7 @@ jobs:
       if: runner.os == 'Windows'
       working-directory: ./build
       run: |
-        OpenCppCoverage.exe --sources cpp_starter_project --export_type cobertura:coverage.xml --cover_children -- ctest -C $BUILD_TYPE
+        OpenCppCoverage.exe --sources cpp-sas7bdat --export_type cobertura:coverage.xml --cover_children -- ctest -C $BUILD_TYPE
 
     - name: Publish to codecov
       uses: codecov/codecov-action@v2
