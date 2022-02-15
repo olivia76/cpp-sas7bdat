@@ -51,11 +51,19 @@ jobs:
           ~/.cache/pip
         key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
 
-    - name: Install conan
+    - name: Install conan on not windows
+      if: runner.os != 'Windows'
       run: |
         pip3 install --upgrade pip
         pip3 install wheel setuptools gcovr numpy cmaketools
         pip3 install conan --upgrade
+	
+    - name: Install conan on windows
+      if: runner.os == 'Windows'
+      run: |
+        pip3 install --user --upgrade pip
+        pip3 install --user wheel setuptools gcovr numpy cmaketools
+        pip3 install --user conan --upgrade
 
     - name: Install / Configure dependencies
       shell: bash
