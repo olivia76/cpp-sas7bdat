@@ -27,7 +27,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_compile_definitions(BOOST_DATE_TIME_NO_LIB)
+#add_compile_definitions(BOOST_DATE_TIME_NO_LIB)
 if (WIN32)
 else()
   #
