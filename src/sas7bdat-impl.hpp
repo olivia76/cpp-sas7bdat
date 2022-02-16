@@ -184,11 +184,9 @@ namespace cppsas7bdat {
 
     static PIMPL build(PSOURCE&& _source, PSINK&& _sink, PFILTER&& _filter);
     
-    //explicit impl(PSOURCE&& _source, PSINK&& _sink)
     explicit impl(PSINK&& _sink, Properties&& _properties)
       :	m_sink(std::move(_sink)),
 	m_properties(std::move(_properties))
-	//m_read_data(READ::data(std::move(_source), &m_properties.header, &m_properties.metadata))
     {
       m_sink->set_properties(properties());
     }
@@ -197,7 +195,6 @@ namespace cppsas7bdat {
     const Properties& properties() const noexcept { return m_properties; }
 
     virtual size_t current_row_index() const noexcept = 0;
-    //size_t current_row_index() const noexcept { return INTERNAL::current_row_index(m_read_data); }
   
     void push_row(const size_t _row_index, Column::PBUF _p)
     {
@@ -210,19 +207,8 @@ namespace cppsas7bdat {
     }
 
     virtual Column::PBUF read_row_no_sink() = 0;
-    /*{
-      auto vals = INTERNAL::read_line(m_read_data);
-      return vals ? vals->data() : nullptr;
-      }*/
 
     virtual bool read_row() = 0;
-    /*{
-      const size_t row_index = current_row_index();
-      auto vals = INTERNAL::read_line(m_read_data);
-      if(!vals) return false;
-      push_row(row_index, vals->data());
-      return true;
-      }*/
 
     bool read_rows(size_t _chunk_size)
     {
@@ -238,16 +224,13 @@ namespace cppsas7bdat {
   private:
     PSINK m_sink;    
     Properties m_properties;
-    //INTERNAL::RD m_read_data;
   };
 
   namespace INTERNAL {
     
-    //template<Endian _endian, Format _format, typename _Decompressor>
     template<typename _RD>
     class ReaderImpl : public Reader::impl {
     public:
-      //using _RD = READ_DATA<DATASOURCE, _endian, _format, _Decompressor>;
       explicit ReaderImpl(_RD&& _rd, Reader::PSINK&& _sink, Properties&& _properties)
 	: Reader::impl(std::move(_sink), std::move(_properties)),
 	  m_read_data(std::forward<_RD>(_rd))

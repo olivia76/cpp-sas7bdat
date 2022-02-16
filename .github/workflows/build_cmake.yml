@@ -108,7 +108,16 @@ jobs:
       if: runner.os == 'Windows'
       working-directory: ./build
       run: |
-        OpenCppCoverage.exe --sources cpp-sas7bdat --export_type cobertura:coverage.xml --cover_children -- ctest -C $BUILD_TYPE
+        OpenCppCoverage.exe --sources cpp-sas7bdat --export_type cobertura:coverage.xml --cover_children --verbose -- ctest -C $BUILD_TYPE
+
+    - name: Windows - upload logs
+      uses: actions/upload-artifact@v2
+      continue-on-error: true
+      if: runner.os == 'Windows'
+      with:
+          name: code-coverage-logs
+          path: ./build/LastCoverageResults.log
+          retention-days: 5
 
     - name: Publish to codecov
       uses: codecov/codecov-action@v2

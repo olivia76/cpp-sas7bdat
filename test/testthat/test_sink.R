@@ -5,16 +5,9 @@
 #
 
 context("Sink")
-library("RJSONIO")
 library(R6)
 
-files = RJSONIO::fromJSON("../files.json")
-
-ts <- function(x) { substr(x, 0, 19); }
-str <- function(x) { if(is.null(x)) { ""; } else { x; }; };
-compression <- function(x) { if(is.null(x)) { "none"; } else if(x == "SASYZCRL") { "RLE"; } else { "RDC"; } };
-cf <- function(x) { if(x == "string") { x; } else { "notstring"; } };
-
+source("compare.R")
 
 TestSink <- R6Class("TestSink",
      public=list(
@@ -31,58 +24,9 @@ TestSink <- R6Class("TestSink",
 	  #print(properties$metadata$columns);
 	  #print(self$ref$Columns)
 
-	  expect_equal(properties$header$endianness, self$ref$Header$endianess);
-	  expect_equal(properties$header$platform, self$ref$Header$platform);
-	  expect_equal(ts(properties$header$date_created), ts(self$ref$Header$date_created));
-	  expect_equal(ts(properties$header$date_modified), ts(self$ref$Header$date_modified));
-	  expect_equal(properties$header$dataset_name, self$ref$Header$name);
-	  #expect_equal(properties$header$encoding, self$ref$Header$encoding);
-	  expect_equal(properties$header$file_type, self$ref$Header$file_type);
-	  expect_equal(properties$header$sas_release, self$ref$Header$sas_release);
-	  expect_equal(properties$header$sas_server_type, self$ref$Header$server_type);
-	  expect_equal(properties$header$os_type, self$ref$Header$os_type);
-	  expect_equal(properties$header$os_name, self$ref$Header$os_name);
-	  expect_equal(properties$header$header_length, self$ref$Header$header_length);
-	  expect_equal(properties$header$page_length, self$ref$Header$page_length);
-	  expect_equal(properties$header$page_count, self$ref$Header$page_count);
-	  expect_equal(properties$metadata$compression, compression(self$ref$Header$compression));
-	  expect_equal(properties$metadata$creator, str(self$ref$Header$creator));
-	  expect_equal(properties$metadata$creator_proc, str(self$ref$Header$creator_proc));
-	  expect_equal(properties$metadata$row_length, self$ref$Header$row_length);
-	  expect_equal(properties$metadata$row_count, self$ref$Header$row_count);
-	  expect_equal(properties$metadata$column_count, self$ref$Header$column_count);
-	  expect_equal(properties$metadata$col_count_p1, self$ref$Header$col_count_p1);
-	  expect_equal(properties$metadata$col_count_p2, self$ref$Header$col_count_p2);
-	  expect_equal(properties$metadata$mix_page_row_count, self$ref$Header$mix_page_row_count);
-	  expect_equal(properties$metadata$lcs, self$ref$Header$lcs);
-	  expect_equal(properties$metadata$lcp, self$ref$Header$lcp);
-
-          self$columns = as.character(c(names(properties$metadata$columns)));
-	  ref_columns = as.character(c(sapply(self$ref$Columns, FUN=function(x) { x$name; } )));
-	  #print(self$columns);
-	  #print(ref_columns);
-	  expect_equal(self$columns, ref_columns);
-
-	  ctype = unname(as.vector(sapply(properties$metadata$columns, FUN=function(x) { cf(x$type); })));
-	  rtype = as.vector(sapply(self$ref$Columns, FUN=function(x) { cf(x$type); }));
-	  #print(ctype);
-	  #print(rtype);
-	  expect_equal(ctype, rtype);
-	  cformat = unname(as.vector(sapply(properties$metadata$columns, FUN=function(x) { x$format; })));
-	  rformat = as.vector(sapply(self$ref$Columns, FUN=function(x) { x$format; }));
-	  #print(cformat);
-	  #print(rformat);
-	  expect_equal(cformat, rformat);
-
-	  self$columns_comparison = sapply(properties$metadata$columns, FUN=function(x) {
-  	     function(x, y) {
-	       #print(x); print(y);
-	       if(is.null(x)) { expect_null(y); }
-	       else if(is.na(x)) { expect_null(y); }
-	       else { expect_equal(x, y); }
-	     };
-	  });
-	  #print(self$columns_comparison);
+	  check_properties(properties, self$ref);
+	  self$columns_comparison = get_columns_comparison(properties$metadata$columns);
+	  self$columns = names(self$columns_comparison)
 	  
 	  self$ref_idata = 1;
 	  self$ref_irows = as.integer(names(self$ref$Data))
@@ -140,59 +84,10 @@ TestSinkChunk <- R6Class("TestSinkChunk",
         set_properties = function(properties) {
 	  #print(properties$metadata$columns);
 	  #print(self$ref$Columns)
-	
-	  expect_equal(properties$header$endianness, self$ref$Header$endianess);
-	  expect_equal(properties$header$platform, self$ref$Header$platform);
-	  expect_equal(ts(properties$header$date_created), ts(self$ref$Header$date_created));
-	  expect_equal(ts(properties$header$date_modified), ts(self$ref$Header$date_modified));
-	  expect_equal(properties$header$dataset_name, self$ref$Header$name);
-	  #expect_equal(properties$header$encoding, self$ref$Header$encoding);
-	  expect_equal(properties$header$file_type, self$ref$Header$file_type);
-	  expect_equal(properties$header$sas_release, self$ref$Header$sas_release);
-	  expect_equal(properties$header$sas_server_type, self$ref$Header$server_type);
-	  expect_equal(properties$header$os_type, self$ref$Header$os_type);
-	  expect_equal(properties$header$os_name, self$ref$Header$os_name);
-	  expect_equal(properties$header$header_length, self$ref$Header$header_length);
-	  expect_equal(properties$header$page_length, self$ref$Header$page_length);
-	  expect_equal(properties$header$page_count, self$ref$Header$page_count);
-	  expect_equal(properties$metadata$compression, compression(self$ref$Header$compression));
-	  expect_equal(properties$metadata$creator, str(self$ref$Header$creator));
-	  expect_equal(properties$metadata$creator_proc, str(self$ref$Header$creator_proc));
-	  expect_equal(properties$metadata$row_length, self$ref$Header$row_length);
-	  expect_equal(properties$metadata$row_count, self$ref$Header$row_count);
-	  expect_equal(properties$metadata$column_count, self$ref$Header$column_count);
-	  expect_equal(properties$metadata$col_count_p1, self$ref$Header$col_count_p1);
-	  expect_equal(properties$metadata$col_count_p2, self$ref$Header$col_count_p2);
-	  expect_equal(properties$metadata$mix_page_row_count, self$ref$Header$mix_page_row_count);
-	  expect_equal(properties$metadata$lcs, self$ref$Header$lcs);
-	  expect_equal(properties$metadata$lcp, self$ref$Header$lcp);
-
-          self$columns = as.character(c(names(properties$metadata$columns)));
-	  ref_columns = as.character(c(sapply(self$ref$Columns, FUN=function(x) { x$name; } )));
-	  #print(self$columns);
-	  #print(ref_columns);
-	  expect_equal(self$columns, ref_columns);
-
-	  ctype = unname(as.vector(sapply(properties$metadata$columns, FUN=function(x) { cf(x$type); })));
-	  rtype = as.vector(sapply(self$ref$Columns, FUN=function(x) { cf(x$type); }));
-	  #print(ctype);
-	  #print(rtype);
-	  expect_equal(ctype, rtype);
-	  cformat = unname(as.vector(sapply(properties$metadata$columns, FUN=function(x) { x$format; })));
-	  rformat = as.vector(sapply(self$ref$Columns, FUN=function(x) { x$format; }));
-	  #print(cformat);
-	  #print(rformat);
-	  expect_equal(cformat, rformat);
-
-	  self$columns_comparison = sapply(properties$metadata$columns, FUN=function(x) {
-  	     function(x, y) {
-	       #print(x); print(y);
-	       if(is.null(x)) { expect_null(y); }
-	       else if(is.na(x)) { expect_null(y); }
-	       else { expect_equal(x, y); }
-	     };
-	  });
-	  #print(self$columns_comparison);
+	  
+	  check_properties(properties, self$ref);
+	  self$columns_comparison = get_columns_comparison(properties$metadata$columns);
+	  self$columns = names(self$columns_comparison)
 	  
 	  self$ref_idata = 1;
 	  self$ref_irows = as.integer(names(self$ref$Data))
@@ -258,59 +153,10 @@ TestSinkData <- R6Class("TestSinkData",
 	  #print(self$ref$Columns)
 
 	  self$row_count = properties$metadata$row_count;
-	
-	  expect_equal(properties$header$endianness, self$ref$Header$endianess);
-	  expect_equal(properties$header$platform, self$ref$Header$platform);
-	  expect_equal(ts(properties$header$date_created), ts(self$ref$Header$date_created));
-	  expect_equal(ts(properties$header$date_modified), ts(self$ref$Header$date_modified));
-	  expect_equal(properties$header$dataset_name, self$ref$Header$name);
-	  #expect_equal(properties$header$encoding, self$ref$Header$encoding);
-	  expect_equal(properties$header$file_type, self$ref$Header$file_type);
-	  expect_equal(properties$header$sas_release, self$ref$Header$sas_release);
-	  expect_equal(properties$header$sas_server_type, self$ref$Header$server_type);
-	  expect_equal(properties$header$os_type, self$ref$Header$os_type);
-	  expect_equal(properties$header$os_name, self$ref$Header$os_name);
-	  expect_equal(properties$header$header_length, self$ref$Header$header_length);
-	  expect_equal(properties$header$page_length, self$ref$Header$page_length);
-	  expect_equal(properties$header$page_count, self$ref$Header$page_count);
-	  expect_equal(properties$metadata$compression, compression(self$ref$Header$compression));
-	  expect_equal(properties$metadata$creator, str(self$ref$Header$creator));
-	  expect_equal(properties$metadata$creator_proc, str(self$ref$Header$creator_proc));
-	  expect_equal(properties$metadata$row_length, self$ref$Header$row_length);
-	  expect_equal(properties$metadata$row_count, self$ref$Header$row_count);
-	  expect_equal(properties$metadata$column_count, self$ref$Header$column_count);
-	  expect_equal(properties$metadata$col_count_p1, self$ref$Header$col_count_p1);
-	  expect_equal(properties$metadata$col_count_p2, self$ref$Header$col_count_p2);
-	  expect_equal(properties$metadata$mix_page_row_count, self$ref$Header$mix_page_row_count);
-	  expect_equal(properties$metadata$lcs, self$ref$Header$lcs);
-	  expect_equal(properties$metadata$lcp, self$ref$Header$lcp);
-
-          self$columns = as.character(c(names(properties$metadata$columns)));
-	  ref_columns = as.character(c(sapply(self$ref$Columns, FUN=function(x) { x$name; } )));
-	  #print(self$columns);
-	  #print(ref_columns);
-	  expect_equal(self$columns, ref_columns);
-
-	  ctype = unname(as.vector(sapply(properties$metadata$columns, FUN=function(x) { cf(x$type); })));
-	  rtype = as.vector(sapply(self$ref$Columns, FUN=function(x) { cf(x$type); }));
-	  #print(ctype);
-	  #print(rtype);
-	  expect_equal(ctype, rtype);
-	  cformat = unname(as.vector(sapply(properties$metadata$columns, FUN=function(x) { x$format; })));
-	  rformat = as.vector(sapply(self$ref$Columns, FUN=function(x) { x$format; }));
-	  #print(cformat);
-	  #print(rformat);
-	  expect_equal(cformat, rformat);
-
-	  self$columns_comparison = sapply(properties$metadata$columns, FUN=function(x) {
-  	     function(x, y) {
-	       #print(x); print(y);
-	       if(is.null(x)) { expect_null(y); }
-	       else if(is.na(x)) { expect_null(y); }
-	       else { expect_equal(x, y); }
-	     };
-	  });
-	  #print(self$columns_comparison);
+	  
+	  check_properties(properties, self$ref);
+	  self$columns_comparison = get_columns_comparison(properties$metadata$columns);
+	  self$columns = names(self$columns_comparison)
 	  
 	  self$ref_idata = 1;
 	  self$ref_irows = as.integer(names(self$ref$Data))
