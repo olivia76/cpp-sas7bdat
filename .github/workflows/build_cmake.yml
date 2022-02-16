@@ -108,7 +108,7 @@ jobs:
       if: runner.os == 'Windows'
       working-directory: ./build
       run: |
-        OpenCppCoverage.exe --sources ../src --sources ../include --export_type cobertura:coverage.xml --cover_children --output-on-failure --verbose -- ctest -C $BUILD_TYPE
+        OpenCppCoverage.exe --sources ../src --sources ../include --export_type cobertura:coverage.xml --cover_children --verbose -- ctest -C $BUILD_TYPE
 
     - name: Windows - upload logs
       uses: actions/upload-artifact@v2
