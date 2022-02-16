@@ -10,50 +10,10 @@
 #include "wrap_object.hpp"
 #include <cppsas7bdat/datasource_ifstream.hpp>
 #include <cppsas7bdat/column-filter.hpp>
+#include <cppsas7bdat/types.hpp>
 #include <fmt/core.h>
 
 using namespace Rcpp;
-
-namespace {
-
-  std::string to_string(const cppsas7bdat::DATETIME _x)
-  {
-    char szBuffer[80];
-    const auto ymd = _x.date().year_month_day();
-    const auto t = _x.time_of_day();
-    std::sprintf(szBuffer, "%04d-%02d-%02d %02d:%02d:%02d.%06d", (int)ymd.year, (int)ymd.month, (int)ymd.day, (int)t.hours(), (int)t.minutes(), (int)t.seconds(), (int)t.fractional_seconds());
-    return szBuffer;
-  }
-  
-  std::string to_string(const cppsas7bdat::DATE _x)
-  {
-    return boost::gregorian::to_iso_extended_string(_x);
-  }
-  
-  std::string to_string(const cppsas7bdat::TIME _x)
-  {
-    return boost::posix_time::to_simple_string(_x);
-  }
-
-  /*SEXP to_string_or_null(const cppsas7bdat::DATETIME _x)
-  {
-    if(_x.is_not_a_date_time()) return R_NilValue;
-    else return Rcpp::wrap(to_string(_x));
-  }
-
-  SEXP to_string_or_null(const cppsas7bdat::DATE _x)
-  {
-    if(_x.is_not_a_date()) return R_NilValue;
-    else return Rcpp::wrap(to_string(_x));
-  }
-
-  SEXP to_string_or_null(const cppsas7bdat::TIME _x)
-  {
-    if(_x.is_not_a_date_time()) return R_NilValue;
-    else return Rcpp::wrap(to_string(_x));
-    }*/
-
-}
 
 namespace Rcpp {
   SEXP wrap_properties(const cppsas7bdat::Properties& _properties)
@@ -163,19 +123,19 @@ namespace {
     void process_value(const size_t icol, const cppsas7bdat::DATETIME _x)
     {
       if(_x.is_not_a_date_time()) row[icol] = R_NilValue;
-      else row[icol] = to_string(_x);
+      else row[icol] = cppsas7bdat::to_string(_x);
     }    
 
     void process_value(const size_t icol, const cppsas7bdat::DATE _x)
     {
       if(_x.is_not_a_date()) row[icol] = R_NilValue;
-      else row[icol] = to_string(_x);
+      else row[icol] = cppsas7bdat::to_string(_x);
     }
     
     void process_value(const size_t icol, const cppsas7bdat::TIME _x)
     {
       if(_x.is_not_a_date_time()) row[icol] = R_NilValue;
-      else row[icol] = to_string(_x);
+      else row[icol] = cppsas7bdat::to_string(_x);
     }       
     
     void push_row([[maybe_unused]]const size_t _irow,
@@ -286,19 +246,19 @@ namespace {
     static void push_value(COL_DATETIMES& _values, const size_t _idata, const cppsas7bdat::DATETIME _x)
     {
       if(_x.is_not_a_date_time()) _values[_idata] = NA_STRING; //R_NilValue;
-      else _values[_idata] = to_string(_x);
+      else _values[_idata] = cppsas7bdat::to_string(_x);
     }
 
     static void push_value(COL_DATES& _values, const size_t _idata, const cppsas7bdat::DATE _x)
     {
       if(_x.is_not_a_date()) _values[_idata] = NA_STRING; //R_NilValue;
-      else _values[_idata] = to_string(_x);
+      else _values[_idata] = cppsas7bdat::to_string(_x);
     }
 
     static void push_value(COL_TIMES& _values, const size_t _idata, const cppsas7bdat::TIME _x)
     {
       if(_x.is_not_a_date_time()) _values[_idata] = NA_STRING; //R_NilValue;
-      else _values[_idata] = to_string(_x);
+      else _values[_idata] = cppsas7bdat::to_string(_x);
     }
 
     template<typename _Values, typename _Fct>

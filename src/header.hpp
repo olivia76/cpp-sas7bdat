@@ -111,12 +111,12 @@ namespace cppsas7bdat {
 			    : buf.get_string(256+total_align, 16) ); // 256-272 + total_align
 
 	D(spdlog::info("Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
-			_header->platform,
-			_header->dataset_name, _header->file_type,
-			boost::posix_time::to_iso_extended_string(_header->date_created),
-			boost::posix_time::to_iso_extended_string(_header->date_modified),
-			_header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
-			_header->page_length, _header->page_count));
+		       _header->platform,
+		       _header->dataset_name, _header->file_type,
+		       cppsas7bdat::to_string(_header->date_created), //boost::posix_time::to_iso_extended_string(_header->date_created),
+		       cppsas7bdat::to_string(_header->date_modified), //boost::posix_time::to_iso_extended_string(_header->date_modified),
+		       _header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
+		       _header->page_length, _header->page_count));
       }
 
       static std::string_view get_encoding(const uint8_t _e) noexcept {

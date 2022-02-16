@@ -27,6 +27,7 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   sas7bdat-impl.hpp
   subheaders.hpp
   version.cpp
+  types.cpp
     )
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )

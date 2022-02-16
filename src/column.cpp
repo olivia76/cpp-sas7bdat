@@ -33,5 +33,4 @@ namespace cppsas7bdat {
       times(get_columns(_columns, Column::Type::time))
   {
   }
-
 }
