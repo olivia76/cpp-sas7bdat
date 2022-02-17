@@ -98,7 +98,7 @@ if(ENABLE_CONAN)
   run_conan()
 endif()
 
-find_package(Boost REQUIRED COMPONENTS date_time)
+find_package(Boost REQUIRED COMPONENTS filesystem date_time)
 message(STATUS "Boost version: ${Boost_VERSION}")
 message(STATUS "BOOST LIBRARIES LOCATION: " ${Boost_LIBRARIES})
 include_directories( ${Boost_INCLUDE_DIR} )

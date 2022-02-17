@@ -8,10 +8,9 @@
 
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <boost/filesystem.hpp>
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#define WINDOWS_API
-#else
 #define WINDOWS_API
 #endif
 
@@ -23,7 +22,16 @@ namespace {
 #if defined(WINDOWS_API)
     std::replace(_filename.begin(), _filename.end(), '/', '\\');
 #endif
+    std::cerr << ':' << _filename;
+
+    auto filepath = boost::filesystem::current_path(); //.string();
+    if(_filename.find(filepath.make_preferred().native()) == 0) {
+    } else {
+      filepath /= _filename;
+      _filename = filepath.make_preferred().native();
+    }
     std::cerr << ':' << _filename << std::endl;
+       
     return _filename;
   }
   
@@ -43,20 +51,17 @@ namespace {
       std::ifstream is(_filename.c_str());
       if(!is) throw std::runtime_error("Cannot read filename in test");
       is >> j;
-#if defined(WINDOWS_API)
-      updated_keys();
-#endif      
     }
     json j;
 
-    void updated_keys()
+    /*void updated_keys()
     {
       json jj;
       for(auto iter = j.begin(); iter != j.end(); ++iter) {
 	j[convert_path(iter.key())] = iter.value();
       }
       std::swap(j, jj);
-    }
+      }*/
   };
   
   static const FILES& files() {
