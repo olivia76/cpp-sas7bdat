@@ -18,11 +18,11 @@ namespace {
 
   inline std::string convert_path(std::string _filename)
   {
-    std::cerr << "convert_path:" << _filename << ':';
+    std::cerr << "convert_path:" << '[' << _filename << ']';
 #if defined(WINDOWS_API)
     std::replace(_filename.begin(), _filename.end(), '/', '\\');
 #endif
-    std::cerr << ':' << _filename;
+    std::cerr << ':' << '[' << _filename << ']';
 
     auto filepath = boost::filesystem::current_path(); //.string();
     if(_filename.find(filepath.make_preferred().string()) == 0) {
@@ -30,7 +30,7 @@ namespace {
       filepath /= _filename;
       _filename = filepath.make_preferred().string();
     }
-    std::cerr << ':' << _filename << std::endl;
+    std::cerr << ':' << '[' << _filename << ']' << std::endl;
        
     return _filename;
   }
