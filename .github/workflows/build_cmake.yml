@@ -106,11 +106,11 @@ jobs:
 
     - name: Windows - Test and coverage
       if: runner.os == 'Windows'
-      working-directory: ./test
+      working-directory: ./build
       run: |
         pwd
         ls data
-        ../build/test/RelWithDebInfo/tests.exe
+        #../build/test/RelWithDebInfo/tests.exe
         OpenCppCoverage.exe --sources cpp-sas7bdat\src --sources cpp-sas7bdat\include --export_type cobertura:coverage.xml --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE
 
     - name: Windows - upload logs
