@@ -106,9 +106,9 @@ jobs:
 
     - name: Windows - Test and coverage
       if: runner.os == 'Windows'
-      working-directory: ./tests
+      working-directory: ./test
       run: |
-        ../build/tests/tests
+        ../build/test/tests
         OpenCppCoverage.exe --sources cpp-sas7bdat\src --sources cpp-sas7bdat\include --export_type cobertura:coverage.xml --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE
 
     - name: Windows - upload logs
