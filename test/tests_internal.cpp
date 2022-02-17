@@ -30,6 +30,9 @@ SCENARIO("When I try to read a non existing file, an exception is thrown", "[int
       CHECK_THROWS(cppsas7bdat::INTERNAL::open_stream(invalid_path));
     }
   }
+}
+SCENARIO("When I try to read anexisting file, no exception is thrown", "[internal][not_a_valid_file]")
+{
   GIVEN("A valid path") {
     THEN("No exception is thrown") {
       CHECK_NOTHROW(cppsas7bdat::INTERNAL::open_stream(file_too_short));
@@ -45,6 +48,10 @@ SCENARIO("When I try to read a file too short, an exception is thrown", "[intern
       CHECK_THROWS(cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(file_too_short)));
     }
   }
+}
+
+SCENARIO("When I try to read a file that's not too short, no exception is thrown", "[internal][file too short]")
+{
   GIVEN("A path to a file with the minimum size") {
     THEN("No exception is thrown") {
       CHECK_NOTHROW(cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(invalid_magic_number)));
@@ -64,6 +71,10 @@ SCENARIO("When I try to read a file with an invalid magic number, an exception i
       }
     }
   }
+}
+
+SCENARIO("When I try to read a file with an valid magic number, no exception is thrown", "[internal][header_too_short]")
+{
   GIVEN("A path to a valid file") {
     auto ch = cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(file1));
     WHEN("I check the magic number") {

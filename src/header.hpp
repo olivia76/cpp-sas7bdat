@@ -32,7 +32,7 @@ namespace cppsas7bdat {
       bool is_64bit{false};
 
       explicit CHECK_HEADER(_DataSource&& _is)
-	: is(std::move(_is)) //INTERNAL::open_stream(_pcszFileName))
+	: is(std::move(_is))
       {
 	D(spdlog::info("Reading header ...\n"));
 	if(!buf.read_stream(is, HEADER_SIZE)) EXCEPTION::header_too_short();
