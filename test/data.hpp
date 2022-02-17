@@ -25,10 +25,10 @@ namespace {
     std::cerr << ':' << _filename;
 
     auto filepath = boost::filesystem::current_path(); //.string();
-    if(_filename.find(filepath.make_preferred().native()) == 0) {
+    if(_filename.find(filepath.make_preferred().string()) == 0) {
     } else {
       filepath /= _filename;
-      _filename = filepath.make_preferred().native();
+      _filename = filepath.make_preferred().string();
     }
     std::cerr << ':' << _filename << std::endl;
        
