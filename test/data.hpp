@@ -7,27 +7,56 @@
  */
 
 #include <nlohmann/json.hpp>
+#include <algorithm>
 
-constexpr const char* invalid_path = "data/invalid_path.sas7bdat";
-constexpr const char* file_too_short = "data/file_too_short.err";
-constexpr const char* invalid_magic_number = "data/invalid_magic_number.err";
-constexpr const char* file1 = "data/file1.sas7bdat";
+#if defined(_WIN32) || defined(__CYGWIN__)
+#define WINDOWS_API
+#endif
+
+namespace {
+
+  inline std::string convert_path(std::string _filename)
+  {
+#if defined(WINDOWS_API)
+    std::replace(_filename.begin(), _filename.end(), '/', '\\');
+#endif
+    return _filename;
+  }
+  
+}
+
+const std::string invalid_path = convert_path("data/invalid_path.sas7bdat");
+const std::string file_too_short = convert_path("data/file_too_short.err");
+const std::string invalid_magic_number = convert_path("data/invalid_magic_number.err");
+const std::string file1 = convert_path("data/file1.sas7bdat");
 
 using json = nlohmann::json;
 
 namespace {
   struct FILES {
-    explicit FILES(const char* _filename)
+    explicit FILES(const std::string& _filename)
     {
-      std::ifstream is(_filename);
+      std::ifstream is(_filename.c_str());
       if(!is) throw std::runtime_error("Cannot read filename in test");
       is >> j;
+#if defined(WINDOWS_API)
+      updated_keys();
+#endif      
     }
-    json j; 
+    json j;
+
+    void updated_keys()
+    {
+      json jj;
+      for(auto iter = j.begin(); iter != j.end(); ++iter) {
+	j[convert_path(iter.key())] = iter.value();
+      }
+      std::swap(j, jj);
+    }
   };
   
   static const FILES& files() {
-    static const FILES instance("files.json");
+    static const FILES instance(convert_path("files.json"));
     return instance;
   }
   

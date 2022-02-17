@@ -73,10 +73,10 @@ SCENARIO("I can translate to string the Column type enum")
 
 namespace {
   template<typename _DataSink>
-  auto get_reader(const char* _pcszfilename, _DataSink&& _datasink) {
-    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_pcszfilename), std::forward<_DataSink>(_datasink));
+  auto get_reader(const std::string& _pcszfilename, _DataSink&& _datasink) {
+    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_pcszfilename.c_str()), std::forward<_DataSink>(_datasink));
   }  
-  auto get_reader(const char* _pcszfilename) {
+  auto get_reader(const std::string& _pcszfilename) {
     return get_reader(_pcszfilename, cppsas7bdat::datasink::null());
     //return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_pcszfilename), cppsas7bdat::datasink::null());
   }  

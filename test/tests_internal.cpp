@@ -18,7 +18,7 @@
 namespace {
   cppsas7bdat::INTERNAL::DATASOURCE open_file(const std::string& _filename)
   {
-    return cppsas7bdat::Reader::build_source(cppsas7bdat::datasource::ifstream(_filename.c_str()));
+    return cppsas7bdat::Reader::build_source(cppsas7bdat::datasource::ifstream(convert_path(_filename).c_str()));
   }
 }
 
@@ -27,7 +27,7 @@ SCENARIO("When I try to read a non existing file, an exception is thrown", "[int
   GIVEN("An invalid path") {
     THEN("An exception is thrown") {
       //CHECK_THROWS_WITH(cppsas7bdat::INTERNAL::open_stream(invalid_path), "not_a_valid_file");
-      CHECK_THROWS(cppsas7bdat::INTERNAL::open_stream(invalid_path));
+      CHECK_THROWS(cppsas7bdat::INTERNAL::open_stream(invalid_path.c_str()));
     }
   }
 }
@@ -35,7 +35,7 @@ SCENARIO("When I try to read anexisting file, no exception is thrown", "[interna
 {
   GIVEN("A valid path") {
     THEN("No exception is thrown") {
-      CHECK_NOTHROW(cppsas7bdat::INTERNAL::open_stream(file_too_short));
+      CHECK_NOTHROW(cppsas7bdat::INTERNAL::open_stream(file_too_short.c_str()));
     }
   }
 }
