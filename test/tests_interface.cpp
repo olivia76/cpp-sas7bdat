@@ -73,12 +73,11 @@ SCENARIO("I can translate to string the Column type enum")
 
 namespace {
   template<typename _DataSink>
-  auto get_reader(const std::string& _pcszfilename, _DataSink&& _datasink) {
-    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_pcszfilename.c_str()), std::forward<_DataSink>(_datasink));
+  auto get_reader(const std::string& _filename, _DataSink&& _datasink) {
+    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(convert_path(_filename).c_str()), std::forward<_DataSink>(_datasink));
   }  
-  auto get_reader(const std::string& _pcszfilename) {
-    return get_reader(_pcszfilename, cppsas7bdat::datasink::null());
-    //return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_pcszfilename), cppsas7bdat::datasink::null());
+  auto get_reader(const std::string& _filename) {
+    return get_reader(_filename, cppsas7bdat::datasink::null());
   }  
 }
 
@@ -212,7 +211,7 @@ SCENARIO("When I read a file with the public interface, the data are read proper
     // Skip big5 files
     if(filename.find("big5") != filename.npos) return;
     WHEN("The data is read") {
-      auto reader = get_reader(filename.c_str(), MyTestDataSink(ref_data.begin(), ref_data.end()));
+      auto reader = get_reader(filename, MyTestDataSink(ref_data.begin(), ref_data.end()));
       const auto& columns = reader.properties().metadata.columns;
       THEN("The data values are correct - read_all") {
 	CHECK(reader.current_row_index() == 0);

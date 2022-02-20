@@ -28,6 +28,8 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   subheaders.hpp
   version.cpp
   types.cpp
+  stream.hpp
+  stream.cpp
     )
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )
