@@ -150,7 +150,7 @@ namespace cppsas7bdat {
       BYTES extract_row_values(const size_t _offset, const size_t _length) const
       {
 	D(spdlog::info("READ_DATA::extract_row_values({}, {})\n", _offset, _length));
-	assert(_offset + _length <= header->page_length);
+	FMT_ASSERT(_offset + _length <= header->page_length, "Accessing data outside the page");
 	const auto values = buf.get_bytes(_offset, _length);
 	if(_length < metadata->row_length) {
 	  return decompressor(values);

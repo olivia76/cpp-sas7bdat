@@ -74,7 +74,7 @@ namespace cppsas7bdat {
 	  align1(_ch.align1),
 	  total_align(_ch.total_align)
       {
-	assert(is);
+	FMT_ASSERT(is, "DataSource is not valid");
       }
 
       void set_header_length_and_read(Properties::Header* _header) {
@@ -83,13 +83,13 @@ namespace cppsas7bdat {
 	  spdlog::info("Expected header length of 8192 but got {}\n", _header->header_length);
 	}
 	// Read the rest of the header
-	assert(_header->header_length >= HEADER_CONSTANTS::HEADER_SIZE);
+	FMT_ASSERT(_header->header_length >= HEADER_CONSTANTS::HEADER_SIZE, "Header is too big in set_header_length_and_read");
 	if(!buf.read_stream(is, _header->header_length-HEADER_CONSTANTS::HEADER_SIZE, HEADER_CONSTANTS::HEADER_SIZE)) EXCEPTION::header_too_short();
 	D(spdlog::info("Set header length and read ... {}\n", _header->header_length));
       }
       
       void set_header(Properties::Header* _header) const {
-	assert(buf.size() >= 288 + total_align);
+	FMT_ASSERT(buf.size() >= 288 + total_align, "Buffer is too small in set_header");
 	
 	_header->platform = (buf[39] == '1' ? Platform::unix :
 			     buf[39] == '2' ? Platform::windows : Platform::unknown);
