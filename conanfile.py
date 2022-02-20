@@ -13,7 +13,7 @@ class CppSAS7BDATProject(ConanFile):
     )
     generators = "cmake", "gcc", "txt", "cmake_find_package"
 
-    def xconfigure(self):
+    def configure(self):
         self.options["boost"].without_python = False
         self.options["boost"].without_date_time = False
         self.options["boost"].without_atomic = True
@@ -25,7 +25,7 @@ class CppSAS7BDATProject(ConanFile):
         self.options["boost"].without_coroutine = True
         self.options["boost"].without_exception = True
         self.options["boost"].without_fiber = True
-        self.options["boost"].without_filesystem = False
+        self.options["boost"].without_filesystem = True
         self.options["boost"].without_graph = True
         self.options["boost"].without_iostreams = True
         #self.options["boost"].without_json = True
@@ -39,7 +39,7 @@ class CppSAS7BDATProject(ConanFile):
         self.options["boost"].without_regex = True
         self.options["boost"].without_serialization = False
         self.options["boost"].without_stacktrace = True
-        self.options["boost"].without_system = False
+        self.options["boost"].without_system = True
         self.options["boost"].without_test = True
         self.options["boost"].without_thread = True
         self.options["boost"].without_timer = True
