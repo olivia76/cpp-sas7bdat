@@ -31,6 +31,7 @@ SCENARIO("When I try to read a non existing file, an exception is thrown", "[int
     }
   }
 }
+
 SCENARIO("When I try to read anexisting file, no exception is thrown", "[internal][not_a_valid_file]")
 {
   GIVEN("A valid path") {
