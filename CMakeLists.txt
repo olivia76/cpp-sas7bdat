@@ -31,6 +31,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_compile_definitions(BOOST_DATE_TIME_NO_LIB)
 if (WIN32)
+  add_compile_options(/EHsc)
 else()
   #
   add_compile_options(-Wall -Wextra -pedantic -O3)
