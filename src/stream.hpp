@@ -18,7 +18,7 @@ namespace cppsas7bdat {
     {
       std::cerr << "open_stream: [" << _pcszFileName << ']' << std::endl;
       std::ifstream is(_pcszFileName, std::ios::binary);
-      if(!is.good()) EXCEPTION::not_a_valid_file();
+      if(!is.good()) EXCEPTION::not_a_valid_file(_pcszFileName);
       return is;
     }
   }

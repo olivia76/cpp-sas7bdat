@@ -86,7 +86,8 @@ SCENARIO("When I try to read a non existing file with the public interface, an e
 {
   GIVEN("An invalid path") {
     THEN("An exception is thrown") {
-      REQUIRE_THROWS_WITH(get_reader(invalid_path), "not_a_valid_file");
+      //CHECK_THROWS_WITH(get_reader(invalid_path), "not_a_valid_file");
+      CHECK_THROWS(get_reader(invalid_path));
     }
   }
 }
@@ -96,7 +97,8 @@ SCENARIO("When I try to read a file too short with the public interface, an exce
 {
   GIVEN("A path to a too short file") {
     THEN("an exception is thrown") {
-      REQUIRE_THROWS_WITH(get_reader(file_too_short), "header_too_short");
+      //CHECK_THROWS_WITH(get_reader(file_too_short), "header_too_short");
+      CHECK_THROWS(get_reader(file_too_short));
     }
   }
 }
@@ -105,7 +107,8 @@ SCENARIO("When I try to read a file with an invalid magic number with the public
 {
   GIVEN("A path to a file with an invalid magic number") {
     THEN("an exception is thrown") {
-      REQUIRE_THROWS_WITH(get_reader(invalid_magic_number), "invalid_magic_number");
+      //CHECK_THROWS_WITH(get_reader(invalid_magic_number), "invalid_magic_number");
+      CHECK_THROWS(get_reader(invalid_magic_number));
     }
   }
 }
@@ -114,7 +117,7 @@ SCENARIO("When I try to read a valid file with the public interface, no exceptio
 {
   GIVEN("A path to a valid file") {
     THEN("No exception is thrown") {
-      REQUIRE_NOTHROW(get_reader(file1));
+      CHECK_NOTHROW(get_reader(file1));
     }
   }
 }

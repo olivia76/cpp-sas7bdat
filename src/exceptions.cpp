@@ -23,9 +23,9 @@ namespace cppsas7bdat {
     raise_exception("cannot_allocate_memory");
   }
   
-  void EXCEPTION::not_a_valid_file()
+  void EXCEPTION::not_a_valid_file(const char* _pcszFileName)
   {
-    raise_exception("not_a_valid_file");
+    raise_exception(fmt::format("not_a_valid_file: [{}]", _pcszFileName));
   }
   
   void EXCEPTION::header_too_short()

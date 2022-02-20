@@ -14,7 +14,7 @@
 namespace cppsas7bdat {
   namespace EXCEPTION {
     void cannot_allocate_memory();
-    void not_a_valid_file();
+    void not_a_valid_file(const char* _pcszFileName);
     void header_too_short();
     void invalid_magic_number();
     void cannot_read_page();
