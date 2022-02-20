@@ -8,7 +8,7 @@
 
 #include <nlohmann/json.hpp>
 #include <algorithm>
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #define WINDOWS_API
@@ -24,12 +24,12 @@ namespace {
 #endif
     std::cerr << ':' << '[' << _filename << ']';
 
-    auto filepath = boost::filesystem::current_path(); //.string();
+    /*auto filepath = boost::filesystem::current_path(); //.string();
     if(_filename.find(filepath.make_preferred().string()) == 0) {
     } else {
       filepath /= _filename;
       _filename = filepath.make_preferred().string();
-    }
+      }*/
     std::cerr << ':' << '[' << _filename << ']' << std::endl;
        
     return _filename;
