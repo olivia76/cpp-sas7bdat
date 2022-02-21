@@ -75,10 +75,12 @@ jobs:
           sudo update-alternatives --config conan
         elif [ "$RUNNER_OS" == "Windows" ]; then
           echo "Using chocolatey to install OpenCppCoverage"
-          choco install opencppcoverage
-          choco install wget
+          choco install opencppcoverage -y
           # Add to Path
           echo "C:/Program Files/OpenCppCoverage" >> $GITHUB_PATH
+          choco install wget -y
+          # Add to Path
+          echo "C:/ProgramData/chocolatey/lib/Wget/tools" >> $GITHUB_PATH
         fi;
 
     - name: Configure CMake
