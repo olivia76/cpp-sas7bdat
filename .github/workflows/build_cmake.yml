@@ -92,7 +92,18 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build ./build --config $BUILD_TYPE
 
-    - name: Retrieve data
+    - name: Retrieve data on not windows
+      if: runner.os != 'Windows'
+      env:
+        WGET: wget
+      working-directory: ./test
+      run: |
+          ./retrieve.bash
+
+    - name: Retrieve data on windows
+      if: runner.os == 'Windows'
+      env:
+        WGET: wget.exe
       working-directory: ./test
       run: |
           ./retrieve.bash

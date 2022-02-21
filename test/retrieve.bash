@@ -2,6 +2,10 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+if [ -z "$WGET" ]; then
+    WGET=wget
+fi
+
 while read -r f
 do
     echo $f;
@@ -13,7 +17,7 @@ do
 	    cd $DIR/$dir
 	fi
     else
-	wget $f 2> /dev/null
+	$WGET $f 2> /dev/null
 	if [[ $? -ne 0 ]]; then
 	    echo "Didn't manage to retrieve $f..."
 	fi
