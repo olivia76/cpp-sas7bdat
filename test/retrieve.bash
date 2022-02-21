@@ -2,9 +2,13 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+echo "WGET=$WGET"
+
 if [ -z "$WGET" ]; then
     WGET=wget
 fi
+
+echo "Using [$WGET] ... "
 
 while read -r f
 do
@@ -12,7 +16,7 @@ do
     if [[ ${f:0:1} == '#' ]]; then
 	dir=${f#* }
 	if [[ ! -z "$dir" ]]; then
-	    echo "Creating directory [$dir] ..."
+	    echo "Creating directory [$DIR/$dir] ..."
 	    mkdir -p $DIR/$dir
 	    cd $DIR/$dir
 	fi

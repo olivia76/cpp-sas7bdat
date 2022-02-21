@@ -95,7 +95,7 @@ jobs:
     - name: Retrieve data on not windows
       if: runner.os != 'Windows'
       env:
-        WGET: wget
+        WGET: "wget"
       working-directory: ./test
       run: |
           ./retrieve.bash
@@ -103,7 +103,7 @@ jobs:
     - name: Retrieve data on windows
       if: runner.os == 'Windows'
       env:
-        WGET: wget.exe
+        WGET: "C:/ProgramData/chocolatey/lib/Wget/tools/wget.exe"
       working-directory: ./test
       run: |
           ./retrieve.bash
