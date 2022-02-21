@@ -51,6 +51,11 @@ jobs:
           ~/.cache/pip
         key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
 
+    - name: Retrieve data
+      working-directory: ./test
+      run: |
+          ./retrieve.bash
+
     - name: Install conan on not windows
       if: runner.os != 'Windows'
       run: |
@@ -97,7 +102,6 @@ jobs:
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
-          ../test/retrieve.bash
           ctest -C $BUILD_TYPE --output-on-failure
           if [ "$RUNNER_OS" == "Linux" ]; then
             make -C .. tests-python
@@ -108,9 +112,6 @@ jobs:
       if: runner.os == 'Windows'
       working-directory: ./build
       run: |
-        pwd
-        #ls data
-        #../build/test/RelWithDebInfo/tests.exe
         OpenCppCoverage.exe --sources cpp-sas7bdat\src --sources cpp-sas7bdat\include --export_type cobertura:coverage.xml --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure
 
     - name: Windows - upload logs
