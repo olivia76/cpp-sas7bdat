@@ -59,7 +59,9 @@ get_columns_comparison <- function(columns) {
 	       else { expect_equal(x, y); }
 	   };
            comp_datetime <- function(x, y) {
+	       #print(x); print(y);
 	       if(is.null(x)) { expect_null(y); }
+	       else if(is.na(x)) { expect_null(y); }
 	       else { expect_equal(ts(x), ts(y)); }
 	   };
 

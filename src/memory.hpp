@@ -22,7 +22,7 @@ namespace cppsas7bdat {
       constexpr std::align_val_t al{alignof(uint64_t)};
       inline uint8_t* aligned_alloc(const size_t _size)
       {
-	spdlog::critical(fmt::format("INTERNAL::MEMORY::aligned_alloc({})", _size));
+	D(spdlog::info(fmt::format("INTERNAL::MEMORY::aligned_alloc({})", _size)));
 	void* pv = operator new(_size, al);
 	if(!pv) EXCEPTION::cannot_allocate_memory();
 	return reinterpret_cast<uint8_t*>(pv);
@@ -31,7 +31,7 @@ namespace cppsas7bdat {
       {
 	if(_buffer) {
 	  void *pv = _buffer;
-	  spdlog::critical(fmt::format("INTERNAL::MEMORY::aligned_free({})", pv));
+	  D(spdlog::info(fmt::format("INTERNAL::MEMORY::aligned_free({})", pv)));
 	  operator delete(pv, al);
 	}
       }

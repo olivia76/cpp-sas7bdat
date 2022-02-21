@@ -54,6 +54,7 @@ TestSink <- R6Class("TestSink",
 
 test_that("I can read a SAS7BDAT file with the default Sink", {
     for(file in names(files)) {
+    #file="data_pandas/datetime.sas7bdat"; {
         ref = files[[file]]
         file=paste0("../", file);
 	print(paste("Default sink:", file));
@@ -121,6 +122,7 @@ TestSinkChunk <- R6Class("TestSinkChunk",
 
 test_that("I can read a SAS7BDAT file with the Chunk Sink", {
     for(file in names(files)) {
+    #file="data_pandas/datetime.sas7bdat"; {
         ref = files[[file]]
         file=paste0("../", file);
 	print(paste("Chunk sink:", file));
@@ -190,6 +192,7 @@ TestSinkData <- R6Class("TestSinkData",
 
 test_that("I can read a SAS7BDAT file with the Data Sink", {
     for(file in names(files)) {
+    #file="data_pandas/datetime.sas7bdat"; {
         ref = files[[file]]
         file=paste0("../", file);
 	print(paste("Data sink", file));
