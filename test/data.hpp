@@ -7,27 +7,42 @@
  */
 
 #include <nlohmann/json.hpp>
+#include <algorithm>
+#include <filesystem>
 
-constexpr const char* invalid_path = "data/invalid_path.sas7bdat";
-constexpr const char* file_too_short = "data/file_too_short.err";
-constexpr const char* invalid_magic_number = "data/invalid_magic_number.err";
-constexpr const char* file1 = "data/file1.sas7bdat";
+namespace {
+
+  inline std::string convert_path(std::string _filename)
+  {
+    std::cerr << "convert_path:" << '[' << _filename << ']';
+    std::filesystem::path p{_filename};
+    _filename = p.make_preferred().string();    
+    std::cerr << ':' << '[' << _filename << ']' << std::endl;
+    return _filename;
+  }
+  
+}
+
+const std::string invalid_path = convert_path("data/invalid_path.sas7bdat");
+const std::string file_too_short = convert_path("data/file_too_short.err");
+const std::string invalid_magic_number = convert_path("data/invalid_magic_number.err");
+const std::string file1 = convert_path("data/file1.sas7bdat");
 
 using json = nlohmann::json;
 
 namespace {
   struct FILES {
-    explicit FILES(const char* _filename)
+    explicit FILES(const std::string& _filename)
     {
-      std::ifstream is(_filename);
+      std::ifstream is(_filename.c_str());
       if(!is) throw std::runtime_error("Cannot read filename in test");
       is >> j;
     }
-    json j; 
+    json j;
   };
   
   static const FILES& files() {
-    static const FILES instance("files.json");
+    static const FILES instance(convert_path("files.json"));
     return instance;
   }
   

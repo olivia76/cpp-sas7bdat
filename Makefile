@@ -21,7 +21,7 @@ build-R:
 
 .PHONY: tests
 tests:
-	cd ./build; ctest -C ${BUILD_TYPE} --output-on-failure
+	cd ./build; ctest -C ${BUILD_TYPE} --output-on-failure ${TESTS}
 	#make -C build test ARGS='-V'
 
 .PHONY: build-debug

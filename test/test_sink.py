@@ -124,13 +124,13 @@ class Test_IncludeExclude(object):
         lambda: SinkWholeData()
         ])
     def test_Include(self, sink_factory):
-        f = "data_AHS2013/homimp.sas7bdat"
+        f = "data/file2.sas7bdat"
         f = datafilename(f)
         print(f)
         sink = sink_factory()
-        test = Reader(f, sink, include=["RAS",])
+        test = Reader(f, sink, include=["c1",])
         test.read_all()
-        assert [c.name for c in sink.properties.metadata.columns] == ["RAS"]
+        assert [c.name for c in sink.properties.metadata.columns] == ["c1"]
     
     @pytest.mark.parametrize("sink_factory", [
         lambda: SinkByRow(),
@@ -138,10 +138,10 @@ class Test_IncludeExclude(object):
         lambda: SinkWholeData()
         ])
     def test_Exclude(self, sink_factory):
-        f = "data_AHS2013/homimp.sas7bdat"
+        f = "data/file2.sas7bdat"
         f = datafilename(f)
         print(f)
         sink = sink_factory()
-        test = Reader(f, sink, exclude=["RAS", ])
+        test = Reader(f, sink, exclude=["c1", ])
         test.read_all()
-        assert [c.name for c in sink.properties.metadata.columns] == ["RAH", "RAD", "JRAS", "JRAD", "CONTROL"]
+        assert [c.name for c in sink.properties.metadata.columns] == ["q1", "c2", "q2"]

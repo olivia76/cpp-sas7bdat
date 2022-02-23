@@ -89,8 +89,9 @@ namespace cppsas7bdat {
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
       using Decompressor = _Decompressor;
-      
-      constexpr static size_t integer_size = BUFFER<_endian, _format>::integer_size;
+
+      using CBUFFER = INTERNAL::BUFFER<_endian, _format>;
+      constexpr static size_t integer_size = CBUFFER::integer_size;
 
       mutable _Decompressor decompressor;
       const Properties::Metadata* metadata;
@@ -149,7 +150,7 @@ namespace cppsas7bdat {
       BYTES extract_row_values(const size_t _offset, const size_t _length) const
       {
 	D(spdlog::info("READ_DATA::extract_row_values({}, {})\n", _offset, _length));
-	assert(_offset + _length <= header->page_length);
+	FMT_ASSERT(_offset + _length <= header->page_length, "Accessing data outside the page");
 	const auto values = buf.get_bytes(_offset, _length);
 	if(_length < metadata->row_length) {
 	  return decompressor(values);

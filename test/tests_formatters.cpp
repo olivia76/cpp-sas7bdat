@@ -209,7 +209,7 @@ SCENARIO("The DateTimeFormatter creates a IFormatter with the datetime type")
 	CHECK(instance.get_datetime(p) == DATETIME(DATE(1960,1,1),TIME(0,0,0)));
 	CHECK(instance.get_date(p) == DATE(1960,1,1));
 	CHECK(instance.get_time(p) == TIME(0,0,0));
-	CHECK(instance.to_string(p) == "1960-01-01T00:00:00");
+	CHECK(instance.to_string(p) == "1960-01-01 00:00:00");
       }
     }
   }
@@ -226,7 +226,7 @@ SCENARIO("The DateTimeFormatter creates a IFormatter with the datetime type")
 	CHECK(instance.get_datetime(p) == DATETIME(DATE(1960,1,1),TIME(0,0,0)));
 	CHECK(instance.get_date(p) == DATE(1960,1,1));
 	CHECK(instance.get_time(p) == TIME(0,0,0));
-	CHECK(instance.to_string(p) == "1960-01-01T00:00:00");
+	CHECK(instance.to_string(p) == "1960-01-01 00:00:00");
       }
     }
   }

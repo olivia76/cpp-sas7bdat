@@ -28,15 +28,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'macos-latest']   # , 'macos-latest', 'windows-latest'
+        os: [windows-2019, 'ubuntu-latest', 'macos-latest']   # , 'macos-latest', 'windows-latest'
         include:
-        - os: ubuntu-latest
-          ENABLE_COVERAGE: ON
-        #- os: windows-latest
-        #  # Windows works differently
-        #  ENABLE_COVERAGE: OFF
-        - os: macos-latest
-          ENABLE_COVERAGE: ON
+          - os: ubuntu-latest
+            ENABLE_COVERAGE: ON
+          - os: windows-2019
+            # Windows works differently
+            ENABLE_COVERAGE: OFF
+          - os: macos-latest
+            ENABLE_COVERAGE: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -51,11 +51,20 @@ jobs:
           ~/.cache/pip
         key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
 
-    - name: Install conan
+    - name: Install conan on not windows
+      if: runner.os != 'Windows'
       run: |
         pip3 install --upgrade pip
         pip3 install wheel setuptools gcovr numpy cmaketools
         pip3 install conan --upgrade
+
+    - name: Install conan on windows
+      if: runner.os == 'Windows'
+      run: |
+        pip3 install --user --upgrade pip
+        pip3 install --user wheel setuptools gcovr numpy cmaketools
+        pip3 install --user conan --upgrade
+        echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH
 
     - name: Install / Configure dependencies
       shell: bash
@@ -66,9 +75,12 @@ jobs:
           sudo update-alternatives --config conan
         elif [ "$RUNNER_OS" == "Windows" ]; then
           echo "Using chocolatey to install OpenCppCoverage"
-          choco install opencppcoverage
+          choco install opencppcoverage -y
           # Add to Path
           echo "C:/Program Files/OpenCppCoverage" >> $GITHUB_PATH
+          #choco install wget -y
+          # Add to Path
+          #echo "C:/ProgramData/chocolatey/lib/Wget/tools" >> $GITHUB_PATH
         fi;
 
     - name: Configure CMake
@@ -80,6 +92,23 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build ./build --config $BUILD_TYPE
 
+    - name: Retrieve data on not windows
+      if: runner.os != 'Windows'
+      env:
+        WGET: "wget"
+      working-directory: ./test
+      run: |
+          ./retrieve.bash
+
+    - name: Retrieve data on windows
+      if: ${{ false }}
+      #if: runner.os == 'Windows'
+      env:
+        WGET: "C:/ProgramData/chocolatey/lib/Wget/tools/wget.exe"
+      working-directory: ./test
+      run: |
+          ./retrieve.bash
+
     - name: Unix - Test and coverage
       env:
         CMAKE_ARGS: -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
@@ -88,7 +117,6 @@ jobs:
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
-          ../test/retrieve.bash
           ctest -C $BUILD_TYPE --output-on-failure
           if [ "$RUNNER_OS" == "Linux" ]; then
             make -C .. tests-python
@@ -99,7 +127,15 @@ jobs:
       if: runner.os == 'Windows'
       working-directory: ./build
       run: |
-        OpenCppCoverage.exe --sources cpp_starter_project --export_type cobertura:coverage.xml --cover_children -- ctest -C $BUILD_TYPE
+        OpenCppCoverage.exe --sources ..\src --sources ..\include --export_type cobertura:coverage.xml --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
+
+    - name: Windows - upload logs
+      uses: actions/upload-artifact@v2
+      if: always() && runner.os == 'Windows'
+      with:
+        name: code-coverage-logs
+        path: ./build/LastCoverageResults.log
+        retention-days: 5
 
     - name: Publish to codecov
       uses: codecov/codecov-action@v2

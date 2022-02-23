@@ -15,7 +15,7 @@ target_link_libraries(tests
   catch_main
   nlohmann_json::nlohmann_json
   spdlog::spdlog
-  Boost::date_time 
+  Boost::date_time
   cppsas7bdat
   project_options
   )

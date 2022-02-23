@@ -32,7 +32,7 @@ namespace cppsas7bdat {
       bool is_64bit{false};
 
       explicit CHECK_HEADER(_DataSource&& _is)
-	: is(std::move(_is)) //INTERNAL::open_stream(_pcszFileName))
+	: is(std::move(_is))
       {
 	D(spdlog::info("Reading header ...\n"));
 	if(!buf.read_stream(is, HEADER_SIZE)) EXCEPTION::header_too_short();
@@ -74,7 +74,7 @@ namespace cppsas7bdat {
 	  align1(_ch.align1),
 	  total_align(_ch.total_align)
       {
-	assert(is);
+	FMT_ASSERT(is, "DataSource is not valid");
       }
 
       void set_header_length_and_read(Properties::Header* _header) {
@@ -83,13 +83,13 @@ namespace cppsas7bdat {
 	  spdlog::info("Expected header length of 8192 but got {}\n", _header->header_length);
 	}
 	// Read the rest of the header
-	assert(_header->header_length >= HEADER_CONSTANTS::HEADER_SIZE);
+	FMT_ASSERT(_header->header_length >= HEADER_CONSTANTS::HEADER_SIZE, "Header is too big in set_header_length_and_read");
 	if(!buf.read_stream(is, _header->header_length-HEADER_CONSTANTS::HEADER_SIZE, HEADER_CONSTANTS::HEADER_SIZE)) EXCEPTION::header_too_short();
 	D(spdlog::info("Set header length and read ... {}\n", _header->header_length));
       }
       
       void set_header(Properties::Header* _header) const {
-	assert(buf.size() >= 288 + total_align);
+	FMT_ASSERT(buf.size() >= 288 + total_align, "Buffer is too small in set_header");
 	
 	_header->platform = (buf[39] == '1' ? Platform::unix :
 			     buf[39] == '2' ? Platform::windows : Platform::unknown);
@@ -111,12 +111,12 @@ namespace cppsas7bdat {
 			    : buf.get_string(256+total_align, 16) ); // 256-272 + total_align
 
 	D(spdlog::info("Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
-			_header->platform,
-			_header->dataset_name, _header->file_type,
-			boost::posix_time::to_iso_extended_string(_header->date_created),
-			boost::posix_time::to_iso_extended_string(_header->date_modified),
-			_header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
-			_header->page_length, _header->page_count));
+		       _header->platform,
+		       _header->dataset_name, _header->file_type,
+		       cppsas7bdat::to_string(_header->date_created), //boost::posix_time::to_iso_extended_string(_header->date_created),
+		       cppsas7bdat::to_string(_header->date_modified), //boost::posix_time::to_iso_extended_string(_header->date_modified),
+		       _header->sas_release, _header->sas_server_type, _header->os_type, _header->os_name,
+		       _header->page_length, _header->page_count));
       }
 
       static std::string_view get_encoding(const uint8_t _e) noexcept {

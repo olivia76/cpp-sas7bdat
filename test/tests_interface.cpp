@@ -73,12 +73,11 @@ SCENARIO("I can translate to string the Column type enum")
 
 namespace {
   template<typename _DataSink>
-  auto get_reader(const char* _pcszfilename, _DataSink&& _datasink) {
-    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_pcszfilename), std::forward<_DataSink>(_datasink));
+  auto get_reader(const std::string& _filename, _DataSink&& _datasink) {
+    return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(convert_path(_filename).c_str()), std::forward<_DataSink>(_datasink));
   }  
-  auto get_reader(const char* _pcszfilename) {
-    return get_reader(_pcszfilename, cppsas7bdat::datasink::null());
-    //return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_pcszfilename), cppsas7bdat::datasink::null());
+  auto get_reader(const std::string& _filename) {
+    return get_reader(_filename, cppsas7bdat::datasink::null());
   }  
 }
 
@@ -86,7 +85,8 @@ SCENARIO("When I try to read a non existing file with the public interface, an e
 {
   GIVEN("An invalid path") {
     THEN("An exception is thrown") {
-      REQUIRE_THROWS_WITH(get_reader(invalid_path), "not_a_valid_file");
+      //CHECK_THROWS_WITH(get_reader(invalid_path), "not_a_valid_file");
+      CHECK_THROWS(get_reader(invalid_path));
     }
   }
 }
@@ -96,7 +96,8 @@ SCENARIO("When I try to read a file too short with the public interface, an exce
 {
   GIVEN("A path to a too short file") {
     THEN("an exception is thrown") {
-      REQUIRE_THROWS_WITH(get_reader(file_too_short), "header_too_short");
+      //CHECK_THROWS_WITH(get_reader(file_too_short), "header_too_short");
+      CHECK_THROWS(get_reader(file_too_short));
     }
   }
 }
@@ -105,7 +106,8 @@ SCENARIO("When I try to read a file with an invalid magic number with the public
 {
   GIVEN("A path to a file with an invalid magic number") {
     THEN("an exception is thrown") {
-      REQUIRE_THROWS_WITH(get_reader(invalid_magic_number), "invalid_magic_number");
+      //CHECK_THROWS_WITH(get_reader(invalid_magic_number), "invalid_magic_number");
+      CHECK_THROWS(get_reader(invalid_magic_number));
     }
   }
 }
@@ -114,7 +116,7 @@ SCENARIO("When I try to read a valid file with the public interface, no exceptio
 {
   GIVEN("A path to a valid file") {
     THEN("No exception is thrown") {
-      REQUIRE_NOTHROW(get_reader(file1));
+      CHECK_NOTHROW(get_reader(file1));
     }
   }
 }
@@ -160,7 +162,7 @@ namespace {
 	  INFO("Colname=" << column.name << '[' << icol << "] row=" << ref_irow);
 	  switch(column.type) {
 	  case cppsas7bdat::Column::Type::string:
-	    CHECK(column.get_string(_p) == refval);
+	    CHECK(std::string(column.get_string(_p)) == refval);
 	    break;
 	  case cppsas7bdat::Column::Type::integer:
 	    CHECK(column.get_integer(_p) == refval);
@@ -209,7 +211,7 @@ SCENARIO("When I read a file with the public interface, the data are read proper
     // Skip big5 files
     if(filename.find("big5") != filename.npos) return;
     WHEN("The data is read") {
-      auto reader = get_reader(filename.c_str(), MyTestDataSink(ref_data.begin(), ref_data.end()));
+      auto reader = get_reader(filename, MyTestDataSink(ref_data.begin(), ref_data.end()));
       const auto& columns = reader.properties().metadata.columns;
       THEN("The data values are correct - read_all") {
 	CHECK(reader.current_row_index() == 0);

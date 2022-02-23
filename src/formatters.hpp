@@ -158,7 +158,7 @@ namespace cppsas7bdat {
 
 	STRING to_string(const void* _p) const
 	{
-	  return boost::posix_time::to_iso_extended_string(get_datetime(_p));
+	  return cppsas7bdat::to_string(get_datetime(_p)); //boost::posix_time::to_iso_extended_string(get_datetime(_p));
 	}
 	
       };
@@ -184,7 +184,7 @@ namespace cppsas7bdat {
 
 	STRING to_string(const void* _p) const
 	{
-	  return boost::gregorian::to_iso_extended_string(get_date(_p));
+	  return cppsas7bdat::to_string(get_date(_p)); //boost::gregorian::to_iso_extended_string(get_date(_p));
 	}
 	
       };
@@ -205,7 +205,7 @@ namespace cppsas7bdat {
 
 	STRING to_string(const void* _p) const
 	{
-	  return boost::posix_time::to_simple_string(get_time(_p));
+	  return cppsas7bdat::to_string(get_time(_p)); //boost::posix_time::to_simple_string(get_time(_p));
 	}
 	
       };

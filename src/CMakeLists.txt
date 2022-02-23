@@ -3,7 +3,6 @@ configure_file(
   "${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp"
   )
 
-find_package(Boost REQUIRED COMPONENTS date_time)
 find_package(fmt)
 find_package(spdlog)
 
@@ -27,6 +26,9 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   sas7bdat-impl.hpp
   subheaders.hpp
   version.cpp
+  types.cpp
+  stream.hpp
+  stream.cpp
     )
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )

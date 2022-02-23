@@ -18,7 +18,7 @@
 namespace {
   cppsas7bdat::INTERNAL::DATASOURCE open_file(const std::string& _filename)
   {
-    return cppsas7bdat::Reader::build_source(cppsas7bdat::datasource::ifstream(_filename.c_str()));
+    return cppsas7bdat::Reader::build_source(cppsas7bdat::datasource::ifstream(convert_path(_filename).c_str()));
   }
 }
 
@@ -26,12 +26,17 @@ SCENARIO("When I try to read a non existing file, an exception is thrown", "[int
 {
   GIVEN("An invalid path") {
     THEN("An exception is thrown") {
-      REQUIRE_THROWS_WITH(cppsas7bdat::INTERNAL::open_stream(invalid_path), "not_a_valid_file");
+      //CHECK_THROWS_WITH(cppsas7bdat::INTERNAL::open_stream(invalid_path), "not_a_valid_file");
+      CHECK_THROWS(cppsas7bdat::INTERNAL::open_stream(invalid_path.c_str()));
     }
   }
+}
+
+SCENARIO("When I try to read anexisting file, no exception is thrown", "[internal][not_a_valid_file]")
+{
   GIVEN("A valid path") {
     THEN("No exception is thrown") {
-      REQUIRE_NOTHROW(cppsas7bdat::INTERNAL::open_stream(file_too_short));
+      CHECK_NOTHROW(cppsas7bdat::INTERNAL::open_stream(file_too_short.c_str()));
     }
   }
 }
@@ -40,12 +45,17 @@ SCENARIO("When I try to read a file too short, an exception is thrown", "[intern
 {
   GIVEN("A path to a too short file") {
     THEN("an exception is thrown") {
-      REQUIRE_THROWS_WITH(cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(file_too_short)), "header_too_short");
+      //CHECK_THROWS_WITH(cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(file_too_short)), "header_too_short");
+      CHECK_THROWS(cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(file_too_short)));
     }
   }
+}
+
+SCENARIO("When I try to read a file that's not too short, no exception is thrown", "[internal][file too short]")
+{
   GIVEN("A path to a file with the minimum size") {
     THEN("No exception is thrown") {
-      REQUIRE_NOTHROW(cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(invalid_magic_number)));
+      CHECK_NOTHROW(cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(invalid_magic_number)));
     }
   }
 }
@@ -57,15 +67,20 @@ SCENARIO("When I try to read a file with an invalid magic number, an exception i
     auto ch = cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(invalid_magic_number));
     WHEN("I check the magic number") {
       THEN("an exception is thrown") {
-	REQUIRE_THROWS_WITH(ch.check_magic_number(), "invalid_magic_number");
+	//CHECK_THROWS_WITH(ch.check_magic_number(), "invalid_magic_number");
+	CHECK_THROWS(ch.check_magic_number());
       }
     }
   }
+}
+
+SCENARIO("When I try to read a file with an valid magic number, no exception is thrown", "[internal][header_too_short]")
+{
   GIVEN("A path to a valid file") {
     auto ch = cppsas7bdat::INTERNAL::CHECK_HEADER(open_file(file1));
     WHEN("I check the magic number") {
       THEN("No exception is thrown") {
-	REQUIRE_NOTHROW(ch.check_magic_number());
+	CHECK_NOTHROW(ch.check_magic_number());
       }
     }
   }
@@ -206,7 +221,7 @@ SCENARIO("When I read a file, the data are read properly", "[internal][read_data
 	      INFO("Colname=" << column.name << '[' << icol << "] row=" << ref_irow);
 	      switch(column.type) {
 	      case cppsas7bdat::Column::Type::string:
-		CHECK(column.get_string(p) == refval);
+		CHECK(std::string(column.get_string(p)) == refval);
 		break;
 	      case cppsas7bdat::Column::Type::integer:
 		CHECK(column.get_integer(p) == refval);

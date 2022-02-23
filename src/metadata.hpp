@@ -84,7 +84,8 @@ namespace cppsas7bdat {
       constexpr static auto endian=_endian;
       constexpr static auto format=_format;
 
-      constexpr static size_t integer_size = BUFFER<_endian, _format>::integer_size;
+      using CBUFFER = INTERNAL::BUFFER<_endian, _format>;
+      constexpr static size_t integer_size = CBUFFER::integer_size;
       using METADATA_CONSTANT<_format>::lcs_offset;
       using METADATA_CONSTANT<_format>::lcp_offset;
       using METADATA_CONSTANT<_format>::compression_offset;
