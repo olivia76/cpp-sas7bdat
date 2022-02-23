@@ -10,29 +10,14 @@
 #include <algorithm>
 #include <filesystem>
 
-//#if defined(_WIN32) || defined(__CYGWIN__)
-//#define WINDOWS_API
-//#endif
-
 namespace {
 
   inline std::string convert_path(std::string _filename)
   {
     std::cerr << "convert_path:" << '[' << _filename << ']';
-    //#if defined(WINDOWS_API)
-    //std::replace(_filename.begin(), _filename.end(), '/', '\\');
-    //#endif
-    //std::cerr << ':' << '[' << _filename << ']';
     std::filesystem::path p{_filename};
     _filename = p.make_preferred().string();    
-    /*auto filepath = boost::filesystem::current_path(); //.string();
-    if(_filename.find(filepath.make_preferred().string()) == 0) {
-    } else {
-      filepath /= _filename;
-      _filename = filepath.make_preferred().string();
-      }*/
     std::cerr << ':' << '[' << _filename << ']' << std::endl;
-       
     return _filename;
   }
   
@@ -54,15 +39,6 @@ namespace {
       is >> j;
     }
     json j;
-
-    /*void updated_keys()
-    {
-      json jj;
-      for(auto iter = j.begin(); iter != j.end(); ++iter) {
-	j[convert_path(iter.key())] = iter.value();
-      }
-      std::swap(j, jj);
-      }*/
   };
   
   static const FILES& files() {
