@@ -3,7 +3,6 @@ configure_file(
   "${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp"
   )
 
-#find_package(Boost REQUIRED COMPONENTS date_time)
 find_package(fmt)
 find_package(spdlog)
 
