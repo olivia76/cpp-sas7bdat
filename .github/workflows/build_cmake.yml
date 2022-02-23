@@ -131,7 +131,7 @@ jobs:
 
     - name: Windows - upload logs
       uses: actions/upload-artifact@v2
-      if: always()
+      if: always() && runner.os == 'Windows'
       with:
         name: code-coverage-logs
         path: ./build/LastCoverageResults.log
