@@ -6,7 +6,6 @@ runs:
   steps:
   - name: Cache
     uses: actions/cache@v2
-    shell: bash
     env:
       cache-name: cache-conan-modules
     with:
@@ -110,7 +109,6 @@ runs:
       retention-days: 5
 
   - name: Publish to codecov
-    shell: bash
     uses: codecov/codecov-action@v2
     with:
       flags: ${{ runner.os }}
@@ -118,7 +116,6 @@ runs:
       files: ./build/coverage.xml
 
   - name: Publish to codecov - python
-    shell: bash
     uses: codecov/codecov-action@v2
     with:
       flags: ${{ runner.os }}
