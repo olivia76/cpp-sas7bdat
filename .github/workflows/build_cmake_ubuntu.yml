@@ -1,0 +1,32 @@
+name: CMake on Ubuntu-latest
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: RelWithDebInfo
+  # Conan cache environment variables
+  CONAN_SYSREQUIRES_MODE: enabled
+  CONAN_USER_HOME: "${{ github.workspace }}/conan-cache"
+  CONAN_USER_HOME_SHORT: "${{ github.workspace }}/conan-cache/short"
+  CONAN_PRINT_RUN_COMMANDS: 1
+  ENABLE_COVERAGE: ON
+
+# Use a bash shell so we can use the same syntax for environment variable
+# access regardless of the host operating system
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - name: compile and tests
+      uses: ./.github/actions/compile

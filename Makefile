@@ -66,7 +66,7 @@ tests-R: build-R
 
 .PHONY: lint
 lint:
-	yamllint -f colored .github/workflows/
+	yamllint -f colored .github
 
 .PHONY: conan conan-install conan-setup
 conan: conan-install conan-setup
