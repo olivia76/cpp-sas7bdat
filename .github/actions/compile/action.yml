@@ -1,13 +1,5 @@
 name: CMake
 description: "Checkout, prepare, compile, tests and publish to codecov"
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: RelWithDebInfo
-  # Conan cache environment variables
-  CONAN_SYSREQUIRES_MODE: enabled
-  CONAN_USER_HOME: "${{ github.workspace }}/conan-cache"
-  CONAN_USER_HOME_SHORT: "${{ github.workspace }}/conan-cache/short"
-  CONAN_PRINT_RUN_COMMANDS: 1
   
 defaults:
   run:
