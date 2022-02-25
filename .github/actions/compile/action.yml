@@ -1,15 +1,12 @@
 name: CMake
 description: "Checkout, prepare, compile, tests and publish to codecov"
-  
-defaults:
-  run:
-    shell: bash
 
 runs:
   using: "composite"
   steps:
   - name: Cache
     uses: actions/cache@v2
+    shell: bash
     env:
       cache-name: cache-conan-modules
     with:
@@ -19,6 +16,7 @@ runs:
       key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
 
   - name: Install conan on not windows
+    shell: bash
     if: runner.os != 'Windows'
     run: |
       pip3 install --upgrade pip
@@ -26,6 +24,7 @@ runs:
       pip3 install conan --upgrade
 
   - name: Install conan on windows
+    shell: bash
     if: runner.os == 'Windows'
     run: |
       pip3 install --user --upgrade pip
@@ -51,15 +50,18 @@ runs:
       fi;
 
   - name: Configure CMake
+    shell: bash
     run: |
         cmake -S . -B ./build -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_CONAN:BOOL=ON -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
         cmake -S . -B ./build -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_CONAN:BOOL=ON -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
 
   - name: Build
+    shell: bash
     # Execute the build.  You can specify a specific target with "--target <NAME>"
     run: cmake --build ./build --config $BUILD_TYPE
 
   - name: Retrieve data on not windows
+    shell: bash
     if: runner.os != 'Windows'
     env:
       WGET: "wget"
@@ -68,6 +70,7 @@ runs:
         ./retrieve.bash
 
   - name: Retrieve data on windows
+    shell: bash
     if: ${{ false }}
     #if: runner.os == 'Windows'
     env:
@@ -77,6 +80,7 @@ runs:
         ./retrieve.bash
 
   - name: Unix - Test and coverage
+    shell: bash
     env:
       CMAKE_ARGS: -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
     if: runner.os != 'Windows'
@@ -91,6 +95,7 @@ runs:
         gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
 
   - name: Windows - Test and coverage
+    shell: bash
     if: runner.os == 'Windows'
     working-directory: ./build
     run: |
@@ -105,6 +110,7 @@ runs:
       retention-days: 5
 
   - name: Publish to codecov
+    shell: bash
     uses: codecov/codecov-action@v2
     with:
       flags: ${{ runner.os }}
@@ -112,6 +118,7 @@ runs:
       files: ./build/coverage.xml
 
   - name: Publish to codecov - python
+    shell: bash
     uses: codecov/codecov-action@v2
     with:
       flags: ${{ runner.os }}
