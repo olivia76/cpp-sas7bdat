@@ -28,5 +28,7 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-    - name: compile and tests
+    - name: Get source code
+      uses: actions/checkout@v2
+    - name: Compile and tests
       uses: ./.github/actions/compile

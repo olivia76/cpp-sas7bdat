@@ -16,8 +16,6 @@ defaults:
 runs:
   using: "composite"
   steps:
-  - uses: actions/checkout@v2
-
   - name: Cache
     uses: actions/cache@v2
     env:
