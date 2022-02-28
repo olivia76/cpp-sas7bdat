@@ -1,6 +1,8 @@
 # cpp-sas7bdat
 
-[![CMake](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake.yml/badge.svg)](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake.yml)
+[![CMake on Ubuntu-latest](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake_ubuntu.yml/badge.svg)](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake_ubuntu.yml)
+[![CMake on MacOS-latest](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake_macos.yml/badge.svg)](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake_macos.yml)
+[![CMake on Windows-2019](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake_windows.yml/badge.svg)](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/build_cmake_windows.yml)
 [![codecov](https://codecov.io/gh/olivia76/cpp-sas7bdat/branch/main/graph/badge.svg?token=VLVIKO2HCS)](https://codecov.io/gh/olivia76/cpp-sas7bdat)
 [![CodeQL](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/olivia76/cpp-sas7bdat/actions/workflows/codeql-analysis.yml)
 
