@@ -64,7 +64,9 @@ runs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
           ctest -C $BUILD_TYPE --output-on-failure
-          make -C .. tests-python
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            make -C .. tests-python
+          fi;
           gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
 
     - name: Windows - Test and coverage
