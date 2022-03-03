@@ -19,7 +19,7 @@ runs:
       if: runner.os != 'Windows'
       run: |
         make conan-install
-	if [ "$RUNNER_OS" == "Linux" ]; then
+        if [ "$RUNNER_OS" == "Linux" ]; then
           echo "Ubuntu - Fix Conan Path"
           sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
           sudo update-alternatives --config conan
