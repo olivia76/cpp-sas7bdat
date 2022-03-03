@@ -17,7 +17,7 @@ env:
   CONAN_USER_HOME: "${{ github.workspace }}/conan-cache"
   CONAN_USER_HOME_SHORT: "${{ github.workspace }}/conan-cache/short"
   CONAN_PRINT_RUN_COMMANDS: 1
-  ENABLE_COVERAGE: OFF
+  ENABLE_COVERAGE: ON
   WGET: "C:/ProgramData/chocolatey/lib/Wget/tools/wget.exe"
 
 # Use a bash shell so we can use the same syntax for environment variable

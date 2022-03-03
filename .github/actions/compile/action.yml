@@ -46,7 +46,7 @@ runs:
 
     - name: Build
       shell: bash
-      run: make build BUILD_TYPE=$BUILD_TYPE
+      run: make build BUILD_TYPE=$BUILD_TYPE ENABLE_CONAN=ON ENABLE_COVERAGE=$ENABLE_COVERAGE
 
     - name: Retrieve data
       shell: bash
