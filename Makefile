@@ -6,13 +6,17 @@ OPTIONS :=
 BUILD_TYPE := Release
 PYTHON_VERSION := 3.8.12
 VENV_NAME := $(shell cat .python-version)
-
+ENABLE_CONAN := ON
+ENABLE_COVERAGE := OFF
 ENABLE_R := OFF
+PIP_OPTIONS := --user
+
+.PHONY: configure
+configure:
+	cmake -S . -B ./build -DENABLE_CONAN:BOOL=${ENABLE_CONAN} -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DENABLE_R:BOOL=${ENABLE_R} -DENABLE_COVERAGE:BOOL=${ENABLE_COVERAGE}
 
 .PHONY: build
-build:
-	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DENABLE_R:BOOL=${ENABLE_R}
-	cmake -S . -B ./build -DENABLE_CONAN:BOOL=ON -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DENABLE_R:BOOL=${ENABLE_R}
+build: configure
 	cmake --build ./build --config ${BUILD_TYPE}
 
 .PHONY: build-R
@@ -72,7 +76,9 @@ lint:
 conan: conan-install conan-setup
 
 conan-install:
-	pip install conan
+	pip3 install $(PIP_OPTIONS) --upgrade pip
+	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr numpy cmaketools
+	pip3 install $(PIP_OPTIONS) conan --upgrade
 
 conan-setup:
 	conan install conanfile.py

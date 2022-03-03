@@ -4,120 +4,97 @@ description: "Checkout, prepare, compile, tests and publish to codecov"
 runs:
   using: "composite"
   steps:
-  - name: Cache
-    uses: actions/cache@v2
-    env:
-      cache-name: cache-conan-modules
-    with:
-      path: |
-        ${{ env.CONAN_USER_HOME }}
-        ~/.cache/pip
-      key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
+    - name: Cache
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-conan-modules
+      with:
+        path: |
+          ${{ env.CONAN_USER_HOME }}
+          ~/.cache/pip
+        key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
 
-  - name: Install conan on not windows
-    shell: bash
-    if: runner.os != 'Windows'
-    run: |
-      pip3 install --upgrade pip
-      pip3 install wheel setuptools gcovr numpy cmaketools
-      pip3 install conan --upgrade
+    - name: Install conan and dependendies on Unix
+      shell: bash
+      if: runner.os != 'Windows'
+      run: |
+        make conan-install PIP_OPTIONS=
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "Ubuntu - Fix Conan Path"
+          sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
+          sudo update-alternatives --config conan
+        fi;
 
-  - name: Install conan on windows
-    shell: bash
-    if: runner.os == 'Windows'
-    run: |
-      pip3 install --user --upgrade pip
-      pip3 install --user wheel setuptools gcovr numpy cmaketools
-      pip3 install --user conan --upgrade
-      echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH
-
-  - name: Install / Configure dependencies
-    shell: bash
-    run: |
-      if [ "$RUNNER_OS" == "Linux" ]; then
-        echo "Ubuntu - Fix Conan Path"
-        sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
-        sudo update-alternatives --config conan
-      elif [ "$RUNNER_OS" == "Windows" ]; then
+    - name: Install conan and dependendies on windows
+      shell: bash
+      if: runner.os == 'Windows'
+      run: |
+        make conan-install PIP_OPTIONS=--user
+        echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH
         echo "Using chocolatey to install OpenCppCoverage"
         choco install opencppcoverage -y
         # Add to Path
         echo "C:/Program Files/OpenCppCoverage" >> $GITHUB_PATH
+        # echo "Using chocolatey to install wget"
         #choco install wget -y
         # Add to Path
         #echo "C:/ProgramData/chocolatey/lib/Wget/tools" >> $GITHUB_PATH
-      fi;
 
-  - name: Configure CMake
-    shell: bash
-    run: |
-        cmake -S . -B ./build -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_CONAN:BOOL=ON -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
-        cmake -S . -B ./build -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_CONAN:BOOL=ON -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
+    - name: Configure CMake
+      shell: bash
+      run: make configure BUILD_TYPE=$BUILD_TYPE ENABLE_CONAN=ON ENABLE_COVERAGE=$ENABLE_COVERAGE
 
-  - name: Build
-    shell: bash
-    # Execute the build.  You can specify a specific target with "--target <NAME>"
-    run: cmake --build ./build --config $BUILD_TYPE
+    - name: Build
+      shell: bash
+      run: make build BUILD_TYPE=$BUILD_TYPE
 
-  - name: Retrieve data on not windows
-    shell: bash
-    if: runner.os != 'Windows'
-    env:
-      WGET: "wget"
-    working-directory: ./test
-    run: |
-        ./retrieve.bash
+    - name: Retrieve data
+      shell: bash
+      if: runner.os != 'Windows'
+      working-directory: ./test
+      run: ./retrieve.bash
 
-  - name: Retrieve data on windows
-    shell: bash
-    if: ${{ false }}
-    #if: runner.os == 'Windows'
-    env:
-      WGET: "C:/ProgramData/chocolatey/lib/Wget/tools/wget.exe"
-    working-directory: ./test
-    run: |
-        ./retrieve.bash
+    - name: Unix - Test and coverage
+      shell: bash
+      env:
+        CMAKE_ARGS: -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_COVERAGE:BOOL=$ENABLE_COVERAGE
+      if: runner.os != 'Windows'
+      working-directory: ./build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+          ctest -C $BUILD_TYPE --output-on-failure
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            make -C .. tests-python
+          fi;
+          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
 
-  - name: Unix - Test and coverage
-    shell: bash
-    env:
-      CMAKE_ARGS: -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_COVERAGE:BOOL=${{ matrix.ENABLE_COVERAGE }}
-    if: runner.os != 'Windows'
-    working-directory: ./build
-    # Execute tests defined by the CMake configuration.
-    # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-    run: |
-        ctest -C $BUILD_TYPE --output-on-failure
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          make -C .. tests-python
-        fi;
-        gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
+    - name: Windows - Test and coverage
+      shell: bash
+      if: runner.os == 'Windows'
+      working-directory: ./build
+      run: |
+        OpenCppCoverage.exe --sources ..\src --sources ..\include --export_type cobertura:coverage.xml --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
 
-  - name: Windows - Test and coverage
-    shell: bash
-    if: runner.os == 'Windows'
-    working-directory: ./build
-    run: |
-      OpenCppCoverage.exe --sources ..\src --sources ..\include --export_type cobertura:coverage.xml --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
+    - name: Windows - upload logs
+      uses: actions/upload-artifact@v2
+      if: always() && runner.os == 'Windows'
+      with:
+        name: code-coverage-logs
+        path: ./build/LastCoverageResults.log
+        retention-days: 5
 
-  - name: Windows - upload logs
-    uses: actions/upload-artifact@v2
-    if: always() && runner.os == 'Windows'
-    with:
-      name: code-coverage-logs
-      path: ./build/LastCoverageResults.log
-      retention-days: 5
+    - name: Publish to codecov - c++
+      uses: codecov/codecov-action@v2
+      with:
+        flags: ${{ runner.os }}
+        name: ${{ runner.os }}-coverage
+        files: ./build/coverage.xml
 
-  - name: Publish to codecov
-    uses: codecov/codecov-action@v2
-    with:
-      flags: ${{ runner.os }}
-      name: ${{ runner.os }}-coverage
-      files: ./build/coverage.xml
-
-  - name: Publish to codecov - python
-    uses: codecov/codecov-action@v2
-    with:
-      flags: ${{ runner.os }}
-      name: ${{ runner.os }}-coverage
-      files: ./build/coverage-python.xml
+    - name: Publish to codecov - python
+      uses: codecov/codecov-action@v2
+      if: runner.os != 'Windows'
+      with:
+        flags: ${{ runner.os }}
+        name: ${{ runner.os }}-coverage
+        files: ./build/coverage-python.xml
