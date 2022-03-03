@@ -18,7 +18,7 @@ runs:
       shell: bash
       if: runner.os != 'Windows'
       run: |
-        make conan-install
+        make conan-install PIP_OPTIONS=
         if [ "$RUNNER_OS" == "Linux" ]; then
           echo "Ubuntu - Fix Conan Path"
           sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
@@ -29,7 +29,7 @@ runs:
       shell: bash
       if: runner.os == 'Windows'
       run: |
-        make conan-install
+        make conan-install PIP_OPTIONS=--user
         echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH
         echo "Using chocolatey to install OpenCppCoverage"
         choco install opencppcoverage -y

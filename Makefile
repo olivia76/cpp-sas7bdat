@@ -9,6 +9,7 @@ VENV_NAME := $(shell cat .python-version)
 ENABLE_CONAN := ON
 ENABLE_COVERAGE := OFF
 ENABLE_R := OFF
+PIP_OPTIONS := --user
 
 .PHONY: configure
 configure:
@@ -75,9 +76,9 @@ lint:
 conan: conan-install conan-setup
 
 conan-install:
-	pip3 install --user --upgrade pip
-	pip3 install --user wheel setuptools gcovr numpy cmaketools
-	pip3 install --user conan --upgrade
+	pip3 install $(PIP_OPTIONS) --upgrade pip
+	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr numpy cmaketools
+	pip3 install $(PIP_OPTIONS) conan --upgrade
 
 conan-setup:
 	conan install conanfile.py
