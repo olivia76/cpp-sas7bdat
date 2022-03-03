@@ -19,9 +19,11 @@ runs:
       if: runner.os != 'Windows'
       run: |
         make conan-install
-        echo "Fix Conan Path"
-        sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
-        sudo update-alternatives --config conan
+	if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "Ubuntu - Fix Conan Path"
+          sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
+          sudo update-alternatives --config conan
+        fi;
 
     - name: Install conan and dependendies on windows
       shell: bash
@@ -89,6 +91,7 @@ runs:
 
     - name: Publish to codecov - python
       uses: codecov/codecov-action@v2
+      if: runner.os != 'Windows'
       with:
         flags: ${{ runner.os }}
         name: ${{ runner.os }}-coverage
