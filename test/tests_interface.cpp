@@ -127,6 +127,8 @@ SCENARIO("When I try to read a valid file with the public interface, no exceptio
 namespace {
   struct MyTestDataSink {
     COLUMNS columns;
+    json ref_header;
+    json ref_columns;
     using iterator = decltype(std::declval<const json>()[""].items().begin());
     iterator ref_data_iter;
     iterator ref_data_iter_end;
@@ -135,8 +137,10 @@ namespace {
     size_t ncols{0};
     
     template<typename _iter>
-    MyTestDataSink(_iter&& _ref_data_iter, _iter&& _ref_data_iter_end)
-      : ref_data_iter(std::forward<_iter>(_ref_data_iter)),
+    MyTestDataSink(const json& _header, const json& _columns, _iter&& _ref_data_iter, _iter&& _ref_data_iter_end)
+      : ref_header(_header),
+	ref_columns(_columns),
+	ref_data_iter(std::forward<_iter>(_ref_data_iter)),
 	ref_data_iter_end(std::forward<_iter>(_ref_data_iter_end))
     {
       get_ref_irow();
@@ -148,8 +152,49 @@ namespace {
     };
     
     void set_properties([[maybe_unused]]const Properties& _properties) {
-      columns = COLUMNS(_properties.metadata.columns);
+      columns = COLUMNS(_properties/*.metadata*/.columns);
       ncols = columns.size();
+
+      CHECK(_properties.platform == get_platform(ref_header["platform"]));
+      //CHECK(_properties.encoding == ref_header["encoding"]);
+      CHECK(_properties.dataset_name == ref_header["name"]);
+      CHECK(_properties.file_type == ref_header["file_type"]);
+      CHECK(get_dt(_properties.date_created) == get_dt(get_datetime(ref_header["date_created"])));
+      CHECK(get_dt(_properties.date_modified) == get_dt(get_datetime(ref_header["date_modified"])));
+      CHECK(_properties.sas_release == ref_header["sas_release"]);
+      CHECK(_properties.sas_server_type == ref_header["server_type"]);
+      CHECK(_properties.os_type == ref_header["os_type"]);
+      CHECK(_properties.os_name == ref_header["os_name"]);
+      CHECK(_properties.header_length == ref_header["header_length"]);
+      CHECK(_properties.page_length == ref_header["page_length"]);
+      CHECK(_properties.page_count == ref_header["page_count"]);
+      
+      CHECK(_properties.creator == get_string(ref_header["creator"]));
+      CHECK(_properties.creator_proc == get_string(ref_header["creator_proc"]));
+      CHECK(_properties.row_length == ref_header["row_length"]);
+      CHECK(_properties.row_count == ref_header["row_count"]);
+      CHECK(_properties.col_count_p1 == ref_header["col_count_p1"]);
+      CHECK(_properties.col_count_p2 == ref_header["col_count_p2"]);
+      CHECK(_properties.mix_page_row_count == ref_header["mix_page_row_count"]);
+      CHECK(_properties.lcs == ref_header["lcs"]);
+      CHECK(_properties.lcp == ref_header["lcp"]);
+      CHECK(_properties.compression == get_compression(ref_header["compression"]));
+      REQUIRE(_properties.columns.size() == ref_columns.size());
+      for(size_t icol = 0; icol<_properties.columns.size(); ++icol) {
+	const auto& column = _properties.columns[icol];
+	const auto& ref_column = ref_columns[icol];
+	INFO("Col#" << icol << " name=" << ref_column["name"]);
+	CHECK(column.name == get_string(ref_column["name"]));
+	//CHECK(column.label == get_string(ref_column["label"]));
+	CHECK(column.format == get_string(ref_column["format"]));
+	//CHECK(column.data_offset() == ref_column["offset"]);
+	//CHECK(column.data_length() == ref_column["length"]);
+	if(get_column_type(ref_column["type"]) == cppsas7bdat::Column::Type::string) {
+	  CHECK(column.type == cppsas7bdat::Column::Type::string);
+	} else {
+	  CHECK(column.type >= cppsas7bdat::Column::Type::number);
+	}
+      }
     }
       
     void push_row([[maybe_unused]]const size_t _irow,
@@ -198,7 +243,7 @@ namespace {
   };
 }
 
-SCENARIO("When I read a file with the public interface, the data are read properly", "[inteface][read_data]")
+SCENARIO("When I read a file with the public interface, the properties and data are read properly", "[inteface][read_data]")
 {
   const auto data = GENERATE(from_range(files().j.items().begin(),files().j.items().end()));
   
@@ -211,12 +256,12 @@ SCENARIO("When I read a file with the public interface, the data are read proper
     // Skip big5 files
     if(filename.find("big5") != filename.npos) return;
     WHEN("The data is read") {
-      auto reader = get_reader(filename, MyTestDataSink(ref_data.begin(), ref_data.end()));
-      const auto& columns = reader.properties().metadata.columns;
+      auto reader = get_reader(filename, MyTestDataSink(ref_header, ref_columns, ref_data.begin(), ref_data.end()));
+      const auto& columns = reader.properties()/*.metadata*/.columns;
       THEN("The data values are correct - read_all") {
 	CHECK(reader.current_row_index() == 0);
 	reader.read_all();
-	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
+	CHECK(reader.current_row_index() == reader.properties()/*.metadata*/.row_count);
       }
       THEN("The data values are correct - read_row") {
 	size_t irow{0};
@@ -225,7 +270,7 @@ SCENARIO("When I read a file with the public interface, the data are read proper
 	  irow++;
 	  CHECK(reader.current_row_index() == irow);
 	}
-	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
+	CHECK(reader.current_row_index() == reader.properties()/*.metadata*/.row_count);
       }
       THEN("The data values are correct - read_rows") {
 	size_t irow{0};
@@ -234,10 +279,10 @@ SCENARIO("When I read a file with the public interface, the data are read proper
 	  irow += 50;
 	  CHECK(reader.current_row_index() == irow);
 	}
-	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
+	CHECK(reader.current_row_index() == reader.properties()/*.metadata*/.row_count);
       }
       THEN("The data values are correct - read_row_no_sink") {
-	MyTestDataSink sink(ref_data.begin(), ref_data.end());
+	MyTestDataSink sink(ref_header, ref_columns, ref_data.begin(), ref_data.end());
 	sink.set_properties(reader.properties());
 	size_t irow{0};
 	CHECK(reader.current_row_index() == irow);
@@ -246,7 +291,7 @@ SCENARIO("When I read a file with the public interface, the data are read proper
 	  irow++;
 	  CHECK(reader.current_row_index() == irow);
 	}
-	CHECK(reader.current_row_index() == reader.properties().metadata.row_count);
+	CHECK(reader.current_row_index() == reader.properties()/*.metadata*/.row_count);
       }
     }
   }

@@ -21,11 +21,11 @@ TestSink <- R6Class("TestSink",
 	self$ref = ref;
         },
         set_properties = function(properties) {
-	  #print(properties$metadata$columns);
+	  #print(properties$columns);
 	  #print(self$ref$Columns)
 
 	  check_properties(properties, self$ref);
-	  self$columns_comparison = get_columns_comparison(properties$metadata$columns);
+	  self$columns_comparison = get_columns_comparison(properties$columns);
 	  self$columns = names(self$columns_comparison)
 	  
 	  self$ref_idata = 1;
@@ -83,11 +83,11 @@ TestSinkChunk <- R6Class("TestSinkChunk",
 	self$ref = ref;
         },
         set_properties = function(properties) {
-	  #print(properties$metadata$columns);
+	  #print(properties$columns);
 	  #print(self$ref$Columns)
 	  
 	  check_properties(properties, self$ref);
-	  self$columns_comparison = get_columns_comparison(properties$metadata$columns);
+	  self$columns_comparison = get_columns_comparison(properties$columns);
 	  self$columns = names(self$columns_comparison)
 	  
 	  self$ref_idata = 1;
@@ -151,13 +151,13 @@ TestSinkData <- R6Class("TestSinkData",
   	  self$ref = ref;
         },
         set_properties = function(properties) {
-	  #print(properties$metadata$columns);
+	  #print(properties$columns);
 	  #print(self$ref$Columns)
 
-	  self$row_count = properties$metadata$row_count;
+	  self$row_count = properties$row_count;
 	  
 	  check_properties(properties, self$ref);
-	  self$columns_comparison = get_columns_comparison(properties$metadata$columns);
+	  self$columns_comparison = get_columns_comparison(properties$columns);
 	  self$columns = names(self$columns_comparison)
 	  
 	  self$ref_idata = 1;

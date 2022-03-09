@@ -13,17 +13,17 @@
 #include <cppsas7bdat/datasink_null.hpp>
 #include "data.hpp"
 
-SCENARIO("The IncludeExclude column filter can be used to filter columns")
+SCENARIO("The Include/Excluded column filter can be used to filter columns")
 {
   GIVEN("An include filter") {
-    cppsas7bdat::ColumnFilter::IncludeExclude filter{{"col1"}, {}};
+    cppsas7bdat::ColumnFilter::Include filter{{"col1"}};
     WHEN("A filter a column based on its name") {
       CHECK(filter.is_accepted("col1") == true);
       CHECK(filter.is_accepted("col2") == false);
     }
   }
   GIVEN("An exclude filter") {
-    cppsas7bdat::ColumnFilter::IncludeExclude filter{{}, {"col1"}};
+    cppsas7bdat::ColumnFilter::Exclude filter{{"col1"}};
     WHEN("A filter a column based on its name") {
       CHECK(filter.is_accepted("col1") == false);
       CHECK(filter.is_accepted("col2") == true);
@@ -38,23 +38,23 @@ namespace {
   }  
 }
 
-SCENARIO("The IncludeExclude column filter can be used to filter columns to be read")
+SCENARIO("The Include/Exclude column filter can be used to filter columns to be read")
 {
   const std::string filename="data/file2.sas7bdat";
   GIVEN(fmt::format("A file {},", filename)) {
     GIVEN("An include filter") {
-      cppsas7bdat::ColumnFilter::IncludeExclude filter{{"c1"}, {}};
+      cppsas7bdat::ColumnFilter::Include filter{{"c1"}};
       auto reader = get_reader(filename, cppsas7bdat::datasink::null(), filter);
-      const auto& columns = reader.properties().metadata.columns;
+      const auto& columns = reader.properties()/*.metadata*/.columns;
       THEN("The columns list is consistent with the filter") {
 	REQUIRE(columns.size() == 1);
 	CHECK(columns[0].name == "c1");
       }
     }
     GIVEN("An exclude filter") {
-      cppsas7bdat::ColumnFilter::IncludeExclude filter{{}, {"c1"}};
+      cppsas7bdat::ColumnFilter::Exclude filter{{"c1"}};
       auto reader = get_reader(filename, cppsas7bdat::datasink::null(), filter);
-      const auto& columns = reader.properties().metadata.columns;
+      const auto& columns = reader.properties()/*.metadata*/.columns;
       THEN("The columns list is consistent with the filter") {
 	REQUIRE(columns.size() == 3);
 	CHECK(columns[0].name == "q1");

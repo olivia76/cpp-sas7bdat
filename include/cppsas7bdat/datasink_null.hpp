@@ -21,7 +21,7 @@ namespace cppsas7bdat {
       using NUMBERS = std::vector<NUMBER>;
       
       void set_properties([[maybe_unused]]const Properties& _properties) {
-	columns = COLUMNS(_properties.metadata.columns);
+	columns = COLUMNS(_properties/*.metadata*/.columns);
       }
       
       void push_row([[maybe_unused]]const size_t _irow,

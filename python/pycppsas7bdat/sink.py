@@ -7,7 +7,7 @@ class SinkBase(object):
         
     def set_properties(self, properties):
         self.properties = properties
-        self.columns = [col.name for col in properties.metadata.columns]
+        self.columns = [col.name for col in properties.columns]
 
 class SinkByRow(SinkBase):
     def __init__(self):

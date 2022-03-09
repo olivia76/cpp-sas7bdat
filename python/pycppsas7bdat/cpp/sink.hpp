@@ -78,7 +78,7 @@ namespace pycppsas7bdat {
     void set_properties([[maybe_unused]]const cppsas7bdat::Properties& _properties)
     {
       SinkBase::set_properties(_properties);
-      columns = cppsas7bdat::COLUMNS(_properties.metadata.columns);
+      columns = cppsas7bdat::COLUMNS(_properties/*.metadata*/.columns);
     }
     
     void push_row([[maybe_unused]]const size_t _irow,
@@ -184,7 +184,7 @@ namespace pycppsas7bdat {
     void set_properties([[maybe_unused]]const cppsas7bdat::Properties& _properties)
     {
       SinkBase::set_properties(_properties);
-      columns = cppsas7bdat::Columns(_properties.metadata.columns);
+      columns = cppsas7bdat::Columns(_properties/*.metadata*/.columns);
       prepare_values(columns.numbers, col_numbers);
       prepare_values(columns.integers, col_integers);
       prepare_values(columns.datetimes, col_datetimes);
@@ -318,7 +318,7 @@ namespace pycppsas7bdat {
 
     void set_properties([[maybe_unused]]const cppsas7bdat::Properties& _properties)
     {
-      size = _properties.metadata.row_count;
+      size = _properties/*.metadata*/.row_count;
       SinkChunk::set_properties(_properties);
     }
 

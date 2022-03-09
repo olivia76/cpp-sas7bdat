@@ -22,12 +22,51 @@ namespace cppsas7bdat {
       bool accept([[maybe_unused]] const Column& _column) const noexcept { return true; }
     };
   
-    struct IncludeExclude {
+    struct Include {
       using NAMES = std::set<std::string>;
       
       NAMES included;
+      
+      bool accept(const Column& _column) const noexcept
+      {
+	return is_accepted(_column.name);
+      }
+
+      bool is_accepted(const std::string& _name) const noexcept
+      {
+	if(!included.empty()) return is_included(_name);
+	return true;
+      }
+      
+      bool is_included(const std::string& _name) const noexcept
+      {
+	return included.find(_name) != included.end();
+      }
+    };
+  
+    struct Exclude {
+      using NAMES = std::set<std::string>;
+      
       NAMES excluded;
       
+      bool accept(const Column& _column) const noexcept
+      {
+	return is_accepted(_column.name);
+      }
+
+      bool is_accepted(const std::string& _name) const noexcept
+      {
+	if(!excluded.empty()) return !is_excluded(_name);
+	return true;
+      }
+
+      bool is_excluded(const std::string& _name) const noexcept
+      {
+	return excluded.find(_name) != excluded.end();
+      }
+    };
+
+    struct IncludeExclude : public Include, public Exclude {
       bool accept(const Column& _column) const noexcept
       {
 	return is_accepted(_column.name);
@@ -38,16 +77,6 @@ namespace cppsas7bdat {
 	if(!included.empty()) return is_included(_name);
 	if(!excluded.empty()) return !is_excluded(_name);
 	return true;
-      }
-      
-      bool is_included(const std::string& _name) const noexcept
-      {
-	return included.find(_name) != included.end();
-      }
-
-      bool is_excluded(const std::string& _name) const noexcept
-      {
-	return excluded.find(_name) != excluded.end();
       }
     };
     
