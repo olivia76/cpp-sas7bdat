@@ -34,8 +34,7 @@ namespace cppsas7bdat {
 
       bool is_accepted(const std::string& _name) const noexcept
       {
-	if(!included.empty()) return is_included(_name);
-	return true;
+	return is_included(_name);
       }
       
       bool is_included(const std::string& _name) const noexcept
@@ -56,8 +55,7 @@ namespace cppsas7bdat {
 
       bool is_accepted(const std::string& _name) const noexcept
       {
-	if(!excluded.empty()) return !is_excluded(_name);
-	return true;
+	return !is_excluded(_name);
       }
 
       bool is_excluded(const std::string& _name) const noexcept
