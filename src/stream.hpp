@@ -1,6 +1,6 @@
 /**
  *  \file src/stream.hpp
- * 
+ *
  *  \brief Stream management
  *
  *  \author Olivia Quinet
@@ -13,11 +13,11 @@
 #include <iostream>
 
 namespace cppsas7bdat {
-  namespace INTERNAL {
-    
-    std::ifstream open_stream(const char* _pcszFileName);
-    
-  }
+namespace INTERNAL {
+
+std::ifstream open_stream(const char *_pcszFileName);
+
 }
+} // namespace cppsas7bdat
 
 #endif

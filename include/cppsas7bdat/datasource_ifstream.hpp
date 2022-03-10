@@ -1,6 +1,6 @@
 /**
  *  \file cppsas7bdat/datasource_ifstream.hpp
- * 
+ *
  *  \brief std::ifstream datasource
  *
  *  \author Olivia Quinet
@@ -12,24 +12,23 @@
 #include <fstream>
 
 namespace cppsas7bdat {
-  namespace datasource {
+namespace datasource {
 
-    struct ifstream {
-      std::ifstream is;
+struct ifstream {
+  std::ifstream is;
 
-      explicit ifstream(const char* _pcszfilename);
+  explicit ifstream(const char *_pcszfilename);
 
-      bool eof() { return is.eof(); }
-      bool read_bytes(void* _p, const size_t _length)
-      {
-	is.read(reinterpret_cast<char*>(_p), static_cast<std::streamsize>(_length));
-	// Did we manage to read the requested data?
-	return is.good();
-      }
-      
-    };
-    
+  bool eof() { return is.eof(); }
+  bool read_bytes(void *_p, const size_t _length) {
+    is.read(reinterpret_cast<char *>(_p),
+            static_cast<std::streamsize>(_length));
+    // Did we manage to read the requested data?
+    return is.good();
   }
-}
+};
+
+} // namespace datasource
+} // namespace cppsas7bdat
 
 #endif

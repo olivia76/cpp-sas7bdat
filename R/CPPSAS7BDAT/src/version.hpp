@@ -9,7 +9,7 @@
 #include <Rcpp.h>
 
 namespace Rcppsas7bdat {
-  extern "C" {
-    SEXP getVersion();
-  }
+extern "C" {
+SEXP getVersion();
 }
+} // namespace Rcppsas7bdat
