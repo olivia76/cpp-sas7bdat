@@ -52,14 +52,18 @@ pyenv-activate:
 	source $PYENV_VIRTUAL_ENV/bin/activate
 
 pyenv-init:
-	#	source $(PYENV_VIRTUAL_ENV)/bin/activate
+	#source $(PYENV_VIRTUAL_ENV)/bin/activate
 	python3 python/setup.py develop
 
-.PHONY: tests-python
-tests-python:
-	#export CMAKE_ARGS="-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo -DENABLE_COVERAGE:BOOL=ON"; pip3 install -e ".[tests]"
+.PHONY: tests-python tests-python-install tests-python-run
+
+tests-python-install:
 	pip3 install -e ".[tests]"
+
+tests-python-run:
 	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
+
+tests-python: tests-python-install tests-python-run
 	coverage report --show-missing
 	coverage html	
 	coverage xml -o build/coverage-python.xml

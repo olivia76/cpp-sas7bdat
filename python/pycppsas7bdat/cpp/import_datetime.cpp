@@ -209,15 +209,14 @@ PyObject* pycppsas7bdat::to_python(boost::gregorian::date const& date)
 
 void pycppsas7bdat::bind_datetime()
 {
-  using namespace boost::python;
   PyDateTime_IMPORT;
   
   ptime_from_python_datetime();
-  to_python_converter<const boost::posix_time::ptime, ptime_to_python_datetime>();
+  boost::python::to_python_converter<boost::posix_time::ptime, ptime_to_python_datetime>();
   
   tduration_from_python_delta();
-  to_python_converter<const boost::posix_time::time_duration, tduration_to_python_delta>();
+  boost::python::to_python_converter<boost::posix_time::time_duration, tduration_to_python_delta>();
 
   gregorian_date_from_python_date();
-  to_python_converter<const boost::gregorian::date, gregorian_date_to_python_date>();
+  boost::python::to_python_converter<boost::gregorian::date, gregorian_date_to_python_date>();
 }

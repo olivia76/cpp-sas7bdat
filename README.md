@@ -9,22 +9,115 @@
 
 ## Summary
 
-This is a c++ 17 implementation of a SAS7BDAT file reader.  This project also provides a python and R interface.  
+This is a c++ 17 implementation of a SAS7BDAT file reader.  This project also provides a python and R interfaces.  
 
-This is a toy project with cmake and C++ external polymorphism based
-on different existing projects:
+This is a toy project with cmake and C++ external polymorphism.
 
+## What is a SAS7BDAT file?
+
+A SAS7BDAT file is a database storage file created by Statistical
+Analysis System (SAS) software. It contains a binary encoded dataset
+used for advanced analytics, business intelligence, data management,
+predictive analytics, and more. (from [fileinfo.com](https://fileinfo.com/extension/sas7bdat))
+
+Different projects already exists to read SAS7BDAT files:
+
+- https://github.com/topics/sas7bdat
+
+This project is based on the following implementations:
 - https://github.com/WizardMac/ReadStat/
 - https://github.com/tk3369/SASLib.jl
 - https://pypi.org/project/sas7bdat/
 
-The C++ external polymorphism design is used internally at 3 levels:
+## C++ external polymorphism
 
-- For the dataset's columns
-- For the data source
-- For the data sink
+This design pattern is very nicely explained in a talk of Klaus Iglberger - Breaking Dependencies: Type Erasure - A Design Analysis (https://www.youtube.com/watch?v=7GIz9SmRgyc)
 
-### Datset's columns
+The idea has been presented in September 1998 in "C++ Report" paper by Chris Cleeland and Douglas C. Schmidt introducing the external polymorphism pattern (https://www.dre.vanderbilt.edu/~schmidt/PDF/C++-EP.pdf).
+
+> This pattern allows classes that are not related by inheritance and/or
+have no virtual methods to be treated polymorphically.  This pattern combines C++ language features with patterns like Adapter and Decorator to give the appearance of polymorphic behavior on otherwise unrelated classes.
+
+### Summary
+A functionality `Foo` uses a concept `X` with different methods, i.e. `foo(...)`.  The concept `X` can be seen as an *interface* that a concrete *implementation* needs to fulfill.  The concrete implementation doesn't have to derive from the interface.  The link between the two is done via the *model* class.  Please note that this *model* class is called *adapter* in the original paper.
+
+One of the main advantage of this pattern is the complete isolation of each the concrete implementations as they are not linked to a base class, see for example the talk of Sean Parent [inheritance is the base class of evil](https://www.youtube.com/watch?v=bIhUE5uUFOA).  They only have to expose a set of methods.
+
+
+
+```puml
+@startuml
+!theme reddress-lightblue
+
+hide empty attributes
+
+package Foo {
+  class FooCode as "Foo" {
+    Foo<X>(X)
+    PIMPL x
+	}
+
+	interface ConceptX {
+		+{abstract} foo(...) = 0
+	}
+
+
+	class ModelX <<T>> {
+		+ foo(...) { return model.foo(...); }
+		- T model
+	}
+}
+
+package "MyFoo" {
+  component MyFooCode as "Foo(MyConcreteX(...))" {    
+  }
+
+	object MyConcreteX {
+		+ foo(...)
+	}
+}
+
+FooCode::PIMPL *.d. ConceptX : std::unique_ptr<ConceptX>
+ConceptX <|.r. ModelX
+MyConcreteX .r.> ModelX::model
+MyFooCode *.l. FooCode
+MyFooCode <-d- MyConcreteX
+@enduml
+```
+
+This pattern is used at different levels within this package:
+
+- data source
+- dataset sink
+- selection/filtering of the dataset's columns
+- dataset's column formatters
+
+
+### Data source
+
+A data source based on `std::ifstream` is provided in this package:
+- [ifstream](include/cppsas7bdat/datasource_ifstream.hpp).
+
+### Dataset sink
+
+3 simple dataset sinks are provided in this package:
+- [print](include/cppsas7bdat/datasink_print.hpp),
+- [csv](include/cppsas7bdat/datasink_csv.hpp), and
+- [null](include/cppsas7bdat/datasink_null.hpp).
+
+The first one directly prints the content of the file (header and
+data) to the screen and the second one is a very basic csv writer (no
+field protection beside the double quotes, no encoding, ...).
+
+### Column filtering
+
+The package provides several filtering options:
+- [ColumnFilter::AcceptAll](include/cppsas7bdat/column-filter.hpp)
+- [ColumnFilter::Include](include/cppsas7bdat/column-filter.hpp)
+- [ColumnFilter::Exclude](include/cppsas7bdat/column-filter.hpp)
+- [ColumnFilter::IncludeExclude](include/cppsas7bdat/column-filter.hpp)
+
+### Dataset's columns
 
 Each column has a specific type and conversion/format operators.  The
 external polymorphism is used internally to store the exact operator,
@@ -38,26 +131,80 @@ Supported types:
 - date (`boost::gregorian::date`)
 - time (`boost::posix_time::time_duration`)
 
-Each formatter [class](src/formatters.hpp) implements one or several *getters* as well as
-the *to_string* method. 
-
-### Data source
-
-A data source based on `std::ifstream` is provided in this package:
-[ifstream](include/cppsas7bdat/datasource_ifstream.hpp).
-
-### Data sink
-
-2 simple data sinks are provided in this package:
-[print](include/cppsas7bdat/datasink_print.hpp) and
-[csv](include/cppsas7bdat/datasink_csv.hpp).
-
-The first one directly prints the content of the file (header and
-data) to the screen and the second one is a very basic csv writer (no
-field protection beside the double quotes, no encoding, ...).
+Each formatter [class](src/formatters.hpp) implements one or several *getters* as well as the *to_string* method.
 
 
-## Usage 
+## Relationship schema
+
+```puml
+@startuml
+!theme reddress-lightblue
+
+hide empty attributes
+hide empty members
+
+package "C++ application code" {
+	object DataSource
+  object DataSink
+  object ColumnFilter
+}
+
+package "cppsas7bdat" {
+class Reader {
+	+ properties()
+	+ read_all()
+	+ read_row()
+	+ read_rows()
+}
+package "INTERNAL::FORMATTER" {
+	object Formatter
+}
+
+class Properties {
+  ...
+	columns
+}
+
+class Column {
+	+ name
+	+ label
+	+ type
+	+ format
+	--
+	- pimpl
+}
+
+}
+
+
+DataSource : read_bytes()
+DataSource : eof()
+DataSink : set_properties()
+DataSink : push_row()
+DataSink : end_of_data()
+ColumnFilter : accept()
+Formatter : get_string()
+Formatter : get_number()
+Formatter : get_integer()
+Formatter : get_datetime()
+Formatter : get_date()
+Formatter : get_time()
+Formatter : to_string()
+
+
+DataSource -[hidden]> DataSink
+DataSink -[hidden]> ColumnFilter
+DataSource --> Reader
+ColumnFilter --> Reader
+DataSink --> Reader
+Reader::properties .right.> Properties
+Properties::columns .right.> Column
+Column::pimpl .down.> Formatter
+
+@enduml
+```
+
+## Usage
 
 ```c++
 // See for example apps/cppsas7bdat-ci.cpp
@@ -66,7 +213,7 @@ field protection beside the double quotes, no encoding, ...).
 
 struct MyDataSource {
 	MyDataSource(...) { /* ... */ }
-	
+
 	/// This method is called to check if there is any more data
 	bool eof() { /* ... */ }
 	/// This method is called to read data
@@ -75,7 +222,7 @@ struct MyDataSource {
 
 struct MyDataSink {
 	MyDataSink(...) { /* ... */ }
-	
+
 	/// This method is called once the header/metadata is read.
 	void set_properties(const cppsas7bdat::Properties& _properties) { /* ... */ }
 	/// This method is called for each new row.
@@ -87,13 +234,13 @@ struct MyDataSink {
 void read_sas7bdat(...)
 {
 	cppsas7bdat::Reader reader(MyDataSource(...), MyDataSink(...));
-	
+
 	// Read row by row
 	while(reader.read_row());
-	
+
 	// OR Read chunk by chunk
 	while(reader.read_rows(chunk_size));
-	
+
 	// OR read the whole file
 	reader.read_all();
 }
@@ -148,14 +295,14 @@ class MySink(object):
 		"""
 		@brief: Called for every row
 		@param irow: Zero-based index of the row
-		@param row: A list of value, one for each column. 
+		@param row: A list of value, one for each column.
 		"""
         self.rows.append(row)
-		
+
 class MySinkChunk(object):
 	chunks = []
 	chunk_size = 10000   # This member must be present for a SinkChunk
-	
+
 	def set_properties(self, properties): # This method must be defined
         """
 		@brief: Called once after reading the header and metadata
@@ -232,17 +379,12 @@ endianness.
 
 Inspired from https://github.com/cpp-best-practices/cpp_starter_project
 
-
-## C++ external polymorphism
-
-This design pattern is very nicely explained in a talk of Klaus Iglberger - Breaking Dependencies: Type Erasure - A Design Analysis (https://www.youtube.com/watch?v=7GIz9SmRgyc)
-
 ## Conan
 
 ```bash
 pip install conan
 conan install conanfile.py
-``` 
+```
 
 ## boost
 
@@ -288,4 +430,3 @@ git clone git@github.com:nlohmann/json.git
 cd json
 mkdir build; cd build; cmake ..; make; sudo make install
 ```
-   

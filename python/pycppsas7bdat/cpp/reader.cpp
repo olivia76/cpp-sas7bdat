@@ -91,6 +91,7 @@ namespace pycppsas7bdat {
 					 arg("include")=object(),
 					 arg("exclude")=object())))
       .add_property("current_row_index", &Reader::current_row_index)
+      .def("properties", &Reader::properties, return_value_policy<reference_existing_object>())
       .def("read_all", &Reader::read_all)
       .def("read_row", &Reader::read_row)
       .def("read_rows", &Reader::read_rows)

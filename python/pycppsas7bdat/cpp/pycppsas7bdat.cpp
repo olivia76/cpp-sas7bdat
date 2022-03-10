@@ -12,22 +12,21 @@
 #include "import_datetime.hpp"
 #include "reader.hpp"
 
-/*auto init_numpy()
-{
-  import_array();
-  }*/
+namespace pycppsas7bdat {
+  inline PyObject* to_python(const std::string& x)
+  {
+    return PyUnicode_FromStringAndSize(x.c_str(), x.length());
+  }
+}
 
 BOOST_PYTHON_MODULE(cpp)
 {
-  /*if(PyArray_API == NULL) {
-    init_numpy(); 
-    }*/
   using namespace boost::python;
   Py_Initialize();
-  //numpy::initialize();
 
   pycppsas7bdat::bind_datetime();
-  
+  pycppsas7bdat::bind_reader();
+
   def("getVersion", cppsas7bdat::getVersion);
 
   enum_<cppsas7bdat::Endian>("Endian")
@@ -58,37 +57,6 @@ BOOST_PYTHON_MODULE(cpp)
     .value("date", cppsas7bdat::Column::Type::date)
     .value("time", cppsas7bdat::Column::Type::time)
     ;
-  class_< cppsas7bdat::Properties::Header, boost::noncopyable >("Header", no_init )
-    .def_readonly("format", &cppsas7bdat::Properties::Header::format)
-    .def_readonly("endianness", &cppsas7bdat::Properties::Header::endianness)
-    .def_readonly("platform", &cppsas7bdat::Properties::Header::platform)
-    .def_readonly("date_created", &cppsas7bdat::Properties::Header::date_created)
-    .def_readonly("date_modified", &cppsas7bdat::Properties::Header::date_modified)
-    .def_readonly("dataset_name", &cppsas7bdat::Properties::Header::dataset_name)
-    .def_readonly("encoding", &cppsas7bdat::Properties::Header::encoding)
-    .def_readonly("file_type", &cppsas7bdat::Properties::Header::file_type)
-    .def_readonly("sas_release", &cppsas7bdat::Properties::Header::sas_release)
-    .def_readonly("sas_server_type", &cppsas7bdat::Properties::Header::sas_server_type)
-    .def_readonly("os_type", &cppsas7bdat::Properties::Header::os_type)
-    .def_readonly("os_name", &cppsas7bdat::Properties::Header::os_name)
-    .def_readonly("header_length", &cppsas7bdat::Properties::Header::header_length)
-    .def_readonly("page_length", &cppsas7bdat::Properties::Header::page_length)
-    .def_readonly("page_count", &cppsas7bdat::Properties::Header::page_count)
-    ;
-  class_< cppsas7bdat::Properties::Metadata, boost::noncopyable >("Metadata", no_init )
-    .def_readonly("compression", &cppsas7bdat::Properties::Metadata::compression)
-    .def_readonly("creator", &cppsas7bdat::Properties::Metadata::creator)
-    .def_readonly("creator_proc", &cppsas7bdat::Properties::Metadata::creator_proc)
-    .def_readonly("row_length", &cppsas7bdat::Properties::Metadata::row_length)
-    .def_readonly("row_count", &cppsas7bdat::Properties::Metadata::row_count)
-    .def_readonly("column_count", &cppsas7bdat::Properties::Metadata::column_count)
-    .def_readonly("col_count_p1", &cppsas7bdat::Properties::Metadata::col_count_p1)
-    .def_readonly("col_count_p2", &cppsas7bdat::Properties::Metadata::col_count_p2)
-    .def_readonly("mix_page_row_count", &cppsas7bdat::Properties::Metadata::mix_page_row_count)
-    .def_readonly("lcs", &cppsas7bdat::Properties::Metadata::lcs)
-    .def_readonly("lcp", &cppsas7bdat::Properties::Metadata::lcp)
-    .def_readonly("columns", &cppsas7bdat::Properties::Metadata::columns)
-    ;
   class_< cppsas7bdat::Column, boost::noncopyable >("Column", no_init )
     .def_readonly("name", &cppsas7bdat::Column::name)
     .def_readonly("format", &cppsas7bdat::Column::format)
@@ -98,10 +66,41 @@ BOOST_PYTHON_MODULE(cpp)
   class_< std::vector< cppsas7bdat::Column, std::allocator<cppsas7bdat::Column> >, boost::noncopyable >("Columns", no_init )
     .def("__iter__", iterator< std::vector< cppsas7bdat::Column >, return_internal_reference<> >() )
     ;
-  class_< cppsas7bdat::Properties, boost::noncopyable >("Properties", no_init)
-    .def_readonly("header", &cppsas7bdat::Properties::header)
-    .def_readonly("metadata", &cppsas7bdat::Properties::metadata)
+
+  struct properties {
+    static auto get_date_created(const cppsas7bdat::Properties& p) { return pycppsas7bdat::to_python(p.date_created); }
+    static auto get_date_modified(const cppsas7bdat::Properties& p) { return pycppsas7bdat::to_python(p.date_modified); }
+  };
+  
+  class_< cppsas7bdat::Properties, std::shared_ptr<cppsas7bdat::Properties>, boost::noncopyable >("Properties", no_init)
+    .def_readonly("format", &cppsas7bdat::Properties/*::Header*/::format)
+    .def_readonly("endianness", &cppsas7bdat::Properties/*::Header*/::endianness)
+    .def_readonly("platform", &cppsas7bdat::Properties/*::Header*/::platform)
+    .add_property("date_created", &properties::get_date_created)
+    .add_property("date_modified", &properties::get_date_modified)
+    .def_readonly("dataset_name", &cppsas7bdat::Properties/*::Header*/::dataset_name)
+    .def_readonly("encoding", &cppsas7bdat::Properties/*::Header*/::encoding)
+    .def_readonly("file_type", &cppsas7bdat::Properties/*::Header*/::file_type)
+    .def_readonly("sas_release", &cppsas7bdat::Properties/*::Header*/::sas_release)
+    .def_readonly("sas_server_type", &cppsas7bdat::Properties/*::Header*/::sas_server_type)
+    .def_readonly("os_type", &cppsas7bdat::Properties/*::Header*/::os_type)
+    .def_readonly("os_name", &cppsas7bdat::Properties/*::Header*/::os_name)
+    .def_readonly("header_length", &cppsas7bdat::Properties/*::Header*/::header_length)
+    .def_readonly("page_length", &cppsas7bdat::Properties/*::Header*/::page_length)
+    .def_readonly("page_count", &cppsas7bdat::Properties/*::Header*/::page_count)
+    .def_readonly("compression", &cppsas7bdat::Properties/*::Metadata*/::compression)
+    .def_readonly("creator", &cppsas7bdat::Properties/*::Metadata*/::creator)
+    .def_readonly("creator_proc", &cppsas7bdat::Properties/*::Metadata*/::creator_proc)
+    .def_readonly("row_length", &cppsas7bdat::Properties/*::Metadata*/::row_length)
+    .def_readonly("row_count", &cppsas7bdat::Properties/*::Metadata*/::row_count)
+    .def_readonly("column_count", &cppsas7bdat::Properties/*::Metadata*/::column_count)
+    .def_readonly("col_count_p1", &cppsas7bdat::Properties/*::Metadata*/::col_count_p1)
+    .def_readonly("col_count_p2", &cppsas7bdat::Properties/*::Metadata*/::col_count_p2)
+    .def_readonly("mix_page_row_count", &cppsas7bdat::Properties/*::Metadata*/::mix_page_row_count)
+    .def_readonly("lcs", &cppsas7bdat::Properties/*::Metadata*/::lcs)
+    .def_readonly("lcp", &cppsas7bdat::Properties/*::Metadata*/::lcp)
+    .def_readonly("columns", &cppsas7bdat::Properties/*::Metadata*/::columns)
     ;
 
-  pycppsas7bdat::bind_reader();
+  register_ptr_to_python< boost::shared_ptr<cppsas7bdat::Properties> >();
 }

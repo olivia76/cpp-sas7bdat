@@ -179,7 +179,7 @@ namespace cppsas7bdat {
     
   }
 
-  class Reader::impl {
+  class Reader::impl : public boost::noncopyable {
   public:
 
     static PIMPL build(PSOURCE&& _source, PSINK&& _sink, PFILTER&& _filter);
@@ -236,8 +236,8 @@ namespace cppsas7bdat {
 	  m_read_data(std::forward<_RD>(_rd))
       {
 	// Dirty hack to make sure to use the object's properties.
-	m_read_data.set_pheader(&properties().header);
-	m_read_data.set_pmetadata(&properties().metadata);
+	m_read_data.set_pheader(&properties()/*.header*/);
+	m_read_data.set_pmetadata(&properties()/*.metadata*/);
       }
 
       size_t current_row_index() const noexcept final

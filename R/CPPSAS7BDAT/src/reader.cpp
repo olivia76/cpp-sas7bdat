@@ -15,58 +15,93 @@
 
 using namespace Rcpp;
 
+namespace {
+  class ListBuilder {
+  public:
+    ListBuilder() = default;
+    ~ListBuilder() = default;
+    ListBuilder(ListBuilder const&) = delete;
+
+    inline ListBuilder& add(const std::string& name, SEXP x) {
+      names.push_back(name);
+      elements.push_back(PROTECT(x));
+      return *this;
+  }
+
+    template <typename T>
+    inline ListBuilder& add(const std::string& name, const T& x) {
+      names.push_back(name);
+      elements.push_back(PROTECT(wrap(x)));
+      return *this;
+    }
+
+    List to_list() const  {
+      List result(elements.size());
+      for (size_t i = 0; i < elements.size(); ++i) {
+	result[i] = elements[i];
+      }
+      result.attr("names") = wrap(names);
+      UNPROTECT(elements.size());
+      return result;
+    }
+
+    inline operator List() const { return to_list(); }
+    
+  private:
+    std::vector<std::string> names;
+    std::vector<SEXP> elements;
+  };
+}
+
 namespace Rcpp {
   SEXP wrap_properties(const cppsas7bdat::Properties& _properties)
   {
     using namespace cppsas7bdat;
     
-    auto header = Rcpp::List::create(Rcpp::Named("endianness") = std::string(to_string(_properties.header.endianness)),
-				     Rcpp::Named("platform") = std::string(to_string(_properties.header.platform)),
-				     Rcpp::Named("date_created") = to_string(_properties.header.date_created),
-				     Rcpp::Named("date_modified") = to_string(_properties.header.date_modified),
-				     Rcpp::Named("dataset_name") = _properties.header.dataset_name,
-				     Rcpp::Named("encoding") = _properties.header.encoding,
-				     Rcpp::Named("file_type") = _properties.header.file_type,
-				     Rcpp::Named("sas_release") = _properties.header.sas_release,
-				     Rcpp::Named("sas_server_type") = _properties.header.sas_server_type,
-				     Rcpp::Named("os_type") = _properties.header.os_type,
-				     Rcpp::Named("os_name") = _properties.header.os_name,
-				     Rcpp::Named("header_length") = _properties.header.header_length,
-				     Rcpp::Named("page_length") = _properties.header.page_length,
-				     Rcpp::Named("page_count") = _properties.header.page_count
-				     );
-    
     auto columns = [&_properties]() {
-		     const size_t ncols = _properties.metadata.columns.size();
+		     const size_t ncols = _properties/*.metadata*/.columns.size();
 		     auto columns = Rcpp::List(ncols);
 		     auto names = Rcpp::StringVector(ncols);
 		     for(size_t icol = 0; icol<ncols; ++icol) {
-		       names[icol] = _properties.metadata.columns[icol].name;
-		       columns[icol] = Rcpp::List::create(Rcpp::Named("name") = _properties.metadata.columns[icol].name,
-							  Rcpp::Named("label") = _properties.metadata.columns[icol].label,
-							  Rcpp::Named("format") = _properties.metadata.columns[icol].format,
-							  Rcpp::Named("type") = std::string(to_string(_properties.metadata.columns[icol].type)));
+		       names[icol] = _properties/*.metadata*/.columns[icol].name;
+		       columns[icol] = Rcpp::List::create(Rcpp::Named("name") = _properties/*.metadata*/.columns[icol].name,
+							  Rcpp::Named("label") = _properties/*.metadata*/.columns[icol].label,
+							  Rcpp::Named("format") = _properties/*.metadata*/.columns[icol].format,
+							  Rcpp::Named("type") = std::string(to_string(_properties/*.metadata*/.columns[icol].type)));
 		     }
 		     columns.names() = names;
 		     return columns;		     
 		   }();
-    
-    auto metadata = Rcpp::List::create(Rcpp::Named("compression") = std::string(to_string(_properties.metadata.compression)),
-				       Rcpp::Named("creator") = _properties.metadata.creator,
-				       Rcpp::Named("creator_proc") = _properties.metadata.creator_proc,
-				       Rcpp::Named("row_length") = _properties.metadata.row_length,
-				       Rcpp::Named("row_count") = _properties.metadata.row_count,
-				       Rcpp::Named("column_count") = _properties.metadata.column_count,
-				       Rcpp::Named("col_count_p1") = _properties.metadata.col_count_p1,
-				       Rcpp::Named("col_count_p2") = _properties.metadata.col_count_p2,
-				       Rcpp::Named("mix_page_row_count") = _properties.metadata.mix_page_row_count,
-				       Rcpp::Named("lcs") = _properties.metadata.lcs,
-				       Rcpp::Named("lcp") = _properties.metadata.lcp,
-				       Rcpp::Named("columns") = columns
-				       );
-    
-    return Rcpp::List::create(Rcpp::Named("header") = header,
-			      Rcpp::Named("metadata") = metadata);
+
+    return ListBuilder()
+      .add("endianness", std::string(to_string(_properties/*.header*/.endianness)))
+      .add("platform", std::string(to_string(_properties/*.header*/.platform)))
+      .add("date_created", to_string(_properties/*.header*/.date_created))
+      .add("date_modified", to_string(_properties/*.header*/.date_modified))
+      .add("dataset_name", _properties/*.header*/.dataset_name)
+      .add("encoding", _properties/*.header*/.encoding)
+      .add("file_type", _properties/*.header*/.file_type)
+      .add("sas_release", _properties/*.header*/.sas_release)
+      .add("sas_server_type", _properties/*.header*/.sas_server_type)
+      .add("os_type", _properties/*.header*/.os_type)
+      .add("os_name", _properties/*.header*/.os_name)
+      .add("header_length", _properties/*.header*/.header_length)
+      .add("page_length", _properties/*.header*/.page_length)
+      .add("page_count", _properties/*.header*/.page_count)
+      .add("compression", std::string(to_string(_properties/*.metadata*/.compression)))
+      .add("creator", _properties/*.metadata*/.creator)
+      .add("creator_proc", _properties/*.metadata*/.creator_proc)
+      .add("row_length", _properties/*.metadata*/.row_length)
+      .add("row_count", _properties/*.metadata*/.row_count)
+      .add("column_count", _properties/*.metadata*/.column_count)
+      .add("col_count_p1", _properties/*.metadata*/.col_count_p1)
+      .add("col_count_p2", _properties/*.metadata*/.col_count_p2)
+      .add("mix_page_row_count", _properties/*.metadata*/.mix_page_row_count)
+      .add("lcs", _properties/*.metadata*/.lcs)
+      .add("lcp", _properties/*.metadata*/.lcp)
+      .add("columns", columns)
+      .to_list()
+      ;
   }
 }
 
@@ -94,13 +129,12 @@ namespace {
       : SinkBase(_sink),
 	f_push_row(sink["push_row"])
     {
-      //std::cerr << "Sink::Sink" << std::endl;
     }
 
     void set_properties([[maybe_unused]]const cppsas7bdat::Properties& _properties)
     {
       SinkBase::set_properties(_properties);
-      columns = cppsas7bdat::COLUMNS(_properties.metadata.columns);
+      columns = cppsas7bdat::COLUMNS(_properties/*.metadata*/.columns);
       setup_col_names();
     }
 
@@ -221,9 +255,9 @@ namespace {
     
     void set_properties([[maybe_unused]]const cppsas7bdat::Properties& _properties)
     {
-      ilastrow = _properties.metadata.row_count;
+      ilastrow = _properties/*.metadata*/.row_count;
       SinkBase::set_properties(_properties);
-      columns = cppsas7bdat::Columns(_properties.metadata.columns);
+      columns = cppsas7bdat::Columns(_properties/*.metadata*/.columns);
       prepare_values(size ? std::min(size, ilastrow) : ilastrow);
       setup_col_names();
     }
@@ -330,7 +364,6 @@ namespace {
       : SinkByColumns(_sink, _size),
 	f_push_rows(sink["push_rows"])
     {
-      //std::cerr << "SinkChunk::SinkChunk(" << size << ')' << std::endl;
     }
     
     void push_row([[maybe_unused]]const size_t _irow,
@@ -404,7 +437,7 @@ namespace {
 			 Rcpp::CharacterVector list(_object);
 			 const int n = list.size();
 			 for (int i = 0; i<n; ++i) {
-			   std::cerr << "#" << i << '/' << n << ':' << Rcpp::as<std::string>(list[i]) << std::endl;
+			   //std::cerr << "#" << i << '/' << n << ':' << Rcpp::as<std::string>(list[i]) << std::endl;
 			   _set.insert(Rcpp::as<std::string>(list[i]));
 			 }
 		       };
@@ -424,7 +457,6 @@ cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEX
      sink.exists("chunk_size") &&
      sink.exists("push_rows")) {
     const size_t chunk_size = sink["chunk_size"];
-    //std::cerr << "Reader::_build::SinkChunk(" << chunk_size << ')' << std::endl;
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()),
 			       SinkChunk(sink, chunk_size),
 			       filter(_include, _exclude));
@@ -435,7 +467,6 @@ cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEX
 				filter(_include, _exclude));
   } else if(sink.exists("set_properties") &&
 	    sink.exists("push_row")) {
-    //std::cerr << "Reader::_build::Sink()" << std::endl;
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()),
 			       Sink(sink),
 			       filter(_include, _exclude));

@@ -110,8 +110,9 @@ namespace cppsas7bdat {
 			    ? buf.get_string(272+total_align, 16)    // 272+288 + total_align
 			    : buf.get_string(256+total_align, 16) ); // 256-272 + total_align
 
-	D(spdlog::info("Setting header ... {}, {}, {}, {}, {}, {}, {}, {}, {} / {}, {}\n",
-		       _header->platform,
+	D(spdlog::info("Setting header ... {}, {}; {}; {}, {}; {}, {}; {}, {}, {}, {}; {}, {}\n",
+		       to_string(_header->format), to_string(_header->platform),
+		       _header->encoding,
 		       _header->dataset_name, _header->file_type,
 		       cppsas7bdat::to_string(_header->date_created), //boost::posix_time::to_iso_extended_string(_header->date_created),
 		       cppsas7bdat::to_string(_header->date_modified), //boost::posix_time::to_iso_extended_string(_header->date_modified),

@@ -26,7 +26,7 @@ namespace cppsas7bdat {
       COLUMNS columns;
 
       void set_properties(const Properties& _properties) {
-	columns = COLUMNS(_properties.metadata.columns);
+	columns = COLUMNS(_properties/*.metadata*/.columns);
 	bool first = true;
 	for(const auto& column: columns) {
 	  if(first) first = false;

@@ -26,7 +26,7 @@ test_that("I can read a SAS7BDAT file with the read_sas function", {
 	   ref_irows = as.integer(names(ref$Data))
 	   ref_irow = ref_irows[ref_idata];
 	   
-	   columns_comparison = get_columns_comparison(properties$metadata$columns);
+	   columns_comparison = get_columns_comparison(properties$columns);
 	   columns = names(columns_comparison);
 	   df <- sink$df;
 
