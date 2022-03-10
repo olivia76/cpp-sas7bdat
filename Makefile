@@ -63,7 +63,7 @@ tests-python-install:
 tests-python-run:
 	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
 
-tests-python: tests-python-pip3 tests-python-run
+tests-python: tests-python-install tests-python-run
 	coverage report --show-missing
 	coverage html	
 	coverage xml -o build/coverage-python.xml
