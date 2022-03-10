@@ -15,15 +15,52 @@
 
 SCENARIO("The Include/Excluded column filter can be used to filter columns")
 {
-  GIVEN("An include filter") {
+  GIVEN("An empty Include filter") {
+    cppsas7bdat::ColumnFilter::Include filter;
+    WHEN("A filter a column based on its name") {
+      CHECK(filter.is_accepted("col1") == false);
+      CHECK(filter.is_accepted("col2") == false);
+    }
+  }
+  GIVEN("An Include filter") {
     cppsas7bdat::ColumnFilter::Include filter{{"col1"}};
     WHEN("A filter a column based on its name") {
       CHECK(filter.is_accepted("col1") == true);
       CHECK(filter.is_accepted("col2") == false);
     }
   }
-  GIVEN("An exclude filter") {
+  GIVEN("An empty Exclude filter") {
+    cppsas7bdat::ColumnFilter::Exclude filter;
+    WHEN("A filter a column based on its name") {
+      CHECK(filter.is_accepted("col1") == true);
+      CHECK(filter.is_accepted("col2") == true);
+    }
+  }
+  GIVEN("An Exclude filter") {
     cppsas7bdat::ColumnFilter::Exclude filter{{"col1"}};
+    WHEN("A filter a column based on its name") {
+      CHECK(filter.is_accepted("col1") == false);
+      CHECK(filter.is_accepted("col2") == true);
+    }
+  }
+  GIVEN("An empty IncludeExclude filter") {
+    cppsas7bdat::ColumnFilter::IncludeExclude filter;
+    WHEN("A filter a column based on its name") {
+      CHECK(filter.is_accepted("col1") == true);
+      CHECK(filter.is_accepted("col2") == true);
+    }
+  }
+  GIVEN("An IncludeExclude filter, include filled") {
+    cppsas7bdat::ColumnFilter::IncludeExclude filter{cppsas7bdat::ColumnFilter::Include{{"col1"}},
+						     cppsas7bdat::ColumnFilter::Exclude{}};
+    WHEN("A filter a column based on its name") {
+      CHECK(filter.is_accepted("col1") == true);
+      CHECK(filter.is_accepted("col2") == false);
+    }
+  }
+  GIVEN("An IncludeExclude filter, exclude filled") {
+    cppsas7bdat::ColumnFilter::IncludeExclude filter{cppsas7bdat::ColumnFilter::Include{},
+						     cppsas7bdat::ColumnFilter::Exclude{{"col1"}}};
     WHEN("A filter a column based on its name") {
       CHECK(filter.is_accepted("col1") == false);
       CHECK(filter.is_accepted("col2") == true);
