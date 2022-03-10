@@ -11,21 +11,23 @@
 
 namespace Rcppsas7bdat {
 
-  class Reader : public cppsas7bdat::Reader {
-  public:
-    static SEXP build(std::string inputfilename, SEXP sink, SEXP include, SEXP exclude);
-    
-    Reader(std::string inputfilename, SEXP sink, SEXP include, SEXP exclude);
+class Reader : public cppsas7bdat::Reader {
+public:
+  static SEXP build(std::string inputfilename, SEXP sink, SEXP include,
+                    SEXP exclude);
 
-    SEXP properties() const;
+  Reader(std::string inputfilename, SEXP sink, SEXP include, SEXP exclude);
 
-    void read_all();
-    bool read_row();
-    bool read_rows(const size_t _chunk_size);
-    size_t current_row_index() const;
+  SEXP properties() const;
 
-  protected:
-    static cppsas7bdat::Reader _build(std::string _inputfilename, SEXP _sink, SEXP _include, SEXP _exclude);
-  };
-  
-}
+  void read_all();
+  bool read_row();
+  bool read_rows(const size_t _chunk_size);
+  size_t current_row_index() const;
+
+protected:
+  static cppsas7bdat::Reader _build(std::string _inputfilename, SEXP _sink,
+                                    SEXP _include, SEXP _exclude);
+};
+
+} // namespace Rcppsas7bdat

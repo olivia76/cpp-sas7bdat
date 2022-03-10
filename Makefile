@@ -90,3 +90,12 @@ conan-setup:
 .PHONY: benchmark
 benchmark:
 	make -C benchmark
+
+
+.PHONY: clang-tidy
+clang-tidy:
+	clang-tidy -p build src/*cpp include/cppsas7bdat/sas7bdat.hpp -extra-arg=-std=c++17  -checks=-*,clang-analyzer-*,-clang-analyzer-cplusplus* -- -I include -I build
+
+.PHONY: clang-format
+clang-format:
+	clang-format -i src/*pp include/cppsas7bdat/*.hpp python/pycppsas7bdat/cpp/*pp R/CPPSAS7BDAT/src/*pp --style=LLVM

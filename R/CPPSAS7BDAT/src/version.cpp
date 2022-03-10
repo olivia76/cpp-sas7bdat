@@ -11,7 +11,4 @@
 
 using namespace Rcpp;
 
-SEXP Rcppsas7bdat::getVersion()
-{
-  return wrap(cppsas7bdat::getVersion());
-}
+SEXP Rcppsas7bdat::getVersion() { return wrap(cppsas7bdat::getVersion()); }
