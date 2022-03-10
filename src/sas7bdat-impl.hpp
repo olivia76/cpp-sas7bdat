@@ -179,7 +179,7 @@ namespace cppsas7bdat {
     
   }
 
-  class Reader::impl {
+  class Reader::impl : public boost::noncopyable {
   public:
 
     static PIMPL build(PSOURCE&& _source, PSINK&& _sink, PFILTER&& _filter);

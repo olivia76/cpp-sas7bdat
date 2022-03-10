@@ -43,6 +43,8 @@ A functionality `Foo` uses a concept `X` with different methods, i.e. `foo(...)`
 
 One of the main advantage of this pattern is the complete isolation of each the concrete implementations as they are not linked to a base class, see for example the talk of Sean Parent [inheritance is the base class of evil](https://www.youtube.com/watch?v=bIhUE5uUFOA).  They only have to expose a set of methods.
 
+
+
 ```puml
 @startuml
 !theme reddress-lightblue

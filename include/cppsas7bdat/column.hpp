@@ -107,8 +107,22 @@ namespace cppsas7bdat {
 	pimpl(std::make_shared< FormatterModel<_Fp> >(std::forward<_Fp>(_formatter)))
     {
     }
-    Column(const Column& _rhs) = default;
-    Column(Column&& _rhs) noexcept = default;
+    Column(const Column& _rhs)
+      : name(_rhs.name),
+	label(_rhs.label),
+	format(_rhs.format),
+	type(_rhs.type),
+	pimpl(_rhs.pimpl)
+    {
+    }
+    Column(Column&& _rhs)
+      : name(_rhs.name),
+	label(_rhs.label),
+	format(_rhs.format),
+	type(_rhs.type),
+	pimpl(std::move(_rhs.pimpl))
+    {
+    }
 
     bool operator==(const Column& _rhs) const noexcept
     {
@@ -134,8 +148,16 @@ namespace cppsas7bdat {
   private:
     PIMPL pimpl;
   };
+  static_assert(std::is_copy_constructible_v<Column>, "Column is not copyable");
+  static_assert(!std::is_copy_assignable_v<Column>, "Column is copy-assignable");
+  static_assert(std::is_move_constructible_v<Column>, "Column is not movable");
+  static_assert(!std::is_nothrow_move_assignable_v<Column>, "Column is move-assignable");
 
   using COLUMNS = std::vector<Column>;
+  static_assert(std::is_copy_constructible_v<COLUMNS>, "COLUMNS is not copyable");
+  //static_assert(!std::is_copy_assignable_v<COLUMNS>, "COLUMNS is copy-assignable");
+  static_assert(std::is_move_constructible_v<COLUMNS>, "COLUMNS is not movable");
+  //static_assert(!std::is_nothrow_move_assignable_v<COLUMNS>, "COLUMNS is move-assignable");
 
   struct Columns {
     COLUMNS strings;

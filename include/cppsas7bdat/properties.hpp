@@ -42,8 +42,8 @@ namespace cppsas7bdat {
   
   struct Header {
     Header() = default;
-    Header(const Header&) noexcept = delete;
-    Header& operator=(const Header&) noexcept = delete;
+    Header(const Header&) = default;
+    Header& operator=(const Header&) = delete;
     Header(Header&&) noexcept = default;
     Header& operator=(Header&&) noexcept = delete;
     
@@ -65,8 +65,8 @@ namespace cppsas7bdat {
   };
   struct Metadata {
     Metadata() = default;
-    Metadata(const Metadata&) noexcept = delete;
-    Metadata& operator=(const Metadata&) noexcept = delete;
+    Metadata(const Metadata&) = default;
+    Metadata& operator=(const Metadata&) = delete;
     Metadata(Metadata&&) noexcept = default;
     Metadata& operator=(Metadata&&) noexcept = delete;
     
@@ -83,10 +83,24 @@ namespace cppsas7bdat {
     size_t lcp{0};
     COLUMNS columns;
   };
+  static_assert(std::is_copy_constructible_v<Metadata>, "Metadata is not copyable");
+  static_assert(!std::is_copy_assignable_v<Metadata>, "Metadata is copy-assignable");
+  static_assert(std::is_nothrow_move_constructible_v<Metadata>, "Metadata is not movable");
+  static_assert(!std::is_nothrow_move_assignable_v<Metadata>, "Metadata is move-assignable");
 
   struct Properties : public Header, public Metadata {
+    Properties() = default;
+    Properties(const Properties&) = default;
+    Properties& operator=(const Properties&) = delete;
+    Properties(Properties&&) noexcept = default;
+    Properties& operator=(Properties&&) noexcept = delete;
+    
     std::string filename;
   };
+  static_assert(std::is_copy_constructible_v<Properties>, "Properties is not copyable");
+  static_assert(!std::is_copy_assignable_v<Properties>, "Properties is copy-assignable");
+  static_assert(std::is_nothrow_move_constructible_v<Properties>, "Properties is not movable");
+  static_assert(!std::is_nothrow_move_assignable_v<Properties>, "Properties is move-assignable");
   
 }
 

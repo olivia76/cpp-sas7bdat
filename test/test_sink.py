@@ -16,7 +16,9 @@ def datafilename(f):
 @pytest.fixture()
 def get_files():
     with open(datafilename("files.json")) as isf:
-        return json.load(isf)
+        files = json.load(isf)
+        return files
+        #return { k:v for k,v in files.items() if k in ('data_AHS2013/homimp.sas7bdat',) }
 
 @pytest.fixture(params=get_files().items(), ids=get_files().keys())
 def files(request):
@@ -38,7 +40,7 @@ def check_row(row, ref_row):
         else:
             assert(a == b)            
 
-def check_sink(sink, ref_values):
+def check_properties(properties, ref_values):
     def get_u64(x):
         if x == True: return Format.bit64
         else: return Format.bit32
@@ -58,7 +60,6 @@ def check_sink(sink, ref_values):
     def get_dt2(x):
         return x[:19]
     
-    properties = sink.properties
     assert(properties.format == get_u64(ref_values["Header"]["u64"]))
     assert(str(properties.endianness) == ref_values["Header"]["endianess"])
     assert(str(properties.platform) == ref_values["Header"]["platform"])
@@ -85,7 +86,10 @@ def check_sink(sink, ref_values):
     assert(properties.mix_page_row_count == ref_values["Header"]["mix_page_row_count"])
     assert(properties.lcs == ref_values["Header"]["lcs"])
     assert(properties.lcp == ref_values["Header"]["lcp"])
-    
+   
+            
+def check_sink(sink, ref_values):
+    check_properties(sink.properties, ref_values)    
     df = sink.df
     for irow, ref_row in ref_values["Data"].items():
         irow = int(irow)
@@ -107,6 +111,7 @@ class TestSink(object):
         print(f)
         sink = sink_factory()
         test = Reader(f, sink)
+        check_properties(test.properties(), ref_values)
         test.read_all()
         check_sink(sink, ref_values)
 

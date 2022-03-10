@@ -12,6 +12,13 @@
 #include "import_datetime.hpp"
 #include "reader.hpp"
 
+namespace pycppsas7bdat {
+  inline PyObject* to_python(const std::string& x)
+  {
+    return PyUnicode_FromStringAndSize(x.c_str(), x.length());
+  }
+}
+
 BOOST_PYTHON_MODULE(cpp)
 {
   using namespace boost::python;
@@ -50,10 +57,6 @@ BOOST_PYTHON_MODULE(cpp)
     .value("date", cppsas7bdat::Column::Type::date)
     .value("time", cppsas7bdat::Column::Type::time)
     ;
-  class_< cppsas7bdat::Properties::Header, boost::noncopyable >("Header", no_init )
-    ;
-  class_< cppsas7bdat::Properties::Metadata, boost::noncopyable >("Metadata", no_init )
-    ;
   class_< cppsas7bdat::Column, boost::noncopyable >("Column", no_init )
     .def_readonly("name", &cppsas7bdat::Column::name)
     .def_readonly("format", &cppsas7bdat::Column::format)
@@ -65,12 +68,11 @@ BOOST_PYTHON_MODULE(cpp)
     ;
 
   struct properties {
-    static auto get_date_created(const cppsas7bdat::Properties& p) { return pycppsas7bdat::to_python(p.date_created); };
-    static auto get_date_modified(const cppsas7bdat::Properties& p) { return pycppsas7bdat::to_python(p.date_modified); };
-   
+    static auto get_date_created(const cppsas7bdat::Properties& p) { return pycppsas7bdat::to_python(p.date_created); }
+    static auto get_date_modified(const cppsas7bdat::Properties& p) { return pycppsas7bdat::to_python(p.date_modified); }
   };
   
-  class_< cppsas7bdat::Properties, boost::noncopyable >("Properties", no_init)
+  class_< cppsas7bdat::Properties, std::shared_ptr<cppsas7bdat::Properties>, boost::noncopyable >("Properties", no_init)
     .def_readonly("format", &cppsas7bdat::Properties/*::Header*/::format)
     .def_readonly("endianness", &cppsas7bdat::Properties/*::Header*/::endianness)
     .def_readonly("platform", &cppsas7bdat::Properties/*::Header*/::platform)
@@ -99,4 +101,6 @@ BOOST_PYTHON_MODULE(cpp)
     .def_readonly("lcp", &cppsas7bdat::Properties/*::Metadata*/::lcp)
     .def_readonly("columns", &cppsas7bdat::Properties/*::Metadata*/::columns)
     ;
+
+  register_ptr_to_python< boost::shared_ptr<cppsas7bdat::Properties> >();
 }

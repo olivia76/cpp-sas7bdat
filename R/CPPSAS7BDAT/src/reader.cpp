@@ -129,7 +129,6 @@ namespace {
       : SinkBase(_sink),
 	f_push_row(sink["push_row"])
     {
-      //std::cerr << "Sink::Sink" << std::endl;
     }
 
     void set_properties([[maybe_unused]]const cppsas7bdat::Properties& _properties)
@@ -365,7 +364,6 @@ namespace {
       : SinkByColumns(_sink, _size),
 	f_push_rows(sink["push_rows"])
     {
-      //std::cerr << "SinkChunk::SinkChunk(" << size << ')' << std::endl;
     }
     
     void push_row([[maybe_unused]]const size_t _irow,
@@ -439,7 +437,7 @@ namespace {
 			 Rcpp::CharacterVector list(_object);
 			 const int n = list.size();
 			 for (int i = 0; i<n; ++i) {
-			   std::cerr << "#" << i << '/' << n << ':' << Rcpp::as<std::string>(list[i]) << std::endl;
+			   //std::cerr << "#" << i << '/' << n << ':' << Rcpp::as<std::string>(list[i]) << std::endl;
 			   _set.insert(Rcpp::as<std::string>(list[i]));
 			 }
 		       };
@@ -459,7 +457,6 @@ cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEX
      sink.exists("chunk_size") &&
      sink.exists("push_rows")) {
     const size_t chunk_size = sink["chunk_size"];
-    //std::cerr << "Reader::_build::SinkChunk(" << chunk_size << ')' << std::endl;
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()),
 			       SinkChunk(sink, chunk_size),
 			       filter(_include, _exclude));
@@ -470,7 +467,6 @@ cppsas7bdat::Reader Rcppsas7bdat::Reader::_build(std::string _inputfilename, SEX
 				filter(_include, _exclude));
   } else if(sink.exists("set_properties") &&
 	    sink.exists("push_row")) {
-    //std::cerr << "Reader::_build::Sink()" << std::endl;
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(_inputfilename.c_str()),
 			       Sink(sink),
 			       filter(_include, _exclude));

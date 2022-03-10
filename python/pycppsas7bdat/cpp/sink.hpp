@@ -51,7 +51,7 @@ namespace pycppsas7bdat {
 
     void set_properties([[maybe_unused]]const cppsas7bdat::Properties& _properties)
     {
-      call_method<void>(self, "set_properties", boost::ref(_properties));
+      call_method<void>(self, "set_properties", boost::shared_ptr<cppsas7bdat::Properties>(new cppsas7bdat::Properties(_properties)) );
     }
 
     void end_of_data() const noexcept {}
