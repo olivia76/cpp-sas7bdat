@@ -9,7 +9,7 @@ class MySink(object):
         self.rows = []
     
     def set_properties(self, properties):
-        self.columns = [col.name for col in properties.metadata.columns]
+        self.columns = [col.name for col in properties.columns]
 
     def push_row(self, irow, row):
         self.rows.append(row)
@@ -24,7 +24,7 @@ class MySinkChunk(object):
         self.chunk_size = chunk
     
     def set_properties(self, properties):
-        self.columns = [col.name for col in properties.metadata.columns]
+        self.columns = [col.name for col in properties.columns]
 
     def push_rows(self, istartrow, iendrow, rows):
         self.rows.append(rows)
