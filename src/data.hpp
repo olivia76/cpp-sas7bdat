@@ -143,14 +143,27 @@ struct READ_DATA : public READ_PAGE<_DataSource, _endian, _format> {
     return true;
   }
 
+  auto _read_line()
+  {
+    const auto r = page->read_line();
+    ++current_row;
+    page->inc_row_on_page();
+    return r;
+  }
+
+  bool skip(size_t _nrows) {
+    while(_nrows) {
+      if(!next()) return false;
+      _read_line();
+      --_nrows;
+    }
+    return true;    
+  }
+
   std::optional<BYTES> read_line() {
     if (!next())
       return {};
-
-    const auto [offset, length] = page->read_line();
-    ++current_row;
-    page->inc_row_on_page();
-
+    const auto [offset, length] = _read_line();
     return extract_row_values(offset, length);
   }
 

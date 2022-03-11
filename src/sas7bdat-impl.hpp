@@ -225,6 +225,8 @@ public:
 
   virtual Column::PBUF read_row_no_sink() = 0;
 
+  virtual bool skip(const size_t _nrows) = 0;
+  
   virtual bool read_row() = 0;
 
   bool read_rows(size_t _chunk_size) {
@@ -260,13 +262,18 @@ public:
     return m_read_data.current_row;
   }
 
+  bool skip(const size_t _nrows) final
+  {
+    return m_read_data.skip(_nrows);
+  }
+
   Column::PBUF read_row_no_sink() final {
     auto vals = m_read_data.read_line();
     return vals ? vals->data() : nullptr;
   }
 
   bool read_row() final {
-    const size_t row_index = current_row_index();
+    const size_t row_index = current_row_index();    
     auto vals = m_read_data.read_line();
     if (!vals) {
       end_of_data();

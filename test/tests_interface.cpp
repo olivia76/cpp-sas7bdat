@@ -199,7 +199,7 @@ namespace {
       
     void push_row([[maybe_unused]]const size_t _irow,
 		  [[maybe_unused]]Column::PBUF _p) {
-      if(row_read == ref_irow) {
+      if(_irow == ref_irow) {
 	const auto values = ref_data_iter.value();
 	for(size_t icol=0; icol < ncols; ++icol) {
 	  const auto& column = columns[icol];
@@ -292,6 +292,19 @@ SCENARIO("When I read a file with the public interface, the properties and data 
 	  CHECK(reader.current_row_index() == irow);
 	}
 	CHECK(reader.current_row_index() == reader.properties()/*.metadata*/.row_count);
+      }
+      THEN("I can skip rows") {
+	size_t irow{0}, ref_irow;
+	for(auto ref_row: ref_data) {
+	  {
+	    const std::string line = ref_row.key();
+	    std::from_chars(line.data(), line.data()+line.size(), ref_irow);
+	  }
+	  CHECK(reader.current_row_index() == irow);
+	  CHECK(reader.skip(ref_irow-current_row) == true);
+	  CHECK(reader.read_row() == true);
+	  irow = ref_irow+1;
+	}
       }
     }
   }
