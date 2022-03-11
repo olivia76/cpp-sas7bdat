@@ -9,6 +9,9 @@ class SinkBase(object):
         self.properties = properties
         self.columns = [col.name for col in properties.columns]
 
+    def _cpp_flush_sink(self):
+        if hasattr(self, "_cpp"): self._cpp.flush_sink()        
+        
 class SinkByRow(SinkBase):
     def __init__(self):
         super().__init__()
@@ -19,6 +22,7 @@ class SinkByRow(SinkBase):
 
     @property
     def df(self):
+        self._cpp_flush_sink()
         return pd.DataFrame.from_records(self.rows, columns = self.columns)
 
 class SinkByChunk(SinkBase):
@@ -33,13 +37,19 @@ class SinkByChunk(SinkBase):
 
     @property
     def df(self):
+        self._cpp_flush_sink()
         return pd.concat(self.rows)
 
 class SinkWholeData(SinkBase):
     def __init__(self):
         super().__init__()
-        self.df = None
+        self._df = None
 
     def set_data(self, columns):
-        self.df = pd.DataFrame(columns, columns=self.columns, copy=False)
+        self._df = pd.DataFrame(columns, columns=self.columns, copy=False)
         
+    @property
+    def df(self):
+        self._cpp_flush_sink()
+        return self._df
+    

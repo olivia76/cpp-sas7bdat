@@ -25,25 +25,49 @@ static PyObject *to_python(const cppsas7bdat::INTEGER _x) {
 }
 static PyObject *to_python(const boost::python::object &_o) { return _o.ptr(); }
 
-struct SinkBase {
+  struct SinkBase : public boost::noncopyable {
   // using STRING = boost::python::str;
   using STRING = boost::python::object;
 
-  SinkBase(PyObject *_self) : self(_self) { Py_INCREF(self); }
+  SinkBase(PyObject *_self) : self(_self) {
+    Py_INCREF(self);
+  }
   ~SinkBase() {
     if (self)
       Py_DECREF(self);
   }
-  SinkBase(SinkBase &&_rhs) noexcept : self(_rhs.self) { _rhs.self = nullptr; }
+  SinkBase(SinkBase &&_rhs) noexcept : self(_rhs.self) {
+    _rhs.self = nullptr;
+  }
+
+  void set_cpp_attr()
+  {
+    //std::cerr << "SinkBase:: set_cpp_attr(" << this << ")" << std::endl;
+    boost::python::object value(boost::ref(*this));
+    PyObject* po = boost::python::incref( value.ptr() );
+    PyObject_SetAttrString(self, "_cpp", po);
+  }
+
+  void del_cpp_attr()
+  {
+    PyObject_DelAttrString(self, "_cpp");
+  }
 
   void set_properties([
       [maybe_unused]] const cppsas7bdat::Properties &_properties) {
+    set_cpp_attr();
     call_method<void>(self, "set_properties",
                       boost::shared_ptr<cppsas7bdat::Properties>(
                           new cppsas7bdat::Properties(_properties)));
   }
 
-  void end_of_data() const noexcept {}
+  void flush_sink()
+  {
+    //std::cerr << "SinkBase::flush_sink(" << this << ")" << std::endl;
+    end_of_data();
+  }
+  
+  virtual void end_of_data() = 0;
 
   /*static auto to_str(const cppsas7bdat::SV& _x)
   {
@@ -61,7 +85,8 @@ protected:
 };
 
 struct Sink : public SinkBase {
-  Sink(PyObject *_self) : SinkBase(_self) {}
+  Sink(PyObject *_self) : SinkBase(_self) {
+  }
 
   void set_properties([
       [maybe_unused]] const cppsas7bdat::Properties &_properties) {
@@ -98,6 +123,11 @@ struct Sink : public SinkBase {
     }
 
     call_method<void>(self, "push_row", _irow, l);
+  }
+
+  void end_of_data() override {
+    del_cpp_attr();
+    //std::cerr << "Sink::end_of_data()" << std::endl;
   }
 
 protected:
@@ -163,7 +193,8 @@ struct SinkChunk : public SinkBase {
   std::vector<COL_STRINGS> col_strings;
 
   SinkChunk(PyObject *_self, const size_t _size)
-      : SinkBase(_self), size(_size) {}
+      : SinkBase(_self), size(_size) {
+  }
 
   template <typename _Values>
   void prepare_values(const cppsas7bdat::COLUMNS &_columns, _Values &_values) {
@@ -246,7 +277,11 @@ struct SinkChunk : public SinkBase {
       flush();
   }
 
-  void end_of_data() { flush(); }
+  void end_of_data() override {
+    del_cpp_attr();
+    //std::cerr << "SinkChunk::end_of_data()" << std::endl;
+    flush();
+  }
 
   template <typename _Values> static void clear_values(_Values &_values) {
     for (auto &v : _values)
@@ -338,9 +373,16 @@ struct SinkChunk : public SinkBase {
   }
 
   virtual void flush() {
-    boost::python::dict d;
-    set_dict_values(d);
-    call_method<void>(self, "push_rows", istartrow, iendrow, d);
+    if(idata) {
+      boost::python::dict d;
+      set_dict_values(d);
+      call_method<void>(self, "push_rows", istartrow, iendrow, d);
+      clear_values();
+    }
+  }
+
+  void clear_values()
+  {
     idata = 0;
     istartrow = iendrow + 1;
     clear_values(col_numbers);
@@ -357,7 +399,8 @@ protected:
 
 class SinkData : public SinkChunk {
 public:
-  SinkData(PyObject *_self) : SinkChunk(_self, 0) {}
+  SinkData(PyObject *_self) : SinkChunk(_self, 0) {
+  }
 
   void set_properties([
       [maybe_unused]] const cppsas7bdat::Properties &_properties) {
@@ -367,10 +410,15 @@ public:
 
   void flush() override {}
 
-  void end_of_data() {
-    boost::python::dict d;
-    set_dict_values(d);
-    call_method<void>(self, "set_data", d);
+  void end_of_data() override {
+    del_cpp_attr();
+    //std::cerr << "SinkData::end_of_data()" << std::endl;
+    if(idata) {
+      boost::python::dict d;
+      set_dict_values(d);
+      call_method<void>(self, "set_data", d);
+      clear_values();
+    }
   }
 };
 
