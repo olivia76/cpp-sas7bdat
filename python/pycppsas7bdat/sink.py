@@ -15,30 +15,36 @@ class SinkBase(object):
 class SinkByRow(SinkBase):
     def __init__(self):
         super().__init__()
-        self.rows = []
+        self._rows = []
+        self._df = None
     
     def push_row(self, irow, row):
-        self.rows.append(row)
+        self._rows.append(row)
 
     @property
     def df(self):
-        self._cpp_flush_sink()
-        return pd.DataFrame.from_records(self.rows, columns = self.columns)
+        if self._df is None:
+            self._cpp_flush_sink()
+            self._df = pd.DataFrame.from_records(self._rows, columns = self.columns)
+        return self._df
 
 class SinkByChunk(SinkBase):
     def __init__(self, chunk_size=10000):
         super().__init__()
-        self.rows = []
+        self._rows = []
+        self._df = None
         self.chunk_size = chunk_size
 
     def push_rows(self, istartrow, iendrow, rows):
         rows = pd.DataFrame(rows, columns = self.columns, copy=False)
-        self.rows.append(rows)
+        self._rows.append(rows)
 
     @property
     def df(self):
-        self._cpp_flush_sink()
-        return pd.concat(self.rows)
+        if self._df is None:
+            self._cpp_flush_sink()
+            self._df = pd.concat(self._rows)
+        return self._df
 
 class SinkWholeData(SinkBase):
     def __init__(self):
@@ -50,6 +56,7 @@ class SinkWholeData(SinkBase):
         
     @property
     def df(self):
-        self._cpp_flush_sink()
+        if self._df is None:
+            self._cpp_flush_sink()
         return self._df
     
