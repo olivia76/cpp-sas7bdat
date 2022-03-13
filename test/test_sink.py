@@ -146,7 +146,7 @@ class Test_skip(object):
             assert test.read_row() == True
 
         df = sink.df
-        print(df)
+        #print(df)
         for i, (irow, ref_row) in enumerate(ref_values["Data"].items()):
             check_row(df.iloc[i].tolist(), ref_row)
         #check_sink(sink, ref_values)
