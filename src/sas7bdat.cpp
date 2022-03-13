@@ -117,8 +117,10 @@ Reader::FilterConcept::~FilterConcept() = default;
 const Properties &Reader::properties() const noexcept {
   return m_pimpl->properties();
 }
+
+void Reader::end_of_data() { m_pimpl->end_of_data(); }
   
-  bool Reader::skip(const size_t _nrows) { return m_pimpl->skip(_nrows); }
+bool Reader::skip(const size_t _nrows) { return m_pimpl->skip(_nrows); }
   
 void Reader::read_all() { m_pimpl->read_all(); }
 

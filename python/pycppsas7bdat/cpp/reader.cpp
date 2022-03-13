@@ -102,6 +102,7 @@ void bind_reader() {
       .def("read_row", &Reader::read_row)
       .def("read_rows", &Reader::read_rows)
       .def("skip", &Reader::skip)
+      .def("end_of_data", &Reader::end_of_data)
     ;
 }
 } // namespace pycppsas7bdat

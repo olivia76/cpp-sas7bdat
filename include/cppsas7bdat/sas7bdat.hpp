@@ -119,6 +119,8 @@ public:
 
   const Properties &properties() const noexcept;
 
+  void end_of_data();
+  
   bool skip(const size_t _nrows);
   
   void read_all();

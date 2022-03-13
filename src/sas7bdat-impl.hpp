@@ -254,8 +254,8 @@ public:
       : Reader::impl(std::move(_sink), std::move(_properties)),
         m_read_data(std::forward<_RD>(_rd)) {
     // Dirty hack to make sure to use the object's properties.
-    m_read_data.set_pheader(&properties() /*.header*/);
-    m_read_data.set_pmetadata(&properties() /*.metadata*/);
+    m_read_data.set_pheader(&properties());
+    m_read_data.set_pmetadata(&properties());
   }
 
   size_t current_row_index() const noexcept final {
@@ -264,7 +264,9 @@ public:
 
   bool skip(const size_t _nrows) final
   {
-    return m_read_data.skip(_nrows);
+    const auto r = m_read_data.skip(_nrows);
+    if(!r) end_of_data();
+    return r;
   }
 
   Column::PBUF read_row_no_sink() final {
