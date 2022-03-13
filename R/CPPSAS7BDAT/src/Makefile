@@ -25,10 +25,6 @@ export CXX_FLAGS
 all:
 	make -C ../../.. ENABLE_R=ON
 	cp ../../../build/R/CPPSAS7BDAT/src/libRcppsas7bdat.so CPPSAS7BDAT.so
-	#echo $(R_HOME) $(BLAS_LIBS) $(R_XTRA_CPPFLAGS) $(R_LIBS) $(RCPP_INC) $(RCPP_LIB) $(RINSIDE_INC) $(RINSIDE_LIB)
-	#	cmake -S . -B ./build -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}"
-	#cmake --build ./build --config ${BUILD_TYPE}
-	#cp build/libRcppsas7bdat.so CPPSAS7BDAT.so
 
 clean:
 	$(MAKE) -C build clean
