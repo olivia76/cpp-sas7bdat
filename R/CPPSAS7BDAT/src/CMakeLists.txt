@@ -6,6 +6,8 @@ add_library(Rcppsas7bdat SHARED
   version.hpp
   reader.cpp
   reader.hpp
+  filter.cpp
+  filter.hpp
   )
 
 target_link_libraries(Rcppsas7bdat PRIVATE cppsas7bdat)

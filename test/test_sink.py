@@ -123,6 +123,33 @@ class Test_read_sas(object):
         f = datafilename(f)
         sink = read_sas(f)
         check_sink(sink, ref_values)
+
+class Test_skip(object):
+    
+    # Need to use a lambda to create a new sink for each call
+    @pytest.mark.parametrize("sink_factory", [
+        lambda: SinkByRow(),
+        lambda: SinkByChunk(),
+        lambda: SinkWholeData()
+        ])
+    def test_skip(self, files, sink_factory):
+        f, ref_values = files
+        if f.find('big5') != -1: return
+        if f.find('zero_variables') != -1: return
+        f = datafilename(f)
+        print(f)
+        sink = sink_factory()
+        test = Reader(f, sink)
+        for irow, ref_row in ref_values["Data"].items():
+            irow = int(irow)
+            assert test.skip(irow - test.current_row_index) == True
+            assert test.read_row() == True
+
+        df = sink.df
+        #print(df)
+        for i, ref_row in enumerate(ref_values["Data"].values()):
+            check_row(df.iloc[i].tolist(), ref_row)
+        #check_sink(sink, ref_values)
         
 class Test_IncludeExclude(object):
     

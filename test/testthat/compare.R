@@ -1,3 +1,9 @@
+#
+# @author: Olivia Quinet
+#
+# @brief: Test the sinks for R
+#
+
 library("RJSONIO")
 files = RJSONIO::fromJSON("../files.json")
 

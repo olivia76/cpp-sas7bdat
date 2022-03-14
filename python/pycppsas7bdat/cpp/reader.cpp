@@ -86,6 +86,10 @@ boost::shared_ptr<Reader> create_reader(std::string _filename, PyObject *_sink,
 void bind_reader() {
   using namespace boost::python;
 
+  class_<SinkBase, boost::noncopyable>("SinkBase", no_init)
+    .def("flush_sink", &SinkBase::flush_sink)
+    ;
+  
   class_<Reader, boost::noncopyable>("Reader", no_init)
       .def("__init__", make_constructor(&create_reader, default_call_policies(),
                                         (arg("filename"), arg("sink"),
@@ -96,6 +100,9 @@ void bind_reader() {
            return_value_policy<reference_existing_object>())
       .def("read_all", &Reader::read_all)
       .def("read_row", &Reader::read_row)
-      .def("read_rows", &Reader::read_rows);
+      .def("read_rows", &Reader::read_rows)
+      .def("skip", &Reader::skip)
+      .def("end_of_data", &Reader::end_of_data)
+    ;
 }
 } // namespace pycppsas7bdat

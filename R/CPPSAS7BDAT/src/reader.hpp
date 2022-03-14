@@ -24,6 +24,8 @@ public:
   bool read_row();
   bool read_rows(const size_t _chunk_size);
   size_t current_row_index() const;
+  bool skip(const size_t _nrows);
+  void end_of_data();
 
 protected:
   static cppsas7bdat::Reader _build(std::string _inputfilename, SEXP _sink,
