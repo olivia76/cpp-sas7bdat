@@ -33,12 +33,10 @@ struct SinkChunk : public SinkByColumns {
     }
   }
 
-  void end_of_data() {
-    flush();
-  }
+  void end_of_data() { flush(); }
 
   void flush() {
-    if (istartrow > iendrow ||  idata == 0)
+    if (istartrow > iendrow || idata == 0)
       return;
     SinkByColumns::set_values();
     f_push_rows(row_index, rows);
@@ -50,6 +48,6 @@ protected:
   Function f_push_rows;
 };
 
-} // Rcppsas7bdat
+} // namespace Rcppsas7bdat
 
 #endif

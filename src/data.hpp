@@ -143,8 +143,7 @@ struct READ_DATA : public READ_PAGE<_DataSource, _endian, _format> {
     return true;
   }
 
-  auto _read_line()
-  {
+  auto _read_line() {
     const auto r = page->read_line();
     ++current_row;
     page->inc_row_on_page();
@@ -152,12 +151,13 @@ struct READ_DATA : public READ_PAGE<_DataSource, _endian, _format> {
   }
 
   bool skip(size_t _nrows) {
-    while(_nrows) {
-      if(!next()) return false;
+    while (_nrows) {
+      if (!next())
+        return false;
       _read_line();
       --_nrows;
     }
-    return true;    
+    return true;
   }
 
   std::optional<BYTES> read_line() {

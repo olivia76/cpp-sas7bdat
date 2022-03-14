@@ -22,6 +22,5 @@ RCPP_MODULE(Rcppsas7bdat) {
       .method("read_rows", &::Rcppsas7bdat::Reader::read_rows)
       .method("current_row_index", &::Rcppsas7bdat::Reader::current_row_index)
       .method("skip", &::Rcppsas7bdat::Reader::skip)
-      .method("end_of_data", &::Rcppsas7bdat::Reader::end_of_data)
-      ;
+      .method("end_of_data", &::Rcppsas7bdat::Reader::end_of_data);
 }

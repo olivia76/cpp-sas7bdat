@@ -20,7 +20,8 @@ struct SinkData : public SinkByColumns {
   void end_of_data() { flush(); }
 
   void flush() {
-    if(idata == 0) return;
+    if (idata == 0)
+      return;
     SinkByColumns::set_values();
     f_set_data(row_index, rows);
   }
@@ -29,6 +30,6 @@ protected:
   Function f_set_data;
 };
 
-} // Rcppsas7bdat
+} // namespace Rcppsas7bdat
 
 #endif

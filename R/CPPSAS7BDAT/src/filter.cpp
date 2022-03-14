@@ -11,7 +11,8 @@
 
 using namespace Rcpp;
 
-cppsas7bdat::ColumnFilter::IncludeExclude Rcppsas7bdat::filter(SEXP _include, SEXP _exclude) {
+cppsas7bdat::ColumnFilter::IncludeExclude Rcppsas7bdat::filter(SEXP _include,
+                                                               SEXP _exclude) {
   auto list_to_set = [](std::string _context, auto &_set,
                         SEXP _object) -> void {
     if (Rf_isNull(_object))

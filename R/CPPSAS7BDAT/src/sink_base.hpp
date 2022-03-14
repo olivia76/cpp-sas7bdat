@@ -9,12 +9,12 @@
 #ifndef _CPP_SAS7BDAT_R_SINK_BASE_HPP_
 #define _CPP_SAS7BDAT_R_SINK_BASE_HPP_
 
-#include <Rcpp.h>
 #include "wrap_properties.hpp"
+#include <Rcpp.h>
 
 namespace Rcppsas7bdat {
 using namespace Rcpp;
-  
+
 struct SinkBase {
   explicit SinkBase(Environment _sink)
       : sink(_sink), f_set_properties(sink["set_properties"]) {}
@@ -29,7 +29,7 @@ protected:
   Environment sink;
   Function f_set_properties;
 };
-  
-} // Rcppsas7bdat
+
+} // namespace Rcppsas7bdat
 
 #endif

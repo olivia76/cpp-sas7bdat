@@ -23,35 +23,29 @@ static PyObject *to_python(const cppsas7bdat::NUMBER _x) {
 static PyObject *to_python(const cppsas7bdat::INTEGER _x) {
   return PyLong_FromLong(_x);
 }
-static PyObject *to_python(const boost::python::object &_o) { return _o.ptr(); }
+static PyObject *to_python(const boost::python::object &_o) {
+  return boost::python::incref(_o.ptr());
+}
 
-  struct SinkBase : public boost::noncopyable {
+struct SinkBase : public boost::noncopyable {
   // using STRING = boost::python::str;
   using STRING = boost::python::object;
 
-  SinkBase(PyObject *_self) : self(_self) {
-    Py_INCREF(self);
-  }
+  SinkBase(PyObject *_self) : self(_self) { Py_INCREF(self); }
   ~SinkBase() {
     if (self)
       Py_DECREF(self);
   }
-  SinkBase(SinkBase &&_rhs) noexcept : self(_rhs.self) {
-    _rhs.self = nullptr;
-  }
+  SinkBase(SinkBase &&_rhs) noexcept : self(_rhs.self) { _rhs.self = nullptr; }
 
-  void set_cpp_attr()
-  {
-    //std::cerr << "SinkBase:: set_cpp_attr(" << this << ")" << std::endl;
+  void set_cpp_attr() {
+    // std::cerr << "SinkBase:: set_cpp_attr(" << this << ")" << std::endl;
     boost::python::object value(boost::ref(*this));
-    PyObject* po = boost::python::incref( value.ptr() );
+    PyObject *po = boost::python::incref(value.ptr());
     PyObject_SetAttrString(self, "_cpp", po);
   }
 
-  void del_cpp_attr()
-  {
-    PyObject_DelAttrString(self, "_cpp");
-  }
+  void del_cpp_attr() { PyObject_DelAttrString(self, "_cpp"); }
 
   void set_properties([
       [maybe_unused]] const cppsas7bdat::Properties &_properties) {
@@ -61,12 +55,11 @@ static PyObject *to_python(const boost::python::object &_o) { return _o.ptr(); }
                           new cppsas7bdat::Properties(_properties)));
   }
 
-  void flush_sink()
-  {
-    //std::cerr << "SinkBase::flush_sink(" << this << ")" << std::endl;
+  void flush_sink() {
+    // std::cerr << "SinkBase::flush_sink(" << this << ")" << std::endl;
     end_of_data();
   }
-  
+
   virtual void end_of_data() = 0;
 
   /*static auto to_str(const cppsas7bdat::SV& _x)
@@ -85,8 +78,7 @@ protected:
 };
 
 struct Sink : public SinkBase {
-  Sink(PyObject *_self) : SinkBase(_self) {
-  }
+  Sink(PyObject *_self) : SinkBase(_self) {}
 
   void set_properties([
       [maybe_unused]] const cppsas7bdat::Properties &_properties) {
@@ -127,7 +119,7 @@ struct Sink : public SinkBase {
 
   void end_of_data() override {
     del_cpp_attr();
-    //std::cerr << "Sink::end_of_data()" << std::endl;
+    // std::cerr << "Sink::end_of_data()" << std::endl;
   }
 
 protected:
@@ -193,8 +185,7 @@ struct SinkChunk : public SinkBase {
   std::vector<COL_STRINGS> col_strings;
 
   SinkChunk(PyObject *_self, const size_t _size)
-      : SinkBase(_self), size(_size) {
-  }
+      : SinkBase(_self), size(_size) {}
 
   template <typename _Values>
   void prepare_values(const cppsas7bdat::COLUMNS &_columns, _Values &_values) {
@@ -279,7 +270,7 @@ struct SinkChunk : public SinkBase {
 
   void end_of_data() override {
     del_cpp_attr();
-    //std::cerr << "SinkChunk::end_of_data()" << std::endl;
+    // std::cerr << "SinkChunk::end_of_data()" << std::endl;
     flush();
   }
 
@@ -343,37 +334,41 @@ struct SinkChunk : public SinkBase {
   }
 
   void set_dict_values(boost::python::dict &_d) const {
-    set_dict_values(_d, columns.numbers, col_numbers,
-                    [](const cppsas7bdat::Column &_col, auto &_values) {
-                      return SinkChunk::to_nparray_obj(
-                          _values /*, NPY_DOUBLE*/);
-                    });
-    set_dict_values(_d, columns.integers, col_integers,
-                    [](const cppsas7bdat::Column &_col, auto &_values) {
-                      return SinkChunk::to_nparray_obj(_values /*, NPY_LONG*/);
-                    });
-    set_dict_values(_d, columns.datetimes, col_datetimes,
-                    [](const cppsas7bdat::Column &_col, auto &_values) {
-                      return SinkChunk::to_nparray_obj(
-                          _values /*, NPY_DATETIME*/);
-                    });
-    set_dict_values(_d, columns.dates, col_dates,
-                    [](const cppsas7bdat::Column &_col, auto &_values) {
-                      return SinkChunk::to_nparray_obj(_values /*, NPY_DATE*/);
-                    });
-    set_dict_values(_d, columns.times, col_times,
-                    [](const cppsas7bdat::Column &_col, auto &_values) {
-                      return SinkChunk::to_nparray_obj(_values /*, NPY_TIME*/);
-                    });
-    set_dict_values(_d, columns.strings, col_strings,
-                    [](const cppsas7bdat::Column &_col, auto &_values) {
-                      return SinkChunk::to_nparray_obj(
-                          /*_col.length(),*/ _values);
-                    });
+    set_dict_values(
+        _d, columns.numbers, col_numbers,
+        []([[maybe_unused]] const cppsas7bdat::Column &_col, auto &_values) {
+          return SinkChunk::to_nparray_obj(_values /*, NPY_DOUBLE*/);
+        });
+    set_dict_values(
+        _d, columns.integers, col_integers,
+        []([[maybe_unused]] const cppsas7bdat::Column &_col, auto &_values) {
+          return SinkChunk::to_nparray_obj(_values /*, NPY_LONG*/);
+        });
+    set_dict_values(
+        _d, columns.datetimes, col_datetimes,
+        []([[maybe_unused]] const cppsas7bdat::Column &_col, auto &_values) {
+          return SinkChunk::to_nparray_obj(_values /*, NPY_DATETIME*/);
+        });
+    set_dict_values(
+        _d, columns.dates, col_dates,
+        []([[maybe_unused]] const cppsas7bdat::Column &_col, auto &_values) {
+          return SinkChunk::to_nparray_obj(_values /*, NPY_DATE*/);
+        });
+    set_dict_values(
+        _d, columns.times, col_times,
+        []([[maybe_unused]] const cppsas7bdat::Column &_col, auto &_values) {
+          return SinkChunk::to_nparray_obj(_values /*, NPY_TIME*/);
+        });
+    set_dict_values(
+        _d, columns.strings, col_strings,
+        []([[maybe_unused]] const cppsas7bdat::Column &_col, auto &_values) {
+          return SinkChunk::to_nparray_obj(
+              /*_col.length(),*/ _values);
+        });
   }
 
   virtual void flush() {
-    if(idata) {
+    if (idata) {
       boost::python::dict d;
       set_dict_values(d);
       call_method<void>(self, "push_rows", istartrow, iendrow, d);
@@ -381,8 +376,7 @@ struct SinkChunk : public SinkBase {
     }
   }
 
-  void clear_values()
-  {
+  void clear_values() {
     idata = 0;
     istartrow = iendrow + 1;
     clear_values(col_numbers);
@@ -399,8 +393,7 @@ protected:
 
 class SinkData : public SinkChunk {
 public:
-  SinkData(PyObject *_self) : SinkChunk(_self, 0) {
-  }
+  SinkData(PyObject *_self) : SinkChunk(_self, 0) {}
 
   void set_properties([
       [maybe_unused]] const cppsas7bdat::Properties &_properties) {
@@ -412,8 +405,8 @@ public:
 
   void end_of_data() override {
     del_cpp_attr();
-    //std::cerr << "SinkData::end_of_data()" << std::endl;
-    if(idata) {
+    // std::cerr << "SinkData::end_of_data()" << std::endl;
+    if (idata) {
       boost::python::dict d;
       set_dict_values(d);
       call_method<void>(self, "set_data", d);
