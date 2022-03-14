@@ -17,6 +17,7 @@ test_that("I can read a SAS7BDAT file with the read_sas function", {
 	# Skip big5 and test16: json unicode cannot be decoded correctly 
 	if(grepl("big5", file, fixed=TRUE) == FALSE &&
 	   grepl("test16", file, fixed=TRUE) == FALSE) {
+	   
 	   sink <- CPPSAS7BDAT::read_sas(file);
            properties <- sink$properties;
 
@@ -50,6 +51,7 @@ test_that("I can read a SAS7BDAT file with the read_sas function", {
 	       ref_irow = ref_irows[ref_idata];
 	     }
 	   }
+	   expect_equal(ref_idata-1, length(ref$Data));
 	   rm(sink);
 	}
     }

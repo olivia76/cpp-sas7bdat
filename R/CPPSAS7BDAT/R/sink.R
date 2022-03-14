@@ -39,7 +39,7 @@ SinkByChunk <- R6Class("SinkByChunk",
 	  self$properties = properties;
 	  self$columns = names(properties$metadata$columns);
         },
-        push_rows = function(istartrow, iendrow, rows) {
+        push_rows = function(row_index, rows) {
 	  rows <- as.data.frame(rows);
 	  if(is.null(self$df)) { self$df=rows; }
 	  else { self$df = rbind(self$df, rows); }
@@ -58,7 +58,7 @@ SinkWholeData <- R6Class("SinkWholeData",
 	  self$properties = properties;
 	  self$columns = names(properties$metadata$columns);
         },
-        set_data = function(data) {
+        set_data = function(row_index, data) {
 	  self$df <- data;
         }
      )

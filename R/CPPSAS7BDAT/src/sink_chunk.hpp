@@ -33,13 +33,15 @@ struct SinkChunk : public SinkByColumns {
     }
   }
 
-  void end_of_data() { flush(); }
+  void end_of_data() {
+    flush();
+  }
 
   void flush() {
-    if (istartrow > iendrow)
+    if (istartrow > iendrow ||  idata == 0)
       return;
     SinkByColumns::set_values();
-    f_push_rows(istartrow, iendrow, rows);
+    f_push_rows(row_index, rows);
     idata = 0;
     istartrow = iendrow + 1;
   }
