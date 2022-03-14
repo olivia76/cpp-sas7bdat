@@ -9,13 +9,13 @@
 #ifndef _CPP_SAS7BDAT_R_WRAP_PROPERTIES_HPP_
 #define _CPP_SAS7BDAT_R_WRAP_PROPERTIES_HPP_
 
+#include "wrap_object.hpp"
 #include <Rcpp.h>
 #include <cppsas7bdat/properties.hpp>
-#include "wrap_object.hpp"
 
 namespace Rcppsas7bdat {
-  using namespace Rcpp;
-  
+using namespace Rcpp;
+
 class ListBuilder {
 public:
   ListBuilder() = default;

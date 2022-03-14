@@ -107,6 +107,6 @@ protected:
   Rcpp::List row;
 };
 
-} // Rcppsas7bdat
+} // namespace Rcppsas7bdat
 
 #endif

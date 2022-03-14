@@ -76,6 +76,4 @@ bool Rcppsas7bdat::Reader::skip(const size_t _nrows) {
   return cppsas7bdat::Reader::skip(_nrows);
 }
 
-void Rcppsas7bdat::Reader::end_of_data() {
-  cppsas7bdat::Reader::end_of_data();
-}
+void Rcppsas7bdat::Reader::end_of_data() { cppsas7bdat::Reader::end_of_data(); }

@@ -87,9 +87,8 @@ void bind_reader() {
   using namespace boost::python;
 
   class_<SinkBase, boost::noncopyable>("SinkBase", no_init)
-    .def("flush_sink", &SinkBase::flush_sink)
-    ;
-  
+      .def("flush_sink", &SinkBase::flush_sink);
+
   class_<Reader, boost::noncopyable>("Reader", no_init)
       .def("__init__", make_constructor(&create_reader, default_call_policies(),
                                         (arg("filename"), arg("sink"),
@@ -102,7 +101,6 @@ void bind_reader() {
       .def("read_row", &Reader::read_row)
       .def("read_rows", &Reader::read_rows)
       .def("skip", &Reader::skip)
-      .def("end_of_data", &Reader::end_of_data)
-    ;
+      .def("end_of_data", &Reader::end_of_data);
 }
 } // namespace pycppsas7bdat

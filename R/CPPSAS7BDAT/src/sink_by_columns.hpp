@@ -25,7 +25,7 @@ struct SinkByColumns : public SinkBase {
   using COL_STRINGS = Rcpp::CharacterVector;
 
   COL_INTEGERS row_index;
-  
+
   std::vector<COL_NUMBERS> col_numbers;
   std::vector<COL_INTEGERS> col_integers;
   std::vector<COL_DATETIMES> col_datetimes;
@@ -47,7 +47,7 @@ struct SinkByColumns : public SinkBase {
 
   void prepare_values(const size_t _size) {
     row_index = COL_INTEGERS(_size);
-    
+
     prepare_values(columns.numbers, col_numbers, _size);
     prepare_values(columns.integers, col_integers, _size);
     prepare_values(columns.datetimes, col_datetimes, _size);
@@ -116,9 +116,9 @@ struct SinkByColumns : public SinkBase {
 
   void push_row([[maybe_unused]] const size_t _irow,
                 [[maybe_unused]] cppsas7bdat::Column::PBUF _p) {
-    
+
     row_index[idata] = _irow;
-    
+
     push_values(
         _p, columns.numbers, col_numbers,
         [](const cppsas7bdat::Column &column, cppsas7bdat::Column::PBUF _p) {
@@ -154,29 +154,29 @@ struct SinkByColumns : public SinkBase {
   }
 
 protected:
-  template <typename _Vt>
-  static _Vt resize_vector(const _Vt& _v, size_t _n) {
+  template <typename _Vt> static _Vt resize_vector(const _Vt &_v, size_t _n) {
     _n = std::min((size_t)(_v.size()), _n);
     _Vt v(_n);
-    for(size_t i=0; i<_n; ++i)
+    for (size_t i = 0; i < _n; ++i)
       v[i] = _v[i];
     return v;
   }
 
   void set_values() {
     size_t icol = {0};
-    
+
     auto set_values = [&](const auto &_columns) {
       for (const auto &column : _columns) {
-	if(idata != column.size()) {
-	  rows[icol++] = resize_vector(column, idata);
-	} else {
-	  rows[icol++] = column;
-	}
+        if (idata != column.size()) {
+          rows[icol++] = resize_vector(column, idata);
+        } else {
+          rows[icol++] = column;
+        }
       }
     };
 
-    if(row_index.size() != idata) row_index = resize_vector(row_index, idata);
+    if (row_index.size() != idata)
+      row_index = resize_vector(row_index, idata);
     set_values(col_numbers);
     set_values(col_integers);
     set_values(col_datetimes);
@@ -206,7 +206,7 @@ protected:
   Rcpp::StringVector col_names;
   Rcpp::List rows;
 };
-  
-} // Rcppsas7bdat
+
+} // namespace Rcppsas7bdat
 
 #endif
