@@ -43,47 +43,7 @@ A functionality `Foo` uses a concept `X` with different methods, i.e. `foo(...)`
 
 One of the main advantage of this pattern is the complete isolation of each the concrete implementations as they are not linked to a base class, see for example the talk of Sean Parent [inheritance is the base class of evil](https://www.youtube.com/watch?v=bIhUE5uUFOA).  They only have to expose a set of methods.
 
-
-
-```puml
-@startuml
-!theme reddress-lightblue
-
-hide empty attributes
-
-package Foo {
-  class FooCode as "Foo" {
-    Foo<X>(X)
-    PIMPL x
-	}
-
-	interface ConceptX {
-		+{abstract} foo(...) = 0
-	}
-
-
-	class ModelX <<T>> {
-		+ foo(...) { return model.foo(...); }
-		- T model
-	}
-}
-
-package "MyFoo" {
-  component MyFooCode as "Foo(MyConcreteX(...))" {    
-  }
-
-	object MyConcreteX {
-		+ foo(...)
-	}
-}
-
-FooCode::PIMPL *.d. ConceptX : std::unique_ptr<ConceptX>
-ConceptX <|.r. ModelX
-MyConcreteX .r.> ModelX::model
-MyFooCode *.l. FooCode
-MyFooCode <-d- MyConcreteX
-@enduml
-```
+![summary](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/olivia76/cpp-sas7bdat/main/puml/summary.puml)
 
 This pattern is used at different levels within this package:
 
@@ -136,73 +96,7 @@ Each formatter [class](src/formatters.hpp) implements one or several *getters* a
 
 ## Relationship schema
 
-```puml
-@startuml
-!theme reddress-lightblue
-
-hide empty attributes
-hide empty members
-
-package "C++ application code" {
-	object DataSource
-  object DataSink
-  object ColumnFilter
-}
-
-package "cppsas7bdat" {
-class Reader {
-	+ properties()
-	+ read_all()
-	+ read_row()
-	+ read_rows()
-}
-package "INTERNAL::FORMATTER" {
-	object Formatter
-}
-
-class Properties {
-  ...
-	columns
-}
-
-class Column {
-	+ name
-	+ label
-	+ type
-	+ format
-	--
-	- pimpl
-}
-
-}
-
-
-DataSource : read_bytes()
-DataSource : eof()
-DataSink : set_properties()
-DataSink : push_row()
-DataSink : end_of_data()
-ColumnFilter : accept()
-Formatter : get_string()
-Formatter : get_number()
-Formatter : get_integer()
-Formatter : get_datetime()
-Formatter : get_date()
-Formatter : get_time()
-Formatter : to_string()
-
-
-DataSource -[hidden]> DataSink
-DataSink -[hidden]> ColumnFilter
-DataSource --> Reader
-ColumnFilter --> Reader
-DataSink --> Reader
-Reader::properties .right.> Properties
-Properties::columns .right.> Column
-Column::pimpl .down.> Formatter
-
-@enduml
-```
+![relationship](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/olivia76/cpp-sas7bdat/main/puml/relationship.puml)
 
 ## Usage
 
