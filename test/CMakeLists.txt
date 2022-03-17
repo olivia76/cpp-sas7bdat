@@ -9,7 +9,18 @@ add_library(catch_main STATIC catch_main.cpp)
 target_link_libraries(catch_main PUBLIC Catch2::Catch2)
 target_link_libraries(catch_main PRIVATE project_options)
 
-add_executable(tests tests_internal.cpp tests_interface.cpp tests_decompressors.cpp tests_exceptions.cpp tests_formatters.cpp tests_version.cpp tests_column.cpp tests_column-filter.cpp tests_types.cpp)
+add_executable(tests
+  tests_encodings.cpp
+  tests_internal.cpp
+  tests_interface.cpp
+  tests_decompressors.cpp
+  tests_exceptions.cpp
+  tests_formatters.cpp
+  tests_version.cpp
+  tests_column.cpp
+  tests_column-filter.cpp
+  tests_types.cpp
+  )
 target_link_libraries(tests
   PRIVATE
   catch_main
@@ -20,7 +31,7 @@ target_link_libraries(tests
   project_options
   )
 #  project_warnings
-#  
+#
 
 # automatically discover tests that are defined in catch based test files you can modify the unittests. Set TEST_PREFIX
 # to whatever you want, or use different for different binaries

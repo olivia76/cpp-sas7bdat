@@ -9,6 +9,7 @@
 #ifndef _CPP_SAS7BDAT_SRC_DATA_HPP_
 #define _CPP_SAS7BDAT_SRC_DATA_HPP_
 
+#include "page.hpp"
 #include <optional>
 
 namespace cppsas7bdat {
@@ -97,7 +98,7 @@ struct READ_DATA : public READ_PAGE<_DataSource, _endian, _format> {
   constexpr static size_t integer_size = CBUFFER::integer_size;
 
   mutable _Decompressor decompressor;
-  const Properties::Metadata *metadata;
+  const Properties::Metadata *metadata{nullptr};
   size_t current_row{0};
   using PPAGE = std::unique_ptr<PAGE::base>;
   PPAGE page;
@@ -113,8 +114,8 @@ struct READ_DATA : public READ_PAGE<_DataSource, _endian, _format> {
   READ_DATA(READ_METADATA<_DataSource, _endian, _format> &&_rm,
             _Decompressor &&_decompressor,
             const Properties::Metadata *_metadata)
-      : READ_PAGE<_DataSource, _endian, _format>(
-            std::move((READ_PAGE<_DataSource, _endian, _format> &&) _rm)),
+      : READ_PAGE<_DataSource, _endian, _format>(std::move(
+            static_cast<READ_PAGE<_DataSource, _endian, _format> &&>(_rm))),
         decompressor(std::move(_decompressor)), metadata(_metadata) {
     // Check if we already have data_subheaders from the metadata page...
     if (_rm.data_subheaders.size()) {

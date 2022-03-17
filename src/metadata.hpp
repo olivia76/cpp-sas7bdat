@@ -9,6 +9,9 @@
 #ifndef _CPP_SAS7BDAT_SRC_METADATA_HPP_
 #define _CPP_SAS7BDAT_SRC_METADATA_HPP_
 
+#include "formatters.hpp"
+#include "page.hpp"
+
 namespace cppsas7bdat {
 namespace INTERNAL {
 
@@ -440,7 +443,7 @@ struct READ_METADATA : public READ_PAGE<_DataSource, _endian, _format>,
         column_type_not_supported = false;
 
         Column column(column_name, column_label, column_format,
-                      std::move(formatter));
+                      std::forward<decltype(formatter)>(formatter));
         if (!_filter || _filter->accept(column))
           _metadata->columns.emplace_back(
               std::move(column)); // column_name, column_label, column_format,

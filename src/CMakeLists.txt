@@ -11,6 +11,8 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   column.cpp
   datasource_ifstream.cpp
   decompressors.hpp
+  encodings.cpp
+  encodings.hpp
   exceptions.hpp
   header.hpp
   metadata.hpp
@@ -36,7 +38,8 @@ target_link_libraries(cppsas7bdat
   PRIVATE
   fmt::fmt
   spdlog::spdlog
-  Boost::date_time 
+  Boost::date_time
   project_options
+  project_warnings
   )
 install(TARGETS cppsas7bdat)
