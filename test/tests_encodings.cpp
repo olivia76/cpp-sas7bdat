@@ -9,10 +9,11 @@
 #include <catch2/catch.hpp>
 #include "../src/encodings.hpp"
 #include <fmt/core.h>
+#include <vector>
 
 SCENARIO("I can get string representation of the encoding", "[encoding]")
 {
-  static std::array<bool, 256> passed;
+  static std::vector<bool> passed(256, false);
   static constexpr const char *SAS_DEFAULT_STRING_ENCODING = "WINDOWS-1252";
 
   GIVEN("A list of encodings") {
