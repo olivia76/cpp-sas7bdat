@@ -23,8 +23,6 @@ else()
   set(Boost_USE_STATIC_LIBS ON)
 endif()
 
-#add_library(project_warnings INTERFACE)
-
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -33,7 +31,6 @@ add_compile_definitions(BOOST_DATE_TIME_NO_LIB)
 if (WIN32)
   add_compile_options(/EHsc)
 else()
-  #
   add_compile_options(-Wall -Wextra -pedantic -O3)
 endif()
 
@@ -57,7 +54,6 @@ include(cmake/Cache.cmake)
 # Add linker configuration
 include(cmake/Linker.cmake)
 configure_linker(project_options)
-
 
 # standard compiler warnings
 include(cmake/CompilerWarnings.cmake)

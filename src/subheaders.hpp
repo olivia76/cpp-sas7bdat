@@ -9,6 +9,7 @@
 #ifndef _CPP_SAS7BDAT_SRC_SUBHEADERS_HPP_
 #define _CPP_SAS7BDAT_SRC_SUBHEADERS_HPP_
 
+#include <cppsas7bdat/properties.hpp>
 #include <vector>
 
 namespace cppsas7bdat {

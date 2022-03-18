@@ -9,6 +9,9 @@
 #ifndef _CPP_SAS7BDAT_SRC_PAGE_HPP_
 #define _CPP_SAS7BDAT_SRC_PAGE_HPP_
 
+#include "buffer.hpp"
+#include "subheaders.hpp"
+
 namespace cppsas7bdat {
 namespace INTERNAL {
 
@@ -62,7 +65,7 @@ struct READ_PAGE : public PAGE_CONSTANT<_format> {
   using BUFFER = INTERNAL::BUFFER<_endian, _format>;
   _DataSource is;
   BUFFER buf;
-  const Properties::Header *header;
+  const Properties::Header *header{nullptr};
   struct PAGE_HEADER {
     uint16_t type{PAGE_INVALID_TYPE};
     uint16_t block_count{0};
@@ -132,7 +135,7 @@ struct READ_PAGE : public PAGE_CONSTANT<_format> {
     }
   }
 
-  PAGE_SUBHEADER _get_page_subheader(const size_t _offset) {
+  PAGE_SUBHEADER _get_page_subheader(const size_t _offset) const {
     buf.assert_check(_offset, subheader_size());
     const auto offset = buf.get_uinteger(_offset);
     const auto length = buf.get_uinteger(_offset + integer_size);
