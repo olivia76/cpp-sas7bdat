@@ -82,7 +82,7 @@ struct READ_PAGE : public PAGE_CONSTANT<_format> {
             const Properties::Header *_header)
       : is(std::move(_is)), buf(std::move(_buf)), header(_header) {}
 
-  READ_PAGE(READ_PAGE &&_rp)
+  READ_PAGE(READ_PAGE<_DataSource, _endian, _format> &&_rp)
       : is(std::move(_rp.is)), buf(std::move(_rp.buf)), header(_rp.header),
         current_page_header(_rp.current_page_header) {}
 

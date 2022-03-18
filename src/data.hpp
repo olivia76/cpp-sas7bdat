@@ -111,17 +111,34 @@ struct READ_DATA : public READ_PAGE<_DataSource, _endian, _format> {
 
   using PAGE_CONSTANT<_format>::page_bit_offset;
 
+  static READ_DATA build(READ_METADATA<_DataSource, _endian, _format> &&_rm,
+			 _Decompressor &&_decompressor,
+			 const Properties::Metadata *_metadata)
+  {
+    PPAGE page;
+    // Check if we already have data_subheaders from the metadata page...
+    if(_rm.data_subheaders.size()) {
+      // Yes => build the corresponding meta page by moving the data_subheaders
+      page = std::make_unique<PAGE::meta_type>(std::move(_rm.data_subheaders));
+    }    
+    return READ_DATA(std::move(_rm), std::forward<_Decompressor>(_decompressor), _metadata, std::move(page));
+  }
+  
   READ_DATA(READ_METADATA<_DataSource, _endian, _format> &&_rm,
             _Decompressor &&_decompressor,
             const Properties::Metadata *_metadata)
-      : READ_PAGE<_DataSource, _endian, _format>(std::move(
-            static_cast<READ_PAGE<_DataSource, _endian, _format> &&>(_rm))),
-        decompressor(std::move(_decompressor)), metadata(_metadata) {
-    // Check if we already have data_subheaders from the metadata page...
-    if (_rm.data_subheaders.size()) {
-      // Yes => build the corresponding meta page by moving the data_subheaders
-      page.reset(new PAGE::meta_type(std::move(_rm.data_subheaders)));
-    } else {
+    : READ_DATA(build(std::move(_rm), std::forward<_Decompressor>(_decompressor), _metadata))
+  {
+  }
+
+  READ_DATA(READ_METADATA<_DataSource, _endian, _format> &&_rm,
+            _Decompressor &&_decompressor,
+            const Properties::Metadata *_metadata,
+	    PPAGE&& _page) :
+    READ_PAGE<_DataSource, _endian, _format>(std::move(_rm)),
+    decompressor(std::move(_decompressor)), metadata(_metadata), page(std::move(_page)) {
+    // Check if we need to build the page, i.e. not page is provided...
+    if (!page) {
       // No => build the corresponding page
       build_page();
     }
