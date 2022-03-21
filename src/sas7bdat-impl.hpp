@@ -132,10 +132,10 @@ inline RM read_metadata(RH &&rh, const Properties::Header *_header,
   return std::visit(
       [&](auto &&arg) -> RM {
         using T = std::decay_t<decltype(arg)>;
-        return _read_metadata<T::endian, T::format>(std::move(arg), _header,
+        return _read_metadata<T::endian, T::format>(std::forward<T>(arg), _header,
                                                     _metadata, _filter);
       },
-      rh);
+      std::move(rh));
 }
 
 inline RD read_data(RM &&rm, const Properties::Metadata *_metadata) {
@@ -145,18 +145,18 @@ inline RD read_data(RM &&rm, const Properties::Metadata *_metadata) {
         switch (_metadata->compression) {
         case Compression::RDC:
           return _read_data<T::endian, T::format>(
-              std::move(arg),
+              std::forward<T>(arg),
               DECOMPRESSOR::RDC<T::endian, T::format>(_metadata), _metadata);
         case Compression::RLE:
           return _read_data<T::endian, T::format>(
-              std::move(arg),
+              std::forward<T>(arg),
               DECOMPRESSOR::RLE<T::endian, T::format>(_metadata), _metadata);
         default:
           return _read_data<T::endian, T::format>(
-              std::move(arg), DECOMPRESSOR::None(), _metadata);
+              std::forward<T>(arg), DECOMPRESSOR::None(), _metadata);
         }
       },
-      rm);
+      std::move(rm));
 }
 
 inline auto read_line(RD &rd) {
@@ -190,10 +190,7 @@ inline INTERNAL::RD data(INTERNAL::DATASOURCE &&_source,
                          Properties::Metadata *_metadata,
                          const Reader::PFILTER &_filter) {
   return INTERNAL::read_data(
-      INTERNAL::read_metadata(
-          INTERNAL::read_header(
-              INTERNAL::check_header(std::move(_source), _header), _header),
-          _header, _metadata, _filter),
+      READ::metadata(std::move(_source), _header, _metadata, _filter),
       _metadata);
 }
 
