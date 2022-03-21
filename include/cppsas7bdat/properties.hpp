@@ -1,5 +1,5 @@
 /**
- *  \file cppsas7bdat/sas7bdat.hpp
+ *  \file cppsas7bdat/properties.hpp
  *
  *  \brief Properties description
  *
@@ -10,27 +10,9 @@
 #define _CPP_SAS7BDAT_PROPERTIES_HPP_
 
 #include <cppsas7bdat/column.hpp>
-#include <cstddef>
-#include <iosfwd>
-#include <string>
-#include <string_view>
+//#include <cstddef>
 
 namespace cppsas7bdat {
-
-enum class Endian { unknown, little, big };
-enum class Format { bit32, bit64 };
-enum class Platform { unknown, unix, windows };
-enum class Compression { none, RLE, RDC };
-
-std::string_view to_string(const Endian _x);
-std::string_view to_string(const Format _x);
-std::string_view to_string(const Platform _x);
-std::string_view to_string(const Compression _x);
-
-std::ostream &operator<<(std::ostream &os, const Endian _x);
-std::ostream &operator<<(std::ostream &os, const Format _x);
-std::ostream &operator<<(std::ostream &os, const Platform _x);
-std::ostream &operator<<(std::ostream &os, const Compression _x);
 
 struct Header {
   Header() = default;

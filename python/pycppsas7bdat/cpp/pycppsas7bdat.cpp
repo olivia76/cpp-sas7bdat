@@ -8,7 +8,7 @@
 
 // clang-format off
 #include <boost/python.hpp>
-#include <cppsas7bdat/sas7bdat.hpp>
+#include <cppsas7bdat/reader.hpp>
 #include <cppsas7bdat/version.hpp>
 #include "import_datetime.hpp"
 #include "reader.hpp"

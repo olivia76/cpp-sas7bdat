@@ -1,18 +1,17 @@
 /**
  *  \file apps/cppsas7bdat-ci.cpp
- * 
+ *
  *  \brief Main file
  *
  *  \author Olivia Quinet
  */
 
 #include <cppsas7bdat/version.hpp>
-#include <cppsas7bdat/sas7bdat.hpp>
+#include <cppsas7bdat/reader.hpp>
 #include <cppsas7bdat/datasource_ifstream.hpp>
 #include <cppsas7bdat/datasink_print.hpp>
 #include <cppsas7bdat/datasink_csv.hpp>
 #include <cppsas7bdat/datasink_null.hpp>
-#include <fstream>
 #include <docopt/docopt.h>
 
 namespace {
@@ -46,7 +45,7 @@ std::string get_csv_filename(const std::string& _filename)
   auto ipos = _filename.rfind('.');
   if(ipos != _filename.npos) {
     return _filename.substr(0, ipos+1) + "csv";
-  }  
+  }
   return _filename + "csv";
 }
 
@@ -71,7 +70,7 @@ int main(const int argc, char* argv[])
 							     { std::next(argv), std::next(argv, argc) },
 							     true,// show help if requested
 							     version);
-  if(false) 
+  if(false)
     for (auto const &arg : args) {
       std::cout << arg.first << " = " << arg.second << std::endl;
     }

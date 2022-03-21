@@ -16,7 +16,7 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   exceptions.hpp
   header.hpp
   metadata.hpp
-  sas7bdat.cpp
+  reader.cpp
   stream.hpp
   types.hpp
   data.hpp

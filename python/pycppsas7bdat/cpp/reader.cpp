@@ -9,7 +9,7 @@
 // clang-format off
 #include <cppsas7bdat/column-filter.hpp>
 #include <cppsas7bdat/datasource_ifstream.hpp>
-#include <cppsas7bdat/sas7bdat.hpp>
+#include <cppsas7bdat/reader.hpp>
 #include <boost/python.hpp>
 #include "reader.hpp"
 #include "sink.hpp"

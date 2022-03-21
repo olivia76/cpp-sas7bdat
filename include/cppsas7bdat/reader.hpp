@@ -1,13 +1,13 @@
 /**
- *  \file cppsas7bdat/sas7bdat.hpp
+ *  \file cppsas7bdat/reader.hpp
  *
  *  \brief Main file
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_SAS7BDAT_HPP_
-#define _CPP_SAS7BDAT_SAS7BDAT_HPP_
+#ifndef _CPP_SAS7BDAT_READER_HPP_
+#define _CPP_SAS7BDAT_READER_HPP_
 
 #include <cppsas7bdat/column-filter.hpp>
 #include <cppsas7bdat/column.hpp>

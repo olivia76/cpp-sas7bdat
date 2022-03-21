@@ -7,7 +7,7 @@
  */
 
 #include <Rcpp.h>
-#include <cppsas7bdat/sas7bdat.hpp>
+#include <cppsas7bdat/reader.hpp>
 
 namespace Rcppsas7bdat {
 

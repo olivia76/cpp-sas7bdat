@@ -1,13 +1,13 @@
 /**
  *  \file tests/tests_interface.cpp
  *
- *  \brief  
+ *  \brief
  *
  *  \author  Olivia Quinet
  */
 
 #include <catch2/catch.hpp>
-#include "../include/cppsas7bdat/sas7bdat.hpp"
+#include "../include/cppsas7bdat/reader.hpp"
 #include "../include/cppsas7bdat/datasource_ifstream.hpp"
 #include "../include/cppsas7bdat/datasink_null.hpp"
 #include "data.hpp"
@@ -75,10 +75,10 @@ namespace {
   template<typename _DataSink>
   auto get_reader(const std::string& _filename, _DataSink&& _datasink) {
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(convert_path(_filename).c_str()), std::forward<_DataSink>(_datasink));
-  }  
+  }
   auto get_reader(const std::string& _filename) {
     return get_reader(_filename, cppsas7bdat::datasink::null());
-  }  
+  }
 }
 
 SCENARIO("When I try to read a non existing file with the public interface, an exception is thrown", "[interface][not_a_valid_file]")
@@ -135,7 +135,7 @@ namespace {
     size_t ref_irow{0};
     size_t row_read{0};
     size_t ncols{0};
-    
+
     template<typename _iter>
     MyTestDataSink(const json& _header, const json& _columns, _iter&& _ref_data_iter, _iter&& _ref_data_iter_end)
       : ref_header(_header),
@@ -150,7 +150,7 @@ namespace {
       const std::string line = ref_data_iter.key();
       std::from_chars(line.data(), line.data()+line.size(), ref_irow);
     };
-    
+
     void set_properties([[maybe_unused]]const Properties& _properties) {
       columns = COLUMNS(_properties/*.metadata*/.columns);
       ncols = columns.size();
@@ -168,7 +168,7 @@ namespace {
       CHECK(_properties.header_length == ref_header["header_length"]);
       CHECK(_properties.page_length == ref_header["page_length"]);
       CHECK(_properties.page_count == ref_header["page_count"]);
-      
+
       CHECK(_properties.creator == get_string(ref_header["creator"]));
       CHECK(_properties.creator_proc == get_string(ref_header["creator_proc"]));
       CHECK(_properties.row_length == ref_header["row_length"]);
@@ -196,7 +196,7 @@ namespace {
 	}
       }
     }
-      
+
     void push_row([[maybe_unused]]const size_t _irow,
 		  [[maybe_unused]]Column::PBUF _p) {
       if(_irow == ref_irow) {
@@ -238,7 +238,7 @@ namespace {
       }
       ++row_read;
     }
-    
+
     void end_of_data() const noexcept {}
   };
 }
@@ -246,7 +246,7 @@ namespace {
 SCENARIO("When I read a file with the public interface, the properties and data are read properly", "[inteface][read_data]")
 {
   const auto data = GENERATE(from_range(files().j.items().begin(),files().j.items().end()));
-  
+
   const std::string filename = data.key();
   const auto ref_header = data.value()["Header"];
   const auto ref_columns = data.value()["Columns"];
@@ -257,7 +257,6 @@ SCENARIO("When I read a file with the public interface, the properties and data 
     if(filename.find("big5") != filename.npos) return;
     WHEN("The data is read") {
       auto reader = get_reader(filename, MyTestDataSink(ref_header, ref_columns, ref_data.begin(), ref_data.end()));
-      const auto& columns = reader.properties()/*.metadata*/.columns;
       THEN("The data values are correct - read_all") {
 	CHECK(reader.current_row_index() == 0);
 	reader.read_all();
@@ -287,7 +286,7 @@ SCENARIO("When I read a file with the public interface, the properties and data 
 	size_t irow{0};
 	CHECK(reader.current_row_index() == irow);
 	while(auto p = reader.read_row_no_sink()) {
-	  sink.push_row(irow, p);	  
+	  sink.push_row(irow, p);
 	  irow++;
 	  CHECK(reader.current_row_index() == irow);
 	}

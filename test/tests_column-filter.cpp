@@ -1,14 +1,14 @@
 /**
  *  \file tests/tests_column-filter.cpp
  *
- *  \brief  
+ *  \brief
  *
  *  \author  Olivia Quinet
  */
 
 #include <catch2/catch.hpp>
 #include <cppsas7bdat/column-filter.hpp>
-#include <cppsas7bdat/sas7bdat.hpp>
+#include <cppsas7bdat/reader.hpp>
 #include <cppsas7bdat/datasource_ifstream.hpp>
 #include <cppsas7bdat/datasink_null.hpp>
 #include "data.hpp"
@@ -72,7 +72,7 @@ namespace {
   template<typename _DataSink, typename _Filter>
   auto get_reader(const std::string& _filename, _DataSink&& _datasink, _Filter&& _filter) {
     return cppsas7bdat::Reader(cppsas7bdat::datasource::ifstream(convert_path(_filename).c_str()), std::forward<_DataSink>(_datasink), std::forward<_Filter>(_filter));
-  }  
+  }
 }
 
 SCENARIO("The Include/Exclude column filter can be used to filter columns to be read")

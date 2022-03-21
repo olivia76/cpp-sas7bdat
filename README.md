@@ -103,7 +103,7 @@ Each formatter [class](src/formatters.hpp) implements one or several *getters* a
 ```c++
 // See for example apps/cppsas7bdat-ci.cpp
 
-#include <cppsas7bdat/sas7bdat.hpp>
+#include <cppsas7bdat/reader.hpp>
 
 struct MyDataSource {
 	MyDataSource(...) { /* ... */ }
