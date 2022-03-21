@@ -90,7 +90,7 @@ struct READ_HEADER {
       spdlog::info("Expected header length of 8192 but got {}\n",
                    _header->header_length);
     }*/
-        
+
     // Read the rest of the header
     FMT_ASSERT(_header->header_length >= HEADER_CONSTANTS::HEADER_SIZE,
                "Header is too big in set_header_length_and_read");

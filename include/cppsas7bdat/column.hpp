@@ -110,13 +110,16 @@ private:
 static_assert(std::is_copy_constructible_v<Column>, "Column is not copyable");
 static_assert(!std::is_copy_assignable_v<Column>, "Column is copy-assignable");
 static_assert(std::is_move_constructible_v<Column>, "Column is not movable");
-static_assert(!std::is_nothrow_move_assignable_v<Column>, "Column is move-assignable");
+static_assert(!std::is_nothrow_move_assignable_v<Column>,
+              "Column is move-assignable");
 
 using COLUMNS = std::vector<Column>;
 static_assert(std::is_copy_constructible_v<COLUMNS>, "COLUMNS is not copyable");
-static_assert(std::is_copy_assignable_v<COLUMNS>, "COLUMNS is not copy-assignable");
+static_assert(std::is_copy_assignable_v<COLUMNS>,
+              "COLUMNS is not copy-assignable");
 static_assert(std::is_move_constructible_v<COLUMNS>, "COLUMNS is not movable");
-static_assert(std::is_nothrow_move_assignable_v<COLUMNS>, "COLUMNS is not move-assignable");
+static_assert(std::is_nothrow_move_assignable_v<COLUMNS>,
+              "COLUMNS is not move-assignable");
 
 struct Columns {
   COLUMNS strings;

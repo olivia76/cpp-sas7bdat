@@ -10,9 +10,9 @@
 #define _CPP_SAS7BDAT_TYPES_HPP_
 
 #include <cstdint>
+#include <iosfwd>
 #include <string>
 #include <string_view>
-#include <iosfwd>
 
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>

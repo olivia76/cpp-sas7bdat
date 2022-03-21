@@ -6,8 +6,8 @@
  *  \author Olivia Quinet
  */
 
-#include <cppsas7bdat/types.hpp>
 #include <cppsas7bdat/column.hpp>
+#include <cppsas7bdat/types.hpp>
 #include <fmt/core.h>
 
 namespace cppsas7bdat {
@@ -57,7 +57,6 @@ std::string to_string(TIME _x) {
   return std::string(szBuffer, size);
 }
 
-  
 std::string_view to_string(const Endian _x) {
   switch (_x) {
   case Endian::little:
