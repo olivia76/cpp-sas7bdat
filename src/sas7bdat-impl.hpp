@@ -74,7 +74,7 @@ _read_data(READ_METADATA<DATASOURCE, _endian, _format> &&rm,
            _Decompressor &&_decompressor,
            const Properties::Metadata *_metadata) {
   READ_DATA<DATASOURCE, _endian, _format, _Decompressor> rd(
-      std::move(rm), std::move(_decompressor), _metadata);
+      std::move(rm), std::forward<_Decompressor>(_decompressor), _metadata);
   return rd;
 }
 
@@ -132,8 +132,8 @@ inline RM read_metadata(RH &&rh, const Properties::Header *_header,
   return std::visit(
       [&](auto &&arg) -> RM {
         using T = std::decay_t<decltype(arg)>;
-        return _read_metadata<T::endian, T::format>(std::forward<T>(arg), _header,
-                                                    _metadata, _filter);
+        return _read_metadata<T::endian, T::format>(
+            std::forward<T>(arg), _header, _metadata, _filter);
       },
       std::move(rh));
 }

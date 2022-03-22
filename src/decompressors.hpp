@@ -51,16 +51,17 @@ template <Endian _endian, Format _format> struct DST_VALUES {
       : DST_VALUES(_metadata->row_length) {}
   explicit DST_VALUES(const size_t _n) : buf(_n), n_dst(_n) {}
 
-  DST_VALUES(const DST_VALUES&) = delete;
-  DST_VALUES(DST_VALUES&&) noexcept = default;
-  DST_VALUES& operator=(const DST_VALUES&) = delete;
-  DST_VALUES& operator=(DST_VALUES&&) noexcept = delete;
+  DST_VALUES(const DST_VALUES &) = delete;
+  DST_VALUES(DST_VALUES &&) noexcept = default;
+  DST_VALUES &operator=(const DST_VALUES &) = delete;
+  DST_VALUES &operator=(DST_VALUES &&) noexcept = delete;
 
   void reset() { i_dst = 0; }
 
   void fill() {
     const auto n = n_dst - i_dst;
-    if(n) store_value(C_NULL, n);
+    if (n)
+      store_value(C_NULL, n);
   }
 
   void store_value(const uint8_t _v, const size_t _n) {
