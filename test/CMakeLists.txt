@@ -38,7 +38,7 @@ target_link_libraries(tests
 catch_discover_tests(
   tests
   OUTPUT_DIR ${PROJECT_SOURCE_DIR}/reports
-  REPORTER junit
+  #REPORTER junit
   OUTPUT_PREFIX "unittests."
   OUTPUT_SUFFIX .xml
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

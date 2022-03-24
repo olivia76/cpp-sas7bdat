@@ -7,5 +7,5 @@
 context("Version")
 
 test_that("I can get the version of the package", {
-   expect_equal(getVersion(), "1.0.0.0");
+   expect_equal(getVersion(), "1.0.1");
 })

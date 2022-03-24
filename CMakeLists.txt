@@ -3,10 +3,12 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #Set the project name
 project(
   cppsas7bdat
-  VERSION 1.0.0.0
+  VERSION 1.0.1
   DESCRIPTION "A C++17 SAS7BDAT reader library"
   LANGUAGES CXX
   )
+
+file(WRITE version.txt ${PROJECT_VERSION})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -124,6 +126,7 @@ endif()
 option(ENABLE_R "Enable build R module" OFF)
 if(ENABLE_R)
   message("Building R module")
+  add_subdirectory(R/CPPSAS7BDAT)
   add_subdirectory(R/CPPSAS7BDAT/src)
 endif()
 

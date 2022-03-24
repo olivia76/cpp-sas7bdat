@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.15)
+
+configure_file(
+  "${PROJECT_SOURCE_DIR}/R/CPPSAS7BDAT/DESCRIPTION.in"
+  "${PROJECT_SOURCE_DIR}/R/CPPSAS7BDAT/DESCRIPTION"
+  )

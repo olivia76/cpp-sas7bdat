@@ -1,7 +1,7 @@
 Package: CPPSAS7BDAT
 Type: Package
 Title: What the package does (short line)
-Version: 1.0.0.0
+Version: @PROJECT_VERSION@
 Date: 2022-01-25
 Author: Olivia Quinet
 Maintainer: Olivia Quinet <olivia.quinet@gmail.com>
