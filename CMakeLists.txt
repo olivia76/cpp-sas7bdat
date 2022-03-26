@@ -8,6 +8,7 @@ project(
   LANGUAGES CXX
   )
 
+
 file(WRITE version.txt ${PROJECT_VERSION})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
