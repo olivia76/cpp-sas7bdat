@@ -11,5 +11,5 @@
 
 SCENARIO("I can get the version of the library")
 {
-  CHECK(cppsas7bdat::getVersion() == "1.0.0.0");
+  CHECK(cppsas7bdat::getVersion() == "1.0.1");
 }
