@@ -20,6 +20,7 @@ add_executable(tests
   tests_column.cpp
   tests_column-filter.cpp
   tests_types.cpp
+  tests_memory.cpp
   )
 target_link_libraries(tests
   PRIVATE
