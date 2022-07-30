@@ -14,3 +14,7 @@ target_link_libraries(cppsas7bdat-ci
   PRIVATE project_options
   PUBLIC cppsas7bdat
   )
+
+if( ipo_supported )
+    set_property(TARGET cppsas7bdat-ci PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()

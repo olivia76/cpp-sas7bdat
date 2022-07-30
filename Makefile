@@ -109,7 +109,7 @@ conan-install:
 	pip3 install $(PIP_OPTIONS) conan --upgrade
 
 conan-setup:
-	conan install conanfile.py
+	conan install conanfile.py --build=missing
 
 .PHONY: benchmark
 benchmark:
