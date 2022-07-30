@@ -16,15 +16,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+#include(CheckIPOSupported)
+#check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
 
-if( ipo_supported )
-    message(STATUS "IPO / LTO enabled")
-    #set_property(TARGET project_options PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-else()
-    message(STATUS "IPO / LTO not supported: <${ipo_error}>")
-endif()
+#if( ipo_supported )
+#    message(STATUS "IPO / LTO enabled")
+     #set_property(TARGET project_options PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+#else()
+#    message(STATUS "IPO / LTO not supported: <${ipo_error}>")
+#endif()
 
 # variable controlling whether the build is a shared or static library
 if (WIN32)

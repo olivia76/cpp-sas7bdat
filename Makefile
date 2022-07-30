@@ -104,7 +104,8 @@ lint:
 conan: conan-install conan-setup
 
 conan-install:
-	pip3 install $(PIP_OPTIONS) --upgrade pip
+	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
+	#pip3 install $(PIP_OPTIONS) --upgrade pip
 	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr numpy cmaketools
 	pip3 install $(PIP_OPTIONS) conan --upgrade
 
