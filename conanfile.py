@@ -1,8 +1,19 @@
-from conans import ConanFile
+from conans import ConanFile, tools, CMake
+from conan.tools.cmake import CMakeToolchain, cmake_layout
 
 class CppSAS7BDATProject(ConanFile):
-    name = "CppSAS7BDAT"
+    name = "cppsas7bdat"
     version = "1.0"
+    license = "apache"
+    author="Olivia Quinet olivia.quinet@gmail.com"
+    description = "A C++17 SAS7BDAT reader"
+    url = "https://github.com/olivia76/cpp-sas7bdat"
+    topics = ("c++17", "SAS7BDAT")
+    settings = "os", "compiler", "build_type", "arch"
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {"shared": False, "fPIC": True, "fmt:shared": False}
+    generators = "cmake", "gcc", "txt", "cmake_find_package", "cmake_find_package_multi"
+    build_policy = "missing"
     requires = (
         "catch2/2.13.6",
         "docopt.cpp/0.6.3",
@@ -11,7 +22,35 @@ class CppSAS7BDATProject(ConanFile):
         "boost/1.71.0",
         "nlohmann_json/3.10.4"
     )
-    generators = "cmake", "gcc", "txt", "cmake_find_package"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "apps/*", "test/*", "conanfile.py", "cmake/*"
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+        cmake.test()
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+
+    def package(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.install()
+        
+    def package_info(self):
+        # These are default values and doesn't need to be adjusted
+        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.libdirs = ["lib"]
+        self.cpp_info.bindirs = ["bin"]
+
+        self.cpp_info.libs = ["cppsas7bdat"]
+
 
     def configure(self):
         self.options["boost"].without_python = False

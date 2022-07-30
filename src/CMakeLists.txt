@@ -42,4 +42,24 @@ target_link_libraries(cppsas7bdat
   project_options
   project_warnings
   )
-install(TARGETS cppsas7bdat)
+
+include(GNUInstallDirs)
+
+install(TARGETS cppsas7bdat
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  COMPONENT Devel
+  FILES_MATCHING PATTERN "*.hpp"
+  )
+install(
+  FILES "${PROJECT_BINARY_DIR}/cppsas7bdat/version.hpp"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cppsas7bdat
+  COMPONENT Devel
+  )
+
+if( ipo_supported )
+    set_property(TARGET cppsas7bdat PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()

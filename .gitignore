@@ -15,3 +15,4 @@ pytest.xml
 dist
 R/CPPSAS7BDAT/DESCRIPTION
 version.txt
+tmp
