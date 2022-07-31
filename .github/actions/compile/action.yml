@@ -14,7 +14,7 @@ runs:
           ~/.cache/pip
         key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
 
-    - name: Install conan and dependendies on Unix
+    - name: Install conan and dependencies on Unix
       shell: bash
       if: runner.os != 'Windows'
       run: |
@@ -23,9 +23,12 @@ runs:
           echo "Ubuntu - Fix Conan Path"
           sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
           sudo update-alternatives --config conan
+        else
+          echo "MacOSX - add coreutils"
+          brew install coreutils
         fi;
 
-    - name: Install conan and dependendies on windows
+    - name: Install conan and dependencies on windows
       shell: bash
       if: runner.os == 'Windows'
       run: |
