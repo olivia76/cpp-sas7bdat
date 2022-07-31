@@ -10,6 +10,7 @@
 #define _CPP_SAS7BDAT_DATASINK_NULL_HPP_
 
 #include <cppsas7bdat/column.hpp>
+#include <cppsas7bdat/properties.hpp>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 

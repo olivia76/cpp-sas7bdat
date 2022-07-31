@@ -14,7 +14,7 @@ runs:
           ~/.cache/pip
         key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
 
-    - name: Install conan and dependendies on Unix
+    - name: Install conan and dependencies on Unix
       shell: bash
       if: runner.os != 'Windows'
       run: |
@@ -23,9 +23,12 @@ runs:
           echo "Ubuntu - Fix Conan Path"
           sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
           sudo update-alternatives --config conan
+        else
+          echo "MacOSX - add coreutils"
+          brew install coreutils
         fi;
 
-    - name: Install conan and dependendies on windows
+    - name: Install conan and dependencies on windows
       shell: bash
       if: runner.os == 'Windows'
       run: |
@@ -54,20 +57,34 @@ runs:
       working-directory: ./test
       run: ./retrieve.bash
 
-    - name: Unix - Test and coverage
+    - name: Unix - C++/Python Test and coverage
       shell: bash
       env:
         CMAKE_ARGS: -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_COVERAGE:BOOL=$ENABLE_COVERAGE
       if: runner.os != 'Windows'
       working-directory: ./build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
           ctest -C $BUILD_TYPE --output-on-failure
+          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-1.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
           if [ "$RUNNER_OS" == "Linux" ]; then
             make -C .. tests-python
+            gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
           fi;
-          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
+
+    - name: Publish to codecov - c++
+      uses: codecov/codecov-action@v2
+      with:
+        flags: ${{ runner.os }}
+        name: ${{ runner.os }}-coverage
+        files: ./build/coverage-c++-*.xml
+
+    - name: Publish to codecov - python
+      uses: codecov/codecov-action@v2
+      if: runner.os != 'Windows'
+      with:
+        flags: ${{ runner.os }}
+        name: ${{ runner.os }}-coverage
+        files: ./build/coverage-python.xml
 
     - name: Windows - Test and coverage
       shell: bash
@@ -75,8 +92,6 @@ runs:
       working-directory: ./build
       run: |
         OpenCppCoverage.exe --config_file=..\\OpenCppCoverage.cfg --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
-
-        #OpenCppCoverage.exe --sources 'a\\cpp-sas7bdat\\cpp-sas7bdat\\src' --sources 'a\\cpp-sas7bdat\\cpp-sas7bdat\\include' --export_type cobertura:coverage.xml --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
 
     - name: Windows - upload logs
       uses: actions/upload-artifact@v2
@@ -86,17 +101,8 @@ runs:
         path: ./build/LastCoverageResults.log
         retention-days: 5
 
-    - name: Publish to codecov - c++
-      uses: codecov/codecov-action@v2
-      with:
-        flags: ${{ runner.os }}
-        name: ${{ runner.os }}-coverage
-        files: ./build/coverage.xml
-
-    - name: Publish to codecov - python
-      uses: codecov/codecov-action@v2
-      if: runner.os != 'Windows'
-      with:
-        flags: ${{ runner.os }}
-        name: ${{ runner.os }}-coverage
-        files: ./build/coverage-python.xml
+    - name: Create conan package
+      shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        make conan-package

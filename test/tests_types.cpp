@@ -1,7 +1,7 @@
 /**
  *  \file tests/tests_types.cpp
  *
- *  \brief  
+ *  \brief
  *
  *  \author  Olivia Quinet
  */
@@ -11,23 +11,23 @@
 
 using namespace cppsas7bdat;
 
-SCENARIO("I can convert datetime to string")
-{
+SCENARIO("I can convert datetime to string") {
   CHECK_THROWS(cppsas7bdat::to_string(DATETIME()) == "");
-  CHECK(cppsas7bdat::to_string(DATETIME(DATE(1976,6,30))) == "1976-06-30 00:00:00");
-  CHECK(cppsas7bdat::to_string(DATETIME(DATE(1976,6,30),TIME(1,2,3))) == "1976-06-30 01:02:03");
-  CHECK(cppsas7bdat::to_string(DATETIME(DATE(1976,6,30),TIME(1,2,3,123456))) == "1976-06-30 01:02:03.123456");
+  CHECK(cppsas7bdat::to_string(DATETIME(DATE(1976, 6, 30))) ==
+        "1976-06-30 00:00:00");
+  CHECK(cppsas7bdat::to_string(DATETIME(DATE(1976, 6, 30), TIME(1, 2, 3))) ==
+        "1976-06-30 01:02:03");
+  CHECK(cppsas7bdat::to_string(
+            DATETIME(DATE(1976, 6, 30), TIME(1, 2, 3, 123456))) ==
+        "1976-06-30 01:02:03.123456");
 }
 
-SCENARIO("I can convert date to string")
-{
+SCENARIO("I can convert date to string") {
   CHECK_THROWS(cppsas7bdat::to_string(DATE()) == "");
-  CHECK(cppsas7bdat::to_string(DATE(1976,6,30)) == "1976-06-30");
+  CHECK(cppsas7bdat::to_string(DATE(1976, 6, 30)) == "1976-06-30");
 }
 
-SCENARIO("I can convert time to string")
-{
-  CHECK(cppsas7bdat::to_string(TIME(1,2,3)) == "01:02:03");
-  CHECK(cppsas7bdat::to_string(TIME(1,2,3,123456)) == "01:02:03.123456");
+SCENARIO("I can convert time to string") {
+  CHECK(cppsas7bdat::to_string(TIME(1, 2, 3)) == "01:02:03");
+  CHECK(cppsas7bdat::to_string(TIME(1, 2, 3, 123456)) == "01:02:03.123456");
 }
-

@@ -106,7 +106,7 @@ conan: conan-install conan-setup
 conan-install:
 	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
 	#pip3 install $(PIP_OPTIONS) --upgrade pip
-	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr numpy cmaketools
+	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy cmaketools
 	pip3 install $(PIP_OPTIONS) conan --upgrade
 
 conan-setup:
@@ -119,8 +119,13 @@ benchmark:
 
 .PHONY: clang-tidy
 clang-tidy:
-	clang-tidy -p build src/*cpp include/cppsas7bdat/sas7bdat.hpp -extra-arg=-std=c++17  -checks=-*,clang-analyzer-*,-clang-analyzer-cplusplus* -- -I include -I build
+	clang-tidy -p build $(shell find src -type f -name *.cpp) include/cppsas7bdat/reader.hpp -extra-arg=-std=c++17  -checks=-*,clang-analyzer-*,-clang-analyzer-cplusplus* -- -I include -I build
 
 .PHONY: clang-format
 clang-format:
-	clang-format -i src/*pp include/cppsas7bdat/*.hpp python/pycppsas7bdat/cpp/*pp R/CPPSAS7BDAT/src/*pp --style=LLVM
+	clang-format -i --style=LLVM $(shell find include src R python -type f -name *pp)
+
+conan-package:
+	./conan_profile.bash
+	rm -fr ./tmp ./test_package/build
+	./conan_package.bash
