@@ -1,16 +1,15 @@
 /**
  *  \file tests/tests_exceptions.cpp
  *
- *  \brief  
+ *  \brief
  *
  *  \author  Olivia Quinet
  */
 
-#include <catch2/catch.hpp>
 #include "../src/exceptions.hpp"
+#include <catch2/catch.hpp>
 
-SCENARIO("I can throw the different exceptions")
-{
+SCENARIO("I can throw the different exceptions") {
   CHECK_THROWS(cppsas7bdat::EXCEPTION::cannot_allocate_memory());
   CHECK_THROWS(cppsas7bdat::EXCEPTION::not_a_valid_file("filename"));
   CHECK_THROWS(cppsas7bdat::EXCEPTION::header_too_short());
