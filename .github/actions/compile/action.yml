@@ -65,18 +65,24 @@ runs:
       working-directory: ./build
       run: |
           ctest -C $BUILD_TYPE --output-on-failure
-          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-1.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
+          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
           if [ "$RUNNER_OS" == "Linux" ]; then
             make -C .. tests-python
             gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
           fi;
+    - name: Windows - Test and coverage
+      shell: bash
+      if: runner.os == 'Windows'
+      working-directory: ./build
+      run: |
+        OpenCppCoverage.exe --config_file=..\\OpenCppCoverage.cfg --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file
 
     - name: Publish to codecov - c++
       uses: codecov/codecov-action@v2
       with:
         flags: ${{ runner.os }}
         name: ${{ runner.os }}-coverage
-        files: ./build/coverage-c++-*.xml
+        files: ./build/coverage.xml
 
     - name: Publish to codecov - python
       uses: codecov/codecov-action@v2
@@ -84,14 +90,8 @@ runs:
       with:
         flags: ${{ runner.os }}
         name: ${{ runner.os }}-coverage
-        files: ./build/coverage-python.xml
+        files: ./build/coverage-python.xml,./build/coverage-c++-2.xml
 
-    - name: Windows - Test and coverage
-      shell: bash
-      if: runner.os == 'Windows'
-      working-directory: ./build
-      run: |
-        OpenCppCoverage.exe --config_file=..\\OpenCppCoverage.cfg --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
 
     - name: Windows - upload logs
       uses: actions/upload-artifact@v2
