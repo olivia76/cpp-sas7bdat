@@ -71,21 +71,6 @@ runs:
             gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
           fi;
 
-    - name: Publish to codecov - c++
-      uses: codecov/codecov-action@v2
-      with:
-        flags: ${{ runner.os }}
-        name: ${{ runner.os }}-coverage
-        files: ./build/coverage-c++-*.xml
-
-    - name: Publish to codecov - python
-      uses: codecov/codecov-action@v2
-      if: runner.os != 'Windows'
-      with:
-        flags: ${{ runner.os }}
-        name: ${{ runner.os }}-coverage
-        files: ./build/coverage-python.xml
-
     - name: Windows - Test and coverage
       shell: bash
       if: runner.os == 'Windows'
