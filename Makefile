@@ -126,6 +126,6 @@ clang-format:
 	clang-format -i --style=LLVM $(shell find include src R python -type f -name *pp)
 
 conan-package:
-	./conan_setup.bash
+	./conan_profile.bash
 	rm -fr ./tmp ./test_package/build
 	./conan_package.bash
