@@ -80,23 +80,11 @@ runs:
 
     - name: Publish to codecov - c++
       uses: codecov/codecov-action@v3
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
         flags: unittests
         name: ${{ runner.os }}-coverage
         directory: ./build
         verbose: true
-
-    #- name: Publish to codecov - python
-    #  uses: codecov/codecov-action@v3
-    #  if: runner.os != 'Windows'
-    #  with:
-    #   token: ${{ secrets.CODECOV_TOKEN }}
-    #    flags: unittests-python    #${{ runner.os }}-python
-    #    name: ${{ runner.os }}-coverage
-    #    files: ./build/coverage-python.xml,./build/coverage-c++-2.xml
-    #    verbose: true
 
     - name: Windows - upload logs
       uses: actions/upload-artifact@v2

@@ -19,6 +19,7 @@ env:
   CONAN_PRINT_RUN_COMMANDS: 1
   ENABLE_COVERAGE: ON
   WGET: "C:/ProgramData/chocolatey/lib/Wget/tools/wget.exe"
+  CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
 # Use a bash shell so we can use the same syntax for environment variable
 # access regardless of the host operating system
