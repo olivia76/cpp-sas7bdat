@@ -18,6 +18,7 @@ env:
   CONAN_USER_HOME_SHORT: "${{ github.workspace }}/conan-cache/short"
   CONAN_PRINT_RUN_COMMANDS: 1
   ENABLE_COVERAGE: ON
+  CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
 # Use a bash shell so we can use the same syntax for environment variable
 # access regardless of the host operating system
