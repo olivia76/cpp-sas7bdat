@@ -13,6 +13,19 @@ This is a c++ 17 implementation of a SAS7BDAT file reader.  This project also pr
 
 This is a toy project with cmake and C++ external polymorphism.
 
+## How to compile, tests, ...
+
+```bash
+make conan-install  # Download and install conan inside your python environment
+make                # Compile with cmake and conan
+make tests          # Invoke ctest
+make tests-python   # Build python package and execute the tests
+make tests-R        # Build R package and execute the tests
+make conan-package  # Create and install locally the package for conan
+make benchmark      # Execute the benchmark
+make clean          # Clean the build directory
+```
+
 ## What is a SAS7BDAT file?
 
 A SAS7BDAT file is a database storage file created by Statistical
@@ -100,8 +113,27 @@ Each formatter [class](src/formatters.hpp) implements one or several *getters* a
 
 ## Usage
 
+### c++
+
+Here is an example for converting a sas7bdat file to a csv file:
 ```c++
 // See for example apps/cppsas7bdat-ci.cpp
+#include <cppsas7bdat/reader.hpp>
+#include <cppsas7bdat/datasource_ifstream.hpp>
+#include <cppsas7bdat/datasink_csv.hpp>
+
+void sas7bdat_to_csv(const char* _filename_sas7bdat,
+                     const char* _filename_csv)
+{
+	std::ofstream csv_os(_filename_csv);
+	cppsas7bdat::Reader(
+		cppsas7bdat::datasource::ifstream(_filename_sas7bdat), cppsas7bdat::datasink::csv(csv_os)).read_all();
+}
+```
+
+It is possible to provide your own data source and sinks:
+
+```c++
 
 #include <cppsas7bdat/reader.hpp>
 
@@ -141,6 +173,8 @@ void read_sas7bdat(...)
 
 ```
 
+### Python
+
 3 sinks -- `SinkByRow()`, `SinkByChunk(chunk_size)` and `SinkWholeData()` -- are provided by the
 `pycppsas7bdat` python package.  They use `pandas.DataFrame` to store
 the data.  
@@ -149,16 +183,17 @@ the data.
 ```python
 from pycppsas7bdat.read_sas import read_sas
 
-s = read_sas("filename.sas7bdat", include=[...], exclude=[...])
-print(s.df)
+sink = read_sas("filename.sas7bdat", include=[...], exclude=[...])
+print(sink.properties)
+print(sink.df)
 ```
 
 ```python
 from pycppsas7bdat import Reader
 from pycppsas7bdat.sink import SinkByRow, SinkByChunk, SinkWholeData
 
-s = SinkByRow() # or SinkByChunk() or SinkWholeData()   
-r = Reader("filename.sas7bdat", s, include=[...], exclude=[...])
+sink = SinkByRow() # or SinkByChunk() or SinkWholeData()   
+r = Reader("filename.sas7bdat", sink, include=[...], exclude=[...])
 # Read row by row
 while r.read_row(): pass
 
@@ -169,7 +204,8 @@ while r.read_rows(chunk_size): pass
 r.read_all()
 
 # export to pandas.DataFrame
-print(s.df)
+print(sink.properties)
+print(sink.df)
 ```
 
 It is easy to write your own sinks:
@@ -214,11 +250,23 @@ class MySinkChunk(object):
 		chunks.append(rows)
 ```
 
+### R
+
+The R package provides a function to directly read a sas7bdat file in a data.frame:
+
+```R
+require(CPPSAS7BDAT)
+
+sink <- CPPSAS7BDAT::read_sas("path/to/file.sas7bdat", include=c(...), exclude=c(...));
+
+properties <- sink$properties;
+df <- sink$df;
+```
+
+You can also provide your own sink with a R6 class:
 ```R
 require(CPPSAS7BDAT)
 library(R6)
-
-sink <- CPPSAS7BDAT::read_sas("path/to/file.sas7bdat", include=c(...), exclude=c(...));
 
 MySink <- R6Class("MySink",
      public=list(
@@ -247,6 +295,9 @@ MySinkChunk <- R6Class("MySinkChunk",
 sink <- MySink$new(); # OR MySinkChunk$new(10000);
 r <- CPPSAS7BDAT::sas_reader("path/to/file.sas7bdat", sink, include=c(...), exclude=c(...));
 r$read_all(); OR r$read_row(); OR r$read_rows(chunk_size)
+
+properties <- sink$properties;
+df <- sink$df;
 ```
 
 ## Performance
@@ -273,17 +324,26 @@ endianness.
 
 Inspired from https://github.com/cpp-best-practices/cpp_starter_project
 
-## Conan
+## Dependencies
+
+###Conan
+
+This install conan inside your python environment and download all the dependencies missing on your system:
 
 ```bash
 pip install conan
-conan install conanfile.py
+conan install conanfile.py --build=missing
 ```
 
-## boost
+Alternatively, you can install the following dependencies manually:
 
-## Catch2
-Catch2 needs to be installed in the system
+### boost-1.71
+
+```bash
+sudo apt-get install libboost1.71-all-dev
+```
+
+### Catch2
 
 ```bash
 git clone https://github.com/catchorg/Catch2 --branch v2.x
@@ -291,8 +351,7 @@ cd Catch2
 mkdir build; cd build; cmake ..; make; sudo make install
 ```
 
-## fmt
-fmt needs to be install in the system
+### fmt
 
 ```bash
 git clone https://github.com/fmtlib/fmt.git
@@ -300,8 +359,7 @@ cd fmt
 mkdir build; cd build; cmake ..; make; sudo make install
 ```
 
-## sdplog
-spdlog needs to be install in the system
+### sdplog
 
 ```bash
 git clone https://github.com/gabime/spdlog.git
@@ -309,7 +367,7 @@ cd spdlog
 cmake -S . -B ./build -DSPDLOG_FMT_EXTERNAL=ON; cmake --build ./build; cd build; sudo make install
 ```
 
-## docopt
+### docopt
 
 ```bash
 git clone git@github.com:docopt/docopt.cpp.git
@@ -317,7 +375,7 @@ cd docopt.cpp
 mkdir build; cd build; cmake ..; make; sudo make install
 ```
 
-## json
+### json
 
 ```bash
 git clone git@github.com:nlohmann/json.git
