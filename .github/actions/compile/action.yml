@@ -81,10 +81,10 @@ runs:
     - name: Publish to codecov - c++
       uses: codecov/codecov-action@v3
       with:
-        flags: unittests   #${{ runner.os }}-c++
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: unittests
         name: ${{ runner.os }}-coverage
         directory: ./build
-        #files: ./build/coverage.xml
         verbose: true
 
     #- name: Publish to codecov - python
