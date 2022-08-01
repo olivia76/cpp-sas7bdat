@@ -326,7 +326,7 @@ Inspired from https://github.com/cpp-best-practices/cpp_starter_project
 
 ## Dependencies
 
-###Conan
+### Conan
 
 This install conan inside your python environment and download all the dependencies missing on your system:
 
