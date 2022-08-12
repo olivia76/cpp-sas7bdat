@@ -12,13 +12,16 @@
 #include <cppsas7bdat/column.hpp>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <fstream>
+#include <iostream>
 
 namespace cppsas7bdat {
 namespace datasink {
+namespace detail {
 struct csv {
   std::ostream &os;
 
-  csv(std::ostream &_os) : os(_os) {}
+  explicit csv(std::ostream &_os) noexcept : os(_os) {}
 
   COLUMNS columns;
 
@@ -78,6 +81,27 @@ struct csv {
   void print(const DATE _x) { fmt::print(os, "{}", _x); }
   void print(const TIME _x) { fmt::print(os, "{}", _x); }
 };
+
+struct _ofstream {
+  std::ofstream ofs;
+
+  explicit _ofstream(const char *_pcszfilename) : ofs(_pcszfilename) {}
+};
+
+struct csv_ofstream : public _ofstream, public csv {
+  explicit csv_ofstream(const char *_pcszfilename)
+      : _ofstream(_pcszfilename), csv(ofs) {}
+};
+
+} // namespace detail
+
+struct _csv_factory {
+  auto operator()(std::ostream &_os) const noexcept { return detail::csv(_os); }
+  auto operator()(const char *_pcszfilename) const {
+    return detail::csv_ofstream(_pcszfilename);
+  }
+} csv;
+
 } // namespace datasink
 } // namespace cppsas7bdat
 

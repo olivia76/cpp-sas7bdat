@@ -52,8 +52,9 @@ std::string get_csv_filename(const std::string& _filename)
 void process_csv(const std::string& _filename)
 {
   const auto csv_filename = get_csv_filename(_filename);
-  std::ofstream csv_os(csv_filename.c_str());
-  cppsas7bdat::Reader reader(cppsas7bdat::datasource::ifstream(_filename.c_str()), cppsas7bdat::datasink::csv(csv_os));
+  //std::ofstream csv_os(csv_filename.c_str());
+  //cppsas7bdat::Reader reader(cppsas7bdat::datasource::ifstream(_filename.c_str()), cppsas7bdat::datasink::csv(csv_os));
+  cppsas7bdat::Reader reader(cppsas7bdat::datasource::ifstream(_filename.c_str()), cppsas7bdat::datasink::csv(_filename.c_str()));
   reader.read_all();
 }
 
