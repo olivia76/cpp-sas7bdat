@@ -27,7 +27,8 @@ private:
   };
 
   template <typename _Sp> struct DataSourceModel : public DataSourceConcept {
-    DataSourceModel(_Sp &&_source) : source(std::forward<_Sp>(_source)) {}
+    template <typename _Tp>
+    DataSourceModel(_Tp &&_source) : source(std::forward<_Tp>(_source)) {}
 
     bool eof() final { return source.eof(); }
 
@@ -47,7 +48,8 @@ private:
   };
 
   template <typename _Dp> struct DatasetSinkModel : public DatasetSinkConcept {
-    DatasetSinkModel(_Dp &&_dataset) : dataset(std::forward<_Dp>(_dataset)) {}
+    template <typename _Tp>
+    DatasetSinkModel(_Tp &&_dataset) : dataset(std::forward<_Tp>(_dataset)) {}
 
     void set_properties(const Properties &_properties) final {
       dataset.set_properties(_properties);
@@ -70,7 +72,8 @@ private:
   };
 
   template <typename _Fp> struct FilterModel : public FilterConcept {
-    FilterModel(_Fp &&_filter) : filter(std::forward<_Fp>(_filter)) {}
+    template <typename _Tp>
+    FilterModel(_Tp &&_filter) : filter(std::forward<_Tp>(_filter)) {}
 
     bool accept(const Column &_column) const final {
       return filter.accept(_column);
@@ -113,6 +116,8 @@ public:
       : Reader(build_source(std::forward<_Source>(_source)),
                build_sink(std::forward<_Sink>(_sink)),
                build_filter(std::forward<_Filter>(_filter))) {}
+
+  Reader() noexcept = default;
   Reader(Reader &&) noexcept;
   Reader &operator=(Reader &&) noexcept;
   ~Reader();

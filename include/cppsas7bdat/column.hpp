@@ -39,8 +39,9 @@ private:
   };
 
   template <typename _Fp> struct FormatterModel : public FormatterConcept {
-    FormatterModel(_Fp &&_formatter)
-        : formatter(std::forward<_Fp>(_formatter)) {}
+    template <typename _Tp>
+    FormatterModel(_Tp &&_formatter)
+        : formatter(std::forward<_Tp>(_formatter)) {}
 
     std::unique_ptr<FormatterConcept> clone() const {
       return std::unique_ptr<FormatterModel>(*this);
