@@ -23,26 +23,37 @@ Reader::DatasetSinkConcept::~DatasetSinkConcept() = default;
 Reader::FilterConcept::~FilterConcept() = default;
 
 const Properties &Reader::properties() const noexcept {
-  return m_pimpl->properties();
+  static const Properties empty;
+  return m_pimpl ? m_pimpl->properties() : empty;
 }
 
-void Reader::end_of_data() { m_pimpl->end_of_data(); }
+void Reader::end_of_data() {
+  if (m_pimpl)
+    m_pimpl->end_of_data();
+}
 
-bool Reader::skip(const size_t _nrows) { return m_pimpl->skip(_nrows); }
+bool Reader::skip(const size_t _nrows) {
+  return m_pimpl ? m_pimpl->skip(_nrows) : false;
+}
 
-void Reader::read_all() { m_pimpl->read_all(); }
+void Reader::read_all() {
+  if (m_pimpl)
+    m_pimpl->read_all();
+}
 
-bool Reader::read_row() { return m_pimpl->read_row(); }
+bool Reader::read_row() { return m_pimpl ? m_pimpl->read_row() : false; }
 
 bool Reader::read_rows(const size_t _chunk_size) {
-  return m_pimpl->read_rows(_chunk_size);
+  return m_pimpl ? m_pimpl->read_rows(_chunk_size) : false;
 }
 
 size_t Reader::current_row_index() const noexcept {
-  return m_pimpl->current_row_index();
+  return m_pimpl ? m_pimpl->current_row_index() : 0;
 }
 
-Column::PBUF Reader::read_row_no_sink() { return m_pimpl->read_row_no_sink(); }
+Column::PBUF Reader::read_row_no_sink() {
+  return m_pimpl ? m_pimpl->read_row_no_sink() : Column::PBUF{};
+}
 
 Reader::PIMPL Reader::impl::build(PSOURCE &&_source, PSINK &&_sink,
                                   PFILTER &&_filter) {
