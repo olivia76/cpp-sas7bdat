@@ -28,5 +28,5 @@ do
     fi
 done < $DIR/files.txt
 
-chmod ugo-w data_*/*
+#chmod ugo-w data_*/*
 
