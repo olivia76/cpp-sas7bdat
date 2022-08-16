@@ -40,9 +40,14 @@ SCENARIO("The Reader instance can be moved", "[interface][reader]")
 {
   GIVEN("The default constructor") {
     Reader test;
-    WHEN("I try to move it") {
+    WHEN("I try to move it - operator=") {
       THEN("it works") {
         CHECK_NOTHROW(test = std::move(test));
+      }
+    }
+    WHEN("I try to move it - Reader(&&)") {
+      THEN("it works") {
+        CHECK_NOTHROW(Reader(std::move(test)));
       }
     }
   }
