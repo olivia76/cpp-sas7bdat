@@ -1,13 +1,13 @@
 /**
- *  \file cppsas7bdat/datasink_null.hpp
+ *  \file cppsas7bdat/sink/null.hpp
  *
  *  \brief NULL datasink
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_DATASINK_NULL_HPP_
-#define _CPP_SAS7BDAT_DATASINK_NULL_HPP_
+#ifndef _CPP_SAS7BDAT_SINK_NULL_HPP_
+#define _CPP_SAS7BDAT_SINK_NULL_HPP_
 
 #include <cppsas7bdat/column.hpp>
 #include <cppsas7bdat/properties.hpp>
