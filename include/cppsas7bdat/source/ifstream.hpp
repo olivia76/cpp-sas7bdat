@@ -1,13 +1,13 @@
 /**
- *  \file cppsas7bdat/datasource_ifstream.hpp
+ *  \file cppsas7bdat/source/ifstream.hpp
  *
  *  \brief std::ifstream datasource
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_DATASOURCE_IFSTREAM_HPP_
-#define _CPP_SAS7BDAT_DATASOURCE_IFSTREAM_HPP_
+#ifndef _CPP_SAS7BDAT_SOURCE_IFSTREAM_HPP_
+#define _CPP_SAS7BDAT_SOURCE_IFSTREAM_HPP_
 
 #include <fstream>
 

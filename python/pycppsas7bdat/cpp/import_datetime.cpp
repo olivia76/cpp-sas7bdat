@@ -1,3 +1,16 @@
+/**
+ *  \file python/pycppsas7bdat/cpp/import_datatime.cpp
+ *
+ *  \brief Import datetime object
+ *
+ * Convert boost::posix_ptime objects (ptime and time_duration)
+ * to/from python datetime objects (datetime and timedelta).
+ *
+ * Credits:
+ * http://libtorrent.svn.sourceforge.net/viewvc/libtorrent/trunk/bindings/python/src/datetime.cpp
+ * http://www.nabble.com/boost::posix_time::ptime-conversion-td16857866.html
+ */
+
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/python.hpp>
@@ -6,14 +19,6 @@
 #include "import_datetime.hpp"
 
 namespace {
-/**
- * Convert boost::posix_ptime objects (ptime and time_duration)
- * to/from python datetime objects (datetime and timedelta).
- *
- * Credits:
- * http://libtorrent.svn.sourceforge.net/viewvc/libtorrent/trunk/bindings/python/src/datetime.cpp
- * http://www.nabble.com/boost::posix_time::ptime-conversion-td16857866.html
- */
 
 static long get_usecs(boost::posix_time::time_duration const &d) {
   static const long resolution =

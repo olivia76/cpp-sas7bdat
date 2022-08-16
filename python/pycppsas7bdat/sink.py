@@ -1,23 +1,28 @@
+# -*- coding: utf-8 -*-
+# @brief: Wrapper for the C++ classes
+# @author: Olivia Quinet
+#
+
 import pandas as pd
 
 class SinkBase(object):
     def __init__(self):
         self.properties = None
         self.columns = None
-        
+
     def set_properties(self, properties):
         self.properties = properties
         self.columns = [col.name for col in properties.columns]
 
     def _cpp_flush_sink(self):
-        if hasattr(self, "_cpp"): self._cpp.flush_sink()        
-        
+        if hasattr(self, "_cpp"): self._cpp.flush_sink()
+
 class SinkByRow(SinkBase):
     def __init__(self):
         super().__init__()
         self._rows = []
         self._df = None
-    
+
     def push_row(self, irow, row):
         self._rows.append(row)
 
@@ -53,10 +58,9 @@ class SinkWholeData(SinkBase):
 
     def set_data(self, columns):
         self._df = pd.DataFrame(columns, columns=self.columns, copy=False)
-        
+
     @property
     def df(self):
         if self._df is None:
             self._cpp_flush_sink()
         return self._df
-    

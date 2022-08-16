@@ -8,7 +8,7 @@
 
 #include "exceptions.hpp"
 #include "stream.hpp"
-#include <cppsas7bdat/datasource_ifstream.hpp>
+#include <cppsas7bdat/source/ifstream.hpp>
 
 namespace cppsas7bdat::datasource {
 

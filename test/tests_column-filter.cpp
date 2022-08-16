@@ -6,13 +6,15 @@
  *  \author  Olivia Quinet
  */
 
-#include <cppsas7bdat/column-filter.hpp>
-#include <cppsas7bdat/datasink_null.hpp>
-#include <cppsas7bdat/datasource_ifstream.hpp>
+#include <cppsas7bdat/filter/column.hpp>
+#include <cppsas7bdat/sink/null.hpp>
+#include <cppsas7bdat/source/ifstream.hpp>
 #include <cppsas7bdat/reader.hpp>
 
 #include "data.hpp"
+
 #include <catch2/catch.hpp>
+#include <fmt/core.h>
 
 SCENARIO("The Include/Excluded column filter can be used to filter columns") {
   GIVEN("An empty Include filter") {

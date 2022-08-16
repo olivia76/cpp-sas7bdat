@@ -10,7 +10,7 @@
 #define _CPP_SAS7BDAT_R_FILTER_HPP_
 
 #include <Rcpp.h>
-#include <cppsas7bdat/column-filter.hpp>
+#include <cppsas7bdat/filter/column.hpp>
 
 namespace Rcppsas7bdat {
 

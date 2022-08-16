@@ -6,13 +6,15 @@
  *  \author  Olivia Quinet
  */
 
-#include "../include/cppsas7bdat/datasink_null.hpp"
-#include "../include/cppsas7bdat/datasource_ifstream.hpp"
+#include "../include/cppsas7bdat/sink/null.hpp"
+#include "../include/cppsas7bdat/source/ifstream.hpp"
 #include "../include/cppsas7bdat/reader.hpp"
 
 #include "data.hpp"
 
 #include <catch2/catch.hpp>
+#include <fmt/core.h>
+#include <fmt/ostream.h>
 
 using namespace cppsas7bdat;
 

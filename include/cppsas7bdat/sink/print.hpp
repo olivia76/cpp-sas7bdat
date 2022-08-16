@@ -1,13 +1,13 @@
 /**
- *  \file cppsas7bdat/datasink_print.hpp
+ *  \file cppsas7bdat/sink/print.hpp
  *
  *  \brief Simple datasink that print out the content of the file
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_DATASINK_PRINT_HPP_
-#define _CPP_SAS7BDAT_DATASINK_PRINT_HPP_
+#ifndef _CPP_SAS7BDAT_SINK_PRINT_HPP_
+#define _CPP_SAS7BDAT_SINK_PRINT_HPP_
 
 #include <cppsas7bdat/column.hpp>
 #include <fmt/core.h>

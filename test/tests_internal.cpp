@@ -6,7 +6,7 @@
  *  \author  Olivia Quinet
  */
 
-#include "../include/cppsas7bdat/datasource_ifstream.hpp"
+#include "../include/cppsas7bdat/source/ifstream.hpp"
 #include "../src/sas7bdat-impl.hpp"
 #include "data.hpp"
 #include <catch2/catch.hpp>

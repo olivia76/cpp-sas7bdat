@@ -14,7 +14,7 @@
 #include "sink_data.hpp"
 #include "filter.hpp"
 #include <cppsas7bdat/types.hpp>
-#include <cppsas7bdat/datasource_ifstream.hpp>
+#include <cppsas7bdat/source/ifstream.hpp>
 // clang-format on
 
 using namespace Rcpp;

@@ -9,10 +9,7 @@
 #include "reader-impl.hpp"
 
 namespace cppsas7bdat {
-Reader::Reader(PSOURCE &&_source, PSINK &&_sink, PFILTER &&_filter)
-    : m_pimpl(impl::build(std::move(_source), std::move(_sink),
-                          std::move(_filter))) {}
-
+Reader::Reader() noexcept = default;
 Reader::Reader(Reader &&) noexcept = default;
 Reader &Reader::operator=(Reader &&) noexcept = default;
 
@@ -21,6 +18,25 @@ Reader::~Reader() = default;
 Reader::DataSourceConcept::~DataSourceConcept() = default;
 Reader::DatasetSinkConcept::~DatasetSinkConcept() = default;
 Reader::FilterConcept::~FilterConcept() = default;
+
+Reader::Reader(PSOURCE &&_source, PSINK &&_sink, PFILTER &&_filter)
+    : m_pimpl(impl::build(std::move(_source), std::move(_sink),
+                          std::move(_filter))) {}
+
+Reader::PIMPL Reader::impl::build(PSOURCE &&_source, PSINK &&_sink,
+                                  PFILTER &&_filter) {
+  Properties properties;
+  auto rd = READ::data(std::move(_source), &properties /*.header*/,
+                       &properties /*.metadata*/, _filter);
+  return std::visit(
+      [&](auto &&arg) -> Reader::PIMPL {
+        using T = std::decay_t<decltype(arg)>;
+        using RI = INTERNAL::ReaderImpl<T>;
+        return std::make_unique<RI>(std::move(arg), std::move(_sink),
+                                    std::move(properties));
+      },
+      std::move(rd));
+}
 
 const Properties &Reader::properties() const noexcept {
   static const Properties empty;
@@ -53,20 +69,5 @@ size_t Reader::current_row_index() const noexcept {
 
 Column::PBUF Reader::read_row_no_sink() {
   return m_pimpl ? m_pimpl->read_row_no_sink() : Column::PBUF{};
-}
-
-Reader::PIMPL Reader::impl::build(PSOURCE &&_source, PSINK &&_sink,
-                                  PFILTER &&_filter) {
-  Properties properties;
-  auto rd = READ::data(std::move(_source), &properties /*.header*/,
-                       &properties /*.metadata*/, _filter);
-  return std::visit(
-      [&](auto &&arg) -> Reader::PIMPL {
-        using T = std::decay_t<decltype(arg)>;
-        using RI = INTERNAL::ReaderImpl<T>;
-        return std::make_unique<RI>(std::move(arg), std::move(_sink),
-                                    std::move(properties));
-      },
-      std::move(rd));
 }
 } // namespace cppsas7bdat

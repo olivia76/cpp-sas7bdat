@@ -1,3 +1,9 @@
+/**
+ *  \file python/pycppsas7bdat/cpp/import_datatime.cpp
+ *
+ *  \brief Import datetime object
+ */
+
 namespace pycppsas7bdat {
 
 void bind_datetime();

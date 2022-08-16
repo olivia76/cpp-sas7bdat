@@ -6,7 +6,7 @@
  *  \author Olivia Quinet
  */
 
-#include <cppsas7bdat/column-filter.hpp>
+#include <cppsas7bdat/filter/column.hpp>
 #include <cppsas7bdat/column.hpp>
 
 namespace cppsas7bdat {

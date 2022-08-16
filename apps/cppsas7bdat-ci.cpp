@@ -8,10 +8,10 @@
 
 #include <cppsas7bdat/version.hpp>
 #include <cppsas7bdat/reader.hpp>
-#include <cppsas7bdat/datasource_ifstream.hpp>
-#include <cppsas7bdat/datasink_print.hpp>
-#include <cppsas7bdat/datasink_csv.hpp>
-#include <cppsas7bdat/datasink_null.hpp>
+#include <cppsas7bdat/source/ifstream.hpp>
+#include <cppsas7bdat/sink/print.hpp>
+#include <cppsas7bdat/sink/csv.hpp>
+#include <cppsas7bdat/sink/null.hpp>
 #include <docopt/docopt.h>
 
 namespace {

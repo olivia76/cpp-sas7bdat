@@ -1,13 +1,13 @@
 /**
- *  \file cppsas7bdat/datasink_csv.hpp
+ *  \file cppsas7bdat/sink/csv.hpp
  *
  *  \brief CSV datasink
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_DATASINK_CSV_HPP_
-#define _CPP_SAS7BDAT_DATASINK_CSV_HPP_
+#ifndef _CPP_SAS7BDAT_SINK_CSV_HPP_
+#define _CPP_SAS7BDAT_SINK_CSV_HPP_
 
 #include <cppsas7bdat/column.hpp>
 #include <fmt/core.h>

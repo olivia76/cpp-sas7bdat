@@ -9,7 +9,7 @@
 #ifndef _CPP_SAS7BDAT_READER_HPP_
 #define _CPP_SAS7BDAT_READER_HPP_
 
-#include <cppsas7bdat/column-filter.hpp>
+#include <cppsas7bdat/filter/column.hpp>
 #include <cppsas7bdat/column.hpp>
 #include <cppsas7bdat/properties.hpp>
 #include <cppsas7bdat/version.hpp>
@@ -26,7 +26,8 @@ private:
     virtual bool read_bytes(void *_p, const size_t _length) = 0;
   };
 
-  template <typename _Sp> struct DataSourceModel : public DataSourceConcept {
+  template <typename _Source>
+  struct DataSourceModel : public DataSourceConcept {
     template <typename _Tp>
     DataSourceModel(_Tp &&_source) : source(std::forward<_Tp>(_source)) {}
 
@@ -36,7 +37,7 @@ private:
       return source.read_bytes(_p, _length);
     }
 
-    _Sp source;
+    _Source source;
   };
 
   struct DatasetSinkConcept {
@@ -47,7 +48,8 @@ private:
     virtual void end_of_data() = 0;
   };
 
-  template <typename _Dp> struct DatasetSinkModel : public DatasetSinkConcept {
+  template <typename _Sink>
+  struct DatasetSinkModel : public DatasetSinkConcept {
     template <typename _Tp>
     DatasetSinkModel(_Tp &&_dataset) : dataset(std::forward<_Tp>(_dataset)) {}
 
@@ -62,7 +64,7 @@ private:
     void end_of_data() final { dataset.end_of_data(); }
 
   private:
-    _Dp dataset;
+    _Sink dataset;
   };
 
   struct FilterConcept {
@@ -71,7 +73,7 @@ private:
     virtual bool accept(const Column &_column) const = 0;
   };
 
-  template <typename _Fp> struct FilterModel : public FilterConcept {
+  template <typename _Filter> struct FilterModel : public FilterConcept {
     template <typename _Tp>
     FilterModel(_Tp &&_filter) : filter(std::forward<_Tp>(_filter)) {}
 
@@ -80,7 +82,7 @@ private:
     }
 
   private:
-    _Fp filter;
+    _Filter filter;
   };
 
 public:
@@ -117,7 +119,7 @@ public:
                build_sink(std::forward<_Sink>(_sink)),
                build_filter(std::forward<_Filter>(_filter))) {}
 
-  Reader() noexcept = default;
+  Reader() noexcept;
   Reader(Reader &&) noexcept;
   Reader &operator=(Reader &&) noexcept;
   ~Reader();

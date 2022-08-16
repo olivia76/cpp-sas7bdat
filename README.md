@@ -69,14 +69,14 @@ This pattern is used at different levels within this package:
 ### Data source
 
 A data source based on `std::ifstream` is provided in this package:
-- [ifstream](include/cppsas7bdat/datasource_ifstream.hpp).
+- [ifstream](include/cppsas7bdat/source/ifstream.hpp).
 
 ### Dataset sink
 
 3 simple dataset sinks are provided in this package:
-- [print](include/cppsas7bdat/datasink_print.hpp),
-- [csv](include/cppsas7bdat/datasink_csv.hpp), and
-- [null](include/cppsas7bdat/datasink_null.hpp).
+- [print](include/cppsas7bdat/sink/print.hpp),
+- [csv](include/cppsas7bdat/sink/csv.hpp), and
+- [null](include/cppsas7bdat/sink/null.hpp).
 
 The first one directly prints the content of the file (header and
 data) to the screen and the second one is a very basic csv writer (no
@@ -85,10 +85,10 @@ field protection beside the double quotes, no encoding, ...).
 ### Column filtering
 
 The package provides several filtering options:
-- [ColumnFilter::AcceptAll](include/cppsas7bdat/column-filter.hpp)
-- [ColumnFilter::Include](include/cppsas7bdat/column-filter.hpp)
-- [ColumnFilter::Exclude](include/cppsas7bdat/column-filter.hpp)
-- [ColumnFilter::IncludeExclude](include/cppsas7bdat/column-filter.hpp)
+- [ColumnFilter::AcceptAll](include/cppsas7bdat/filter/column.hpp)
+- [ColumnFilter::Include](include/cppsas7bdat/filter/column.hpp)
+- [ColumnFilter::Exclude](include/cppsas7bdat/filter/column.hpp)
+- [ColumnFilter::IncludeExclude](include/cppsas7bdat/filter/column.hpp)
 
 ### Dataset's columns
 
@@ -119,8 +119,8 @@ Here is an example for converting a sas7bdat file to a csv file:
 ```c++
 // See for example apps/cppsas7bdat-ci.cpp
 #include <cppsas7bdat/reader.hpp>
-#include <cppsas7bdat/datasource_ifstream.hpp>
-#include <cppsas7bdat/datasink_csv.hpp>
+#include <cppsas7bdat/source/ifstream.hpp>
+#include <cppsas7bdat/sink/csv.hpp>
 
 void sas7bdat_to_csv(const char* _filename_sas7bdat,
                      const char* _filename_csv)

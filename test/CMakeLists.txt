@@ -10,6 +10,7 @@ target_link_libraries(catch_main PUBLIC Catch2::Catch2)
 target_link_libraries(catch_main PRIVATE project_options)
 
 add_executable(tests
+  tests_reader.cpp
   tests_encodings.cpp
   tests_internal.cpp
   tests_interface.cpp

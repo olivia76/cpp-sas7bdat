@@ -11,15 +11,11 @@
 
 #include <cppsas7bdat/column.hpp>
 #include <cppsas7bdat/properties.hpp>
-#include <fmt/core.h>
-#include <fmt/ostream.h>
 
 namespace cppsas7bdat {
 namespace datasink {
 struct null {
   COLUMNS columns;
-
-  using NUMBERS = std::vector<NUMBER>;
 
   void set_properties([[maybe_unused]] const Properties &_properties) {
     columns = COLUMNS(_properties /*.metadata*/.columns);

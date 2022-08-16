@@ -1,13 +1,13 @@
 /**
- *  \file cppsas7bdat/column-filter.hpp
+ *  \file cppsas7bdat/filter/column.hpp
  *
  *  \brief Column filter description
  *
  *  \author Olivia Quinet
  */
 
-#ifndef _CPP_SAS7BDAT_COLUMN_FILTER_HPP_
-#define _CPP_SAS7BDAT_COLUMN_FILTER_HPP_
+#ifndef _CPP_SAS7BDAT_FILTER_COLUMN_HPP_
+#define _CPP_SAS7BDAT_FILTER_COLUMN_HPP_
 
 #include <set>
 #include <string>
