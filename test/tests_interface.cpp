@@ -123,6 +123,32 @@ SCENARIO("When I try to read a valid file with the public interface, no "
   }
 }
 
+SCENARIO("When the end_of_data signal is sent, the sink get it",
+         "[interface][end_of_data]")
+{
+  struct DataSinkFoo {
+    bool* got_end_of_data{nullptr};
+
+    DataSinkFoo(bool* _got_end_of_data) : got_end_of_data(_got_end_of_data) {}
+
+    void set_properties([[maybe_unused]] const Properties &_properties) {}
+    void push_row([[maybe_unused]] const size_t _irow,
+                  [[maybe_unused]] Column::PBUF _p) {}
+    void end_of_data() { *got_end_of_data = true; }                  
+  };
+
+  GIVEN("A reader and a valid file") {
+    bool got_end_of_data = false;
+    auto test = get_reader(file1, DataSinkFoo(&got_end_of_data));
+    WHEN("The end_of_data signal is sent") {
+      test.end_of_data();
+      THEN("The sink get it") {
+        CHECK(got_end_of_data == true);
+      }
+    }
+  }
+}
+
 #include <charconv>
 #include <type_traits>
 
