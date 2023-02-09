@@ -23,6 +23,7 @@ add_executable(tests
   tests_types.cpp
   tests_memory.cpp
   )
+
 target_link_libraries(tests
   PRIVATE
   catch_main
