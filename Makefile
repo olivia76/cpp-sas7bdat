@@ -115,7 +115,7 @@ conan-install:
 	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
 	#pip3 install $(PIP_OPTIONS) --upgrade pip
 	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy cmaketools
-	pip3 install $(PIP_OPTIONS) conan --upgrade
+	pip3 install $(PIP_OPTIONS) conan==1.59.0 --upgrade
 
 .PHONY: benchmark
 benchmark:
