@@ -1,20 +1,19 @@
 import os
 
-from conans import ConanFile, CMake, tools
-
+from conans import ConanFile, tools
+from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout, CMake
 
 class CppDatasetTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "gcc", "txt", "cmake_find_package", "cmake_find_package_multi"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualBuildEnv", "VirtualRunEnv"
     build_policy = "missing"
     requires = (
-        "cppsas7bdat/1.0",
+        "cppsas7bdat/1.0.1",
         )
 
     def build(self):
         cmake = CMake(self)
-        # Current dir is "test_package/build/<build_id>" and CMakeLists.txt is
-        # in "test_package"
+        cmake.verbose = True
         cmake.configure()
         cmake.build()
 
@@ -25,5 +24,4 @@ class CppDatasetTestConan(ConanFile):
 
     def test(self):
         if not tools.cross_building(self):
-            os.chdir("bin")
-            self.run(".%sexample" % os.sep)
+            self.run(os.path.sep.join([".", "example"]), env="conanrun", run_environment=True)

@@ -22,7 +22,7 @@ SHELL := /bin/bash
 
 .PHONY: conan-package
 conan-package:
-  export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . --build=missing --profile:build=default
+	export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . --build=missing --profile:build=default
 
 .PHONY: configure
 configure:
@@ -62,10 +62,6 @@ tests:
 .PHONY: build-debug
 build-debug:
 	mkdir -p build-debug; cd build-debug; cmake -DCMAKE_BUILD_TYPE=Debug ..; cmake --build .
-
-.PHONY: clean
-clean:
-	make -C build clean
 
 .PHONY: pyenv pyenv-download pyenv-python pyenv-venv
 pyenv: pyenv-download pyenv-python pyenv-venv

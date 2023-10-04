@@ -5,7 +5,7 @@ from conan.tools.system.package_manager import Apt
 
 class CppSAS7BDATProject(ConanFile):
     name = "cppsas7bdat"
-    version = "1.0"
+    version = "1.0.1"
     license = "apache"
     author="Olivia Quinet olivia.quinet@gmail.com"
     description = "A C++17 SAS7BDAT reader"
@@ -23,7 +23,7 @@ class CppSAS7BDATProject(ConanFile):
         "boost/1.79.0",
         "nlohmann_json/3.10.4"
     )
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "apps/*", "test/*", "conanfile.py", "cmake/*"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "apps/*", "tests/*", "conanfile.py", "cmake/*"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -49,6 +49,11 @@ class CppSAS7BDATProject(ConanFile):
         cmake.build()
         cmake.test(target="tests")
         cmake.test()
+        
+    def package(self):
+        cmake = CMake(self)
+        #cmake.configure()
+        cmake.install()
 
     def package_info(self):
         # These are default values and doesn't need to be adjusted
