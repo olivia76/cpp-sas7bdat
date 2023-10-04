@@ -54,7 +54,7 @@ runs:
     - name: Retrieve data
       shell: bash
       if: runner.os != 'Windows'
-      working-directory: ./tests
+      working-directory: ./test
       run: ./retrieve.bash
 
     - name: Unix - C++/Python Test and coverage
@@ -65,7 +65,7 @@ runs:
       working-directory: ./build
       run: |
           ctest -C $BUILD_TYPE --output-on-failure
-          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../tests/'
+          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
           if [ "$RUNNER_OS" == "Linux" ]; then
             make -C .. tests-python
             gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../tests/'

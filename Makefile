@@ -53,9 +53,9 @@ build-R:
 build-sanitizer:
 	make -C . build BUILD_TYPE=RelWithDebInfo ENABLE_SANITIZER_ADDRESS=ON
 
-.PHONY: tests
-tests:
-	source build/${BUILD_TYPE}/generators/conanrun.sh; cd tests; ../build/${BUILD_TYPE}/tests/tests ${TESTS}
+.PHONY: test
+test:
+	source build/${BUILD_TYPE}/generators/conanrun.sh; cd test; ../build/${BUILD_TYPE}/test/tests ${TESTS}
 	#cd ./build; ctest -C ${BUILD_TYPE} --output-on-failure ${TESTS}
 	#make -C build test ARGS='-V'
 

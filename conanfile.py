@@ -23,7 +23,7 @@ class CppSAS7BDATProject(ConanFile):
         "boost/1.79.0",
         "nlohmann_json/3.10.4"
     )
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "apps/*", "tests/*", "conanfile.py", "cmake/*"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "apps/*", "test/*", "conanfile.py", "cmake/*"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -49,7 +49,7 @@ class CppSAS7BDATProject(ConanFile):
         cmake.build()
         cmake.test(target="tests")
         cmake.test()
-        
+
     def package(self):
         cmake = CMake(self)
         #cmake.configure()
