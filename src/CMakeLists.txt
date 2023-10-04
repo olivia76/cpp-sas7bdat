@@ -32,9 +32,11 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   stream.hpp
   stream.cpp
     )
-target_include_directories(cppsas7bdat PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(cppsas7bdat PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )
 target_link_libraries(cppsas7bdat
+  INTERFACE
+  Boost::date_time
   PRIVATE
   fmt::fmt
   spdlog::spdlog

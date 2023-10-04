@@ -102,16 +102,10 @@ if(ENABLE_PCH)
     <utility>)
 endif()
 
-option(ENABLE_CONAN "Use Conan for dependency management" OFF)
-if(ENABLE_CONAN)
-  include(cmake/Conan.cmake)
-  run_conan()
-endif()
-
 find_package(Boost REQUIRED COMPONENTS date_time)
 message(STATUS "Boost version: ${Boost_VERSION}")
 message(STATUS "BOOST LIBRARIES LOCATION: " ${Boost_LIBRARIES})
-include_directories( ${Boost_INCLUDE_DIR} )
+#include_directories( ${Boost_INCLUDE_DIR} )
 
 if(ENABLE_TESTING)
   enable_testing()

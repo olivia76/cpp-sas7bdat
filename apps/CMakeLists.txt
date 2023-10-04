@@ -9,7 +9,7 @@ add_executable(cppsas7bdat-ci
     cppsas7bdat-ci.cpp
     )
 target_link_libraries(cppsas7bdat-ci
-  PRIVATE docopt::docopt
+  PRIVATE docopt_s
   PRIVATE fmt::fmt
   PRIVATE project_options
   PUBLIC cppsas7bdat
