@@ -7,7 +7,7 @@
  */
 
 #include "../src/sas7bdat-impl.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace cppsas7bdat;
 using namespace cppsas7bdat::INTERNAL::FORMATTER;

@@ -1,13 +1,23 @@
-find_package(Catch2 REQUIRED)
+#find_package(Catch2 REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(spdlog)
+
+Include(FetchContent)
+
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.4.0 # or a later release
+)
+
+FetchContent_MakeAvailable(Catch2)
 
 include(CTest)
 include(Catch)
 
-add_library(catch_main STATIC catch_main.cpp)
-target_link_libraries(catch_main PUBLIC Catch2::Catch2)
-target_link_libraries(catch_main PRIVATE project_options)
+#add_library(catch_main STATIC catch_main.cpp)
+#target_link_libraries(catch_main PUBLIC Catch2::Catch2)
+#target_link_libraries(catch_main PRIVATE project_options)
 
 add_executable(tests
   tests_reader.cpp
@@ -26,7 +36,8 @@ add_executable(tests
 
 target_link_libraries(tests
   PRIVATE
-  catch_main
+  Catch2::Catch2WithMain
+  #catch_main
   nlohmann_json::nlohmann_json
   spdlog::spdlog
   Boost::date_time
@@ -42,8 +53,8 @@ file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/reports)
 catch_discover_tests(
   tests
   OUTPUT_DIR ${PROJECT_SOURCE_DIR}/reports
-  #REPORTER junit
+  REPORTER junit
   OUTPUT_PREFIX "unittests."
   OUTPUT_SUFFIX .xml
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  )
+)

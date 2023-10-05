@@ -7,7 +7,7 @@
  */
 
 #include "../src/memory.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <iostream>
 
 using namespace cppsas7bdat;

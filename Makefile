@@ -26,7 +26,7 @@ conan-package:
 
 .PHONY: configure
 configure:
-	mkdir -p build; cd build; conan install .. --build=missing --profile:build=default -o ENABLE_COVERAGE=${ENABLE_COVERAGE}
+	mkdir -p build; cd build; conan install .. --build=missing --profile:build=default -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
 	#cmake -S . -B ./build -DENABLE_CONAN:BOOL=${ENABLE_CONAN} -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" \
 	#	-DENABLE_R:BOOL=${ENABLE_R} \
 	#	-DENABLE_COVERAGE:BOOL=${ENABLE_COVERAGE} \
@@ -43,7 +43,8 @@ build: configure
 	cd build; conan build ..
 
 .PHONY: build-python
-build-python: configure pyenv-init
+build-python:
+	make -C . build ENABLE_PYTHON=ON
 
 .PHONY: build-R
 build-R:

@@ -1,7 +1,5 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout, CMake
-from conans.tools import SystemPackageTool
-from conan.tools.system.package_manager import Apt
 
 class CppSAS7BDATProject(ConanFile):
     name = "cppsas7bdat"
@@ -12,8 +10,8 @@ class CppSAS7BDATProject(ConanFile):
     url = "https://github.com/olivia76/cpp-sas7bdat"
     topics = ("c++17", "SAS7BDAT")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False], "ENABLE_COVERAGE": ["ON", "OFF"]}
-    default_options = {"shared": True, "fPIC": True, "ENABLE_COVERAGE": "OFF", "fmt:shared": False}
+    options = {"shared": [True, False], "fPIC": [True, False], "ENABLE_COVERAGE": ["ON", "OFF"], "ENABLE_R": ["ON", "OFF"], "ENABLE_PYTHON": ["ON", "OFF"], "ENABLE_TESTING": ["ON", "OFF"]}
+    default_options = {"shared": True, "fPIC": True, "ENABLE_COVERAGE": "OFF", "fmt/*:shared": False, "ENABLE_R": "OFF", "ENABLE_PYTHON": "OFF", "ENABLE_TESTING": "ON"}
     generators = "VirtualBuildEnv", "VirtualRunEnv"
     build_policy = "missing"
     requires = (
@@ -35,19 +33,23 @@ class CppSAS7BDATProject(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["ENABLE_COVERAGE"] = self.options.ENABLE_COVERAGE
+        tc.cache_variables["ENABLE_R"] = self.options.ENABLE_R
+        tc.cache_variables["ENABLE_PYTHON"] = self.options.ENABLE_PYTHON
+        tc.cache_variables["ENABLE_TESTING"] = self.options.ENABLE_TESTING
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
 
     def build_requirements(self):
-        self.test_requires("catch2/2.13.6")
+        #self.test_requires("catch2/3.3.2")
+        pass
 
     def build(self):
         cmake = CMake(self)
         cmake.verbose = True
         cmake.configure()
         cmake.build()
-        cmake.test(target="tests")
+        cmake.test(target="test")
         cmake.test()
 
     def package(self):
@@ -63,8 +65,9 @@ class CppSAS7BDATProject(ConanFile):
         self.cpp_info.libs = ["cppsas7bdat"]
 
     def configure(self):
-        pass
-        #self.options["boost"].without_python = False
+        self.options["boost"].without_python = False
+        #self.options["boost"].python_executable = "python"
+        #self.options["boost"].python_version = "3.8"
         #self.options["boost"].without_date_time = False
         #self.options["boost"].without_atomic = True
         #self.options["boost"].without_atomic = True
@@ -95,3 +98,4 @@ class CppSAS7BDATProject(ConanFile):
         #self.options["boost"].without_timer = True
         #self.options["boost"].without_type_erasure = True
         #self.options["boost"].without_wave = True
+        pass

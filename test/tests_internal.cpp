@@ -9,7 +9,9 @@
 #include "../include/cppsas7bdat/source/ifstream.hpp"
 #include "../src/sas7bdat-impl.hpp"
 #include "data.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators_all.hpp>
 #include <exception>
 #include <iostream>
 #include <string>

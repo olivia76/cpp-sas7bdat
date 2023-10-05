@@ -7,7 +7,7 @@
  */
 
 #include "../src/exceptions.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("I can throw the different exceptions") {
   CHECK_THROWS(cppsas7bdat::EXCEPTION::cannot_allocate_memory());

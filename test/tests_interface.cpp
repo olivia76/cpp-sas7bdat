@@ -12,7 +12,8 @@
 
 #include "data.hpp"
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators_all.hpp>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
@@ -134,7 +135,7 @@ SCENARIO("When the end_of_data signal is sent, the sink get it",
     void set_properties([[maybe_unused]] const Properties &_properties) {}
     void push_row([[maybe_unused]] const size_t _irow,
                   [[maybe_unused]] Column::PBUF _p) {}
-    void end_of_data() { *got_end_of_data = true; }                  
+    void end_of_data() { *got_end_of_data = true; }
   };
 
   GIVEN("A reader and a valid file") {
