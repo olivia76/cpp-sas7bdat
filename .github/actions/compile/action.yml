@@ -43,6 +43,10 @@ runs:
         # Add to Path
         #echo "C:/ProgramData/chocolatey/lib/Wget/tools" >> $GITHUB_PATH
 
+    - name: Create conan profile
+      shell: bash
+      run: make conan-profile
+
     - name: Configure CMake
       shell: bash
       run: make configure BUILD_TYPE=$BUILD_TYPE ENABLE_CONAN=ON ENABLE_COVERAGE=$ENABLE_COVERAGE
