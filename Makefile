@@ -114,7 +114,7 @@ conan-install:
 	#pip3 install $(PIP_OPTIONS) --upgrade pip
 	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy cmaketools
 	pip3 install $(PIP_OPTIONS) conan --upgrade
-        conan profile detect
+	conan profile detect
 
 .PHONY: benchmark
 benchmark:
