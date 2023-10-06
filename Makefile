@@ -26,7 +26,7 @@ conan-package:
 
 .PHONY: configure
 configure:
-	mkdir -p build; cd build; conan install .. --build=missing --profile:build=default -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
+	mkdir -p build; cd build; conan install .. --build=missing -s compiler.cppstd=17 --profile:build=default -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
 	#cmake -S . -B ./build -DENABLE_CONAN:BOOL=${ENABLE_CONAN} -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" \
 	#	-DENABLE_R:BOOL=${ENABLE_R} \
 	#	-DENABLE_COVERAGE:BOOL=${ENABLE_COVERAGE} \
@@ -112,7 +112,7 @@ conan-install:
 	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
 	#pip3 install $(PIP_OPTIONS) --upgrade pip
 	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy cmaketools
-	pip3 install $(PIP_OPTIONS) conan==1.59.0 --upgrade
+	pip3 install $(PIP_OPTIONS) conan --upgrade
 
 .PHONY: benchmark
 benchmark:
