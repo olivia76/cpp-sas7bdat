@@ -41,7 +41,7 @@ class CppSAS7BDATProject(ConanFile):
         deps.generate()
 
     def build_requirements(self):
-        self.test_requires("catch2/3.4.0")
+        #self.test_requires("catch2/3.4.0")
         pass
 
     def build(self):
