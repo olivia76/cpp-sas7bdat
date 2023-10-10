@@ -1,5 +1,17 @@
-from cmaketools import setup
+#from cmaketools import setup
 import os
+import logging
+
+import warnings
+
+from cmaketools.cmakebuilder import CMakeBuilder
+from cmaketools.cmakecommands import generate_cmdclass
+from setuptools import setup as _setup
+from cmaketools import cmakeutil
+from cmaketools import gitutil
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 install_requires = [
 ]
@@ -22,6 +34,44 @@ def get_version():
     #        if i > 0:
     #            return line[i+7:].strip()
 
+def setup(**kwargs):
+    # supported keyword arguments to CMakeBuilder constructor
+    cmake_keys = (
+        "src_dir",
+        "test_dir",
+        "test_submodules",
+        "ext_module_dirs",
+        "ext_module_hint",
+        "has_package_data",
+        "skip_configure",
+        "config",
+        "generator",
+        "toolset",
+        "platform",
+        "configure_opts",
+        "build_opts",
+        "install_opts",
+        "build_dir",
+    )
+
+    # split kwargs into CMakeBuilder arguments and setup arguments
+    given_keys = kwargs.keys()
+    cmake_args = {key: kwargs[key] for key in given_keys & cmake_keys}
+    setup_args = {key: kwargs[key] for key in given_keys - cmake_keys}
+
+    # instantiate CMakeBuilder using its option arguments
+    cmake = CMakeBuilder(**cmake_args)
+
+    # create
+    setup_args["packages"] = cmake.find_packages()
+    setup_args["ext_modules"] = cmake.find_ext_modules()
+    setup_args["data_files"] = cmake.get_setup_data_files()
+    setup_args["cmdclass"] = {
+        **(setup_args["cmdclass"] if "cmdclass" in setup_args else {}),
+        **generate_cmdclass(cmake),
+    }
+    _setup(**setup_args)
+
 setup(
     name="pycppsas7bdat",
     version=get_version(),
@@ -37,5 +87,7 @@ setup(
     extras_require={
           'tests': test_requires
     },
-    configure_opts = ['-DENABLE_PYTHON:BOOL=ON', '-DENABLE_TESTING:BOOL=OFF', '-DENABLE_CONAN:BOOL=ON'] + get_cmake_args()
+    generator="Unix Makefile",
+    skip_configure=True,
+    build_dir="build/Release",
 )

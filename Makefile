@@ -41,7 +41,7 @@ configure:
 
 .PHONY: build
 build: configure
-	cd build; conan build ..
+	cd build; conan build .. -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
 
 .PHONY: build-python
 build-python:
@@ -88,7 +88,8 @@ pyenv-init:
 .PHONY: tests-python tests-python-install tests-python-run
 
 tests-python-install:
-	pip3 install -e ".[tests]"
+	#pip3 install -e ".[tests]"
+	source build/${BUILD_TYPE}/generators/conanrun.sh; pip3 install ".[tests]"
 
 tests-python-run:
 	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
