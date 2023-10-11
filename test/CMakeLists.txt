@@ -1,14 +1,16 @@
 find_package(nlohmann_json REQUIRED)
 find_package(spdlog)
 
-#find_package(Catch2 3 REQUIRED)
 Include(FetchContent)
 FetchContent_Declare(
   Catch2
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
   GIT_TAG        v3.4.0 # or a later release
 )
+
 FetchContent_MakeAvailable(Catch2)
+
+#find_package(Catch2 3 REQUIRED)
 
 include(CTest)
 include(Catch)
