@@ -5,7 +5,7 @@ runs:
   using: "composite"
   steps:
     - name: Cache
-      uses: actions/cache@v2
+      uses: actions/cache@main
       env:
         cache-name: cache-conan-modules
       with:
@@ -84,7 +84,7 @@ runs:
         OpenCppCoverage.exe --config_file=..\\OpenCppCoverage.cfg --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
 
     - name: Publish to codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@main
       with:
         flags: unittests-${{ runner.os }}
         name: ${{ runner.os }}-coverage
@@ -92,7 +92,7 @@ runs:
         verbose: true
 
     - name: Windows - upload logs
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@main
       if: always() && runner.os == 'Windows'
       with:
         name: code-coverage-logs

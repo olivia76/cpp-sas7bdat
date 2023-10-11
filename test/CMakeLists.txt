@@ -13,10 +13,6 @@ FetchContent_MakeAvailable(Catch2)
 include(CTest)
 include(Catch)
 
-#add_library(catch_main STATIC catch_main.cpp)
-#target_link_libraries(catch_main PUBLIC Catch2::Catch2)
-#target_link_libraries(catch_main PRIVATE project_options)
-
 add_executable(tests
   tests_reader.cpp
   tests_encodings.cpp
@@ -33,9 +29,9 @@ add_executable(tests
   )
 
 target_link_libraries(tests
-  PRIVATE
+  PUBLIC
   Catch2::Catch2WithMain
-  #catch_main
+  PRIVATE
   nlohmann_json::nlohmann_json
   spdlog::spdlog
   Boost::date_time

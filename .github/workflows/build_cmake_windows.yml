@@ -33,6 +33,6 @@ jobs:
 
     steps:
       - name: Get source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
       - name: Compile and tests
         uses: ./.github/actions/compile
