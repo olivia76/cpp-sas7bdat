@@ -1,14 +1,19 @@
 import os
 
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout, CMake
+from conan.tools.build import can_run
 
 class CppDatasetTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     build_policy = "missing"
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {"shared": False, "fPIC": True}
     requires = (
         "cppsas7bdat/1.0.1",
+        #"spdlog/1.9.2",
+        #"docopt.cpp/0.6.3",
         )
 
     def build(self):
@@ -17,11 +22,9 @@ class CppDatasetTestConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def imports(self):
-        self.copy('*.so*', dst='bin', src='lib')
-        self.copy('*.a*', dst='bin', src='lib')
-        self.copy('*.h*', dst='include', src='include')
+    def layout(self):
+        cmake_layout(self)
 
     def test(self):
-        if not tools.cross_building(self):
-            self.run(os.path.sep.join([".", "example"]), env="conanrun", run_environment=True)
+        if can_run(self):
+            self.run(os.path.sep.join([self.cpp.build.bindir, "example"]), env="conanrun")

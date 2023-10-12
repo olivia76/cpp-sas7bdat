@@ -5,6 +5,10 @@ configure_file(
 
 find_package(fmt)
 find_package(spdlog)
+find_package(Boost REQUIRED COMPONENTS date_time)
+message(STATUS "Boost version: ${Boost_VERSION}")
+message(STATUS "BOOST LIBRARIES LOCATION: " ${Boost_LIBRARIES})
+#include_directories( ${Boost_INCLUDE_DIR} )
 
 add_library(cppsas7bdat ${LIBRARY_TYPE}
   buffer.hpp
@@ -32,6 +36,8 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   stream.hpp
   stream.cpp
     )
+target_include_directories(cppsas7bdat INTERFACE $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+target_include_directories(cppsas7bdat INTERFACE ${PROJECT_BINARY_DIR} )
 target_include_directories(cppsas7bdat PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 target_include_directories(cppsas7bdat PUBLIC ${PROJECT_BINARY_DIR} )
 target_link_libraries(cppsas7bdat

@@ -102,11 +102,6 @@ if(ENABLE_PCH)
     <utility>)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS date_time)
-message(STATUS "Boost version: ${Boost_VERSION}")
-message(STATUS "BOOST LIBRARIES LOCATION: " ${Boost_LIBRARIES})
-#include_directories( ${Boost_INCLUDE_DIR} )
-
 if(ENABLE_TESTING)
   enable_testing()
   message("Building Tests. Be sure to check out test/constexpr_tests for constexpr testing")

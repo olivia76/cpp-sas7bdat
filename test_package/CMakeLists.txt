@@ -9,9 +9,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-find_package("cppsas7bdat" REQUIRED COMPONENTS Devel)
+find_package("cppsas7bdat" REQUIRED)
 find_package(spdlog)
 
 add_executable(example example.cpp)
-target_link_libraries(example PRIVATE cppsas7bdat::cppsas7bdat spdlog::spdlog
+target_link_libraries(example PUBLIC cppsas7bdat::cppsas7bdat PRIVATE spdlog::spdlog
 )

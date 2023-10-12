@@ -36,7 +36,6 @@ target_link_libraries(tests
   PRIVATE
   nlohmann_json::nlohmann_json
   spdlog::spdlog
-  Boost::date_time
   cppsas7bdat
   project_options
   )
