@@ -7,11 +7,10 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
   GIT_TAG        v3.4.0 # or a later release
 )
-
 FetchContent_MakeAvailable(Catch2)
-
 #find_package(Catch2 3 REQUIRED)
 
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/contrib)
 include(CTest)
 include(Catch)
 
@@ -31,9 +30,8 @@ add_executable(tests
   )
 
 target_link_libraries(tests
-  PUBLIC
-  Catch2::Catch2WithMain
   PRIVATE
+  Catch2::Catch2WithMain
   nlohmann_json::nlohmann_json
   spdlog::spdlog
   cppsas7bdat
