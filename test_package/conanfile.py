@@ -12,8 +12,7 @@ class CppDatasetTestConan(ConanFile):
     default_options = {"shared": False, "fPIC": True}
     requires = (
         "cppsas7bdat/1.0.1",
-        #"spdlog/1.9.2",
-        #"docopt.cpp/0.6.3",
+        "spdlog/1.9.2",
         )
 
     def build(self):
