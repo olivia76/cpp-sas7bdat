@@ -4,7 +4,8 @@ TESTS :=
 OPTIONS :=
 
 BUILD_TYPE := Release
-PYTHON_VERSION := 3.8.12
+PYTHON := python3.10 
+PYTHON_VERSION := 3.10.0  #3.8.12
 VENV_NAME := $(shell cat .python-version)
 ENABLE_CONAN := ON
 ENABLE_COVERAGE := OFF
@@ -75,7 +76,7 @@ pyenv-python:
 	export PYTHON_CONFIGURE_OPTS="--enable-shared"; ~/.pyenv/bin/pyenv install --force $(PYTHON_VERSION)
 
 pyenv-venv:
-	~/.pyenv/bin/pyenv virtualenv -p python3.8 $(PYTHON_VERSION) $(VENV_NAME)
+	~/.pyenv/bin/pyenv virtualenv -p $(PYTHON) $(PYTHON_VERSION) $(VENV_NAME)
 
 pyenv-activate:
 	source $PYENV_VIRTUAL_ENV/bin/activate

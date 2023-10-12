@@ -13,7 +13,7 @@ __CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 def datafilename(f):
     return os.path.join(__CUR_DIR, f)
 
-@pytest.fixture()
+#@pytest.fixture()
 def get_files():
     with open(datafilename("files.json")) as isf:
         files = json.load(isf)
@@ -23,7 +23,7 @@ def get_files():
 @pytest.fixture(params=get_files().items(), ids=get_files().keys())
 def files(request):
     return request.param
-    
+
 def check_row(row, ref_row):
     for a, b in zip(row, ref_row):
         if b is None:
@@ -38,13 +38,13 @@ def check_row(row, ref_row):
             b = b.encode('utf8')
             assert(a == b)
         else:
-            assert(a == b)            
+            assert(a == b)
 
 def check_properties(properties, ref_values):
     def get_u64(x):
         if x == True: return Format.bit64
         else: return Format.bit32
-    
+
     def get_compression(x):
         if x == "SASYZCR2": return Compression.RDC
         if x == "SASYZCRL": return Compression.RLE
@@ -59,7 +59,7 @@ def check_properties(properties, ref_values):
 
     def get_dt2(x):
         return x[:19]
-    
+
     assert(properties.format == get_u64(ref_values["Header"]["u64"]))
     assert(str(properties.endianness) == ref_values["Header"]["endianess"])
     assert(str(properties.platform) == ref_values["Header"]["platform"])
@@ -86,15 +86,15 @@ def check_properties(properties, ref_values):
     assert(properties.mix_page_row_count == ref_values["Header"]["mix_page_row_count"])
     assert(properties.lcs == ref_values["Header"]["lcs"])
     assert(properties.lcp == ref_values["Header"]["lcp"])
-   
-            
+
+
 def check_sink(sink, ref_values):
-    check_properties(sink.properties, ref_values)    
+    check_properties(sink.properties, ref_values)
     df = sink.df
     for irow, ref_row in ref_values["Data"].items():
         irow = int(irow)
         check_row(df.iloc[irow].tolist(), ref_row)
-            
+
 class TestSink(object):
 
     # Need to use a lambda to create a new sink for each call
@@ -125,7 +125,7 @@ class Test_read_sas(object):
         check_sink(sink, ref_values)
 
 class Test_skip(object):
-    
+
     # Need to use a lambda to create a new sink for each call
     @pytest.mark.parametrize("sink_factory", [
         lambda: SinkByRow(),
@@ -150,9 +150,9 @@ class Test_skip(object):
         for i, ref_row in enumerate(ref_values["Data"].values()):
             check_row(df.iloc[i].tolist(), ref_row)
         #check_sink(sink, ref_values)
-        
+
 class Test_IncludeExclude(object):
-    
+
     @pytest.mark.parametrize("sink_factory", [
         lambda: SinkByRow(),
         lambda: SinkByChunk(),
@@ -166,7 +166,7 @@ class Test_IncludeExclude(object):
         test = Reader(f, sink, include=None, exclude=None)
         test.read_all()
         assert [c.name for c in sink.properties.columns] == ["RAS", "RAH", "RAD", "JRAS", "JRAD", "CONTROL"]
-    
+
     @pytest.mark.parametrize("sink_factory", [
         lambda: SinkByRow(),
         lambda: SinkByChunk(),
@@ -181,7 +181,7 @@ class Test_IncludeExclude(object):
             test = Reader(f, sink, include="A")
         with pytest.raises(Exception) as e:
             test = Reader(f, sink, include=["A", None])
-            
+
     @pytest.mark.parametrize("sink_factory", [
         lambda: SinkByRow(),
         lambda: SinkByChunk(),
@@ -196,7 +196,7 @@ class Test_IncludeExclude(object):
             test = Reader(f, sink, exclude="A")
         with pytest.raises(Exception) as e:
             test = Reader(f, sink, exclude=["A", 1])
-    
+
     @pytest.mark.parametrize("sink_factory", [
         lambda: SinkByRow(),
         lambda: SinkByChunk(),
@@ -210,7 +210,7 @@ class Test_IncludeExclude(object):
         test = Reader(f, sink, include=["c1",])
         test.read_all()
         assert [c.name for c in sink.properties.columns] == ["c1"]
-    
+
     @pytest.mark.parametrize("sink_factory", [
         lambda: SinkByRow(),
         lambda: SinkByChunk(),

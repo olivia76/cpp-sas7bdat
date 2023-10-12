@@ -17,16 +17,16 @@ install_requires = [
 ]
 
 test_requires = [
-    'pytest==3.7.1',
-    'pytest-cov==2.3.1',
+    'pytest',  # ==3.7.1',
+    'pytest-cov', #==2.3.1',
     #'py==1.11.0',
     #'six==1.16.0',
-    'setuptools==59.8.0',
+    'setuptools', #==59.8.0',
     #'attrs==21.4.0',
     #'more-itertools==8.12.0',
     #'atomicwrite==1.4.0',
     #'pluggy==1.0.0',
-    'coverage==6.2',
+    'coverage', #==6.2',
     #'python-dateutil==2.8.2',
     #'pytz==2021.3',
     'pandas==1.3.5',
