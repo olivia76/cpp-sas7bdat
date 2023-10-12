@@ -4,7 +4,7 @@ TESTS :=
 OPTIONS :=
 
 BUILD_TYPE := Release
-PYTHON := python3.10 
+PYTHON := python3.10
 PYTHON_VERSION := 3.10.0  #3.8.12
 VENV_NAME := $(shell cat .python-version)
 ENABLE_CONAN := ON
@@ -76,7 +76,7 @@ pyenv-python:
 	export PYTHON_CONFIGURE_OPTS="--enable-shared"; ~/.pyenv/bin/pyenv install --force $(PYTHON_VERSION)
 
 pyenv-venv:
-	~/.pyenv/bin/pyenv virtualenv -p $(PYTHON) $(PYTHON_VERSION) $(VENV_NAME)
+	~/.pyenv/bin/pyenv virtualenv -f --clear -p $(PYTHON) $(PYTHON_VERSION) $(VENV_NAME)
 
 pyenv-activate:
 	source $PYENV_VIRTUAL_ENV/bin/activate
@@ -93,7 +93,7 @@ tests-python-install:
 	source build/${BUILD_TYPE}/generators/conanrun.sh; pip3 install ".[tests]"
 
 tests-python-run:
-	coverage run --source pycppsas7bdat -m py.test $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
+	coverage run --source pycppsas7bdat -m pytest $(OPTIONS) $(TESTS) --junitxml=./reports/pytest.xml
 
 tests-python: tests-python-install tests-python-run
 	coverage report --show-missing
