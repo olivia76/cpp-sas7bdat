@@ -14,7 +14,7 @@ class CppSAS7BDATProject(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False], "ENABLE_COVERAGE": ["ON", "OFF"], "ENABLE_R": ["ON", "OFF"], "ENABLE_PYTHON": ["ON", "OFF"], "ENABLE_TESTING": ["ON", "OFF"]}
     default_options = {"shared": True, "fPIC": True, "ENABLE_COVERAGE": "OFF", "fmt/*:shared": False, "ENABLE_R": "OFF", "ENABLE_PYTHON": "OFF", "ENABLE_TESTING": "ON"}
     generators = "VirtualBuildEnv", "VirtualRunEnv"
-    build_policy = "missing"
+    build_policy = "always"
     requires = (
         "docopt.cpp/0.6.3",
         "fmt/8.0.1",
@@ -41,7 +41,7 @@ class CppSAS7BDATProject(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def build_requirements(self):
+    def requirements(self):
         self.requires("boost/1.79.0", headers=True, libs=True, visible=True, transitive_headers=True, transitive_libs=True)
         self.test_requires("catch2/3.4.0")
 

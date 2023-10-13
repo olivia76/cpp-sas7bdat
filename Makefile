@@ -18,7 +18,7 @@ ENABLE_R := OFF
 ENABLE_TESTING := ON
 ENABLE_PYTHON := OFF
 PIP_OPTIONS := --user
-CONAN_OPTIONS := -s:b compiler.cppstd=17 -s:h compiler.cppstd=17 --profile:build=default --build=missing
+CONAN_OPTIONS := -s:b compiler.cppstd=17 -s:h compiler.cppstd=17 --profile:build=default --build=always
 
 SHELL := /bin/bash
 
