@@ -43,8 +43,7 @@ class CppSAS7BDATProject(ConanFile):
 
     def build_requirements(self):
         self.requires("boost/1.79.0", headers=True, libs=True, visible=True, transitive_headers=True, transitive_libs=True)
-    #self.test_requires("catch2/3.4.0")
-    #    pass
+        self.test_requires("catch2/3.4.0")
 
     def build(self):
         cmake = CMake(self)
