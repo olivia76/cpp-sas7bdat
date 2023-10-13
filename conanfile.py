@@ -14,7 +14,7 @@ class CppSAS7BDATProject(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False], "ENABLE_COVERAGE": ["ON", "OFF"], "ENABLE_R": ["ON", "OFF"], "ENABLE_PYTHON": ["ON", "OFF"], "ENABLE_TESTING": ["ON", "OFF"]}
     default_options = {"shared": True, "fPIC": True, "ENABLE_COVERAGE": "OFF", "fmt/*:shared": False, "ENABLE_R": "OFF", "ENABLE_PYTHON": "OFF", "ENABLE_TESTING": "ON"}
     generators = "VirtualBuildEnv", "VirtualRunEnv"
-    build_policy = "always"
+    build_policy = "missing"
     requires = (
         "docopt.cpp/0.6.3",
         "fmt/8.0.1",
