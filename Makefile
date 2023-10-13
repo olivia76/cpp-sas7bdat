@@ -18,16 +18,17 @@ ENABLE_R := OFF
 ENABLE_TESTING := ON
 ENABLE_PYTHON := OFF
 PIP_OPTIONS := --user
+CONAN_OPTIONS := -s:b compiler.cppstd=17 -s:h compiler.cppstd=17 --profile:build=default --build=missing
 
 SHELL := /bin/bash
 
 .PHONY: conan-package
 conan-package:
-	export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . --build=missing --profile:build=default
+	export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . ${CONAN_OPTIONS}
 
 .PHONY: configure
 configure:
-	mkdir -p build; cd build; conan install .. --build=missing -s compiler.cppstd=17 -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
+	mkdir -p build; cd build; conan install .. ${CONAN_OPTIONS} -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
 	#mkdir -p build; cd build; conan install .. --build=missing -s compiler.cppstd=17 --profile:build=default -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
 	#cmake -S . -B ./build -DENABLE_CONAN:BOOL=${ENABLE_CONAN} -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" \
 	#	-DENABLE_R:BOOL=${ENABLE_R} \
@@ -42,7 +43,7 @@ configure:
 
 .PHONY: build
 build: configure
-	cd build; conan build .. -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
+	cd build; conan build .. ${CONAN_OPTIONS} -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
 
 .PHONY: build-python
 build-python:
@@ -119,6 +120,7 @@ conan-install:
 
 conan-profile:
 	conan profile detect
+	conan profile path default
 
 .PHONY: benchmark
 benchmark:
