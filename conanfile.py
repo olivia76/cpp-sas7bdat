@@ -42,13 +42,13 @@ class CppSAS7BDATProject(ConanFile):
         deps.generate()
 
     def requirements(self):
-        self.requires("boost/1.79.0", headers=True, libs=True, visible=True, transitive_headers=True, transitive_libs=True)
+        self.requires("boost/1.86.0", headers=True, libs=True, visible=True, transitive_headers=True, transitive_libs=True)
         self.test_requires("catch2/3.4.0")
 
     def build(self):
         cmake = CMake(self)
         cmake.verbose = True
-        cmake.configure()
+        cmake.configure(variables={'CMAKE_EXPORT_COMPILE_COMMANDS': 'ON'})
         cmake.build()
         #cmake.test(target="test")
         #cmake.test()
@@ -61,16 +61,10 @@ class CppSAS7BDATProject(ConanFile):
 
     def package_info(self):
         # These are default values and doesn't need to be adjusted
-        LIB_DIR = os.path.join(self.package_folder, "lib")
-
-        # These are default values and doesn't need to be adjusted
         self.cpp_info.includedirs = ["include"]
         self.cpp_info.libdirs = ["lib"]
         self.cpp_info.bindirs = ["bin"]
         self.cpp_info.libs = ["cppsas7bdat"]
-        #self.env_info.LD_LIBRARY_PATH.append(LIB_DIR)
-        #self.buildenv_info.append_path("LD_LIBRARY_PATH", LIB_DIR)
-        #self.cpp_info.requires.extend(["boost::date_time", "docopt.cpp::docopt_s", "fmt::fmt", "spdlog::spdlog", "nlohmann_json::nlohmann_json"])
 
     def configure(self):
         self.options["boost"].without_python = False

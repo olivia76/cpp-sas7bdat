@@ -39,7 +39,7 @@ very-clean:
 
 .PHONY: configure
 configure:
-	mkdir -p build; cd build; conan install .. ${CONAN_OPTIONS} -o '&:ENABLE_COVERAGE=${ENABLE_COVERAGE}' -o '&:ENABLE_TESTING=${ENABLE_TESTING}'
+	mkdir -p build; cd build; conan install .. ${CONAN_OPTIONS} -o '&:ENABLE_COVERAGE=${ENABLE_COVERAGE}' -o '&:ENABLE_TESTING=${ENABLE_TESTING}' -o '(&:ENABLE_R=${ENABLE_R}' -o '&:ENABLE_PYTHON=${ENABLE_PYTHON}'
 
 .PHONY: build
 build: configure
