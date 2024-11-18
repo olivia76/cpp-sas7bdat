@@ -81,7 +81,7 @@ pyenv-setup: pyenv-conan pyenv-tests
 pyenv-conan:
 	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
 	pip3 install $(PIP_OPTIONS) conan --upgrade
-	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy==1.24.4 cmaketools
+	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy<2.0.0 cmaketools
 
 .PHONY: pyenv-tests
 pyenv-tests:
