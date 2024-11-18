@@ -66,12 +66,10 @@ jobs:
     - name: Custom build - cpp
       if: matrix.language == 'cpp'
       run: |
-        pip3 install --upgrade pip
-        pip3 install wheel setuptools gcovr numpy cmaketools
-        pip3 install conan --upgrade
+        make pyenv-setup
         sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
         sudo update-alternatives --config conan
-        make conan-profile
+        ./setup-conan-github.bash
         make
 
     #   make bootstrap

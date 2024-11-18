@@ -8,23 +8,11 @@ project(
   LANGUAGES CXX
   )
 
-
+file(WRITE package.txt ${PROJECT_NAME})
 file(WRITE version.txt ${PROJECT_VERSION})
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
-
-#include(CheckIPOSupported)
-#check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
-
-#if( ipo_supported )
-#    message(STATUS "IPO / LTO enabled")
-     #set_property(TARGET project_options PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-#else()
-#    message(STATUS "IPO / LTO not supported: <${ipo_error}>")
-#endif()
 
 # variable controlling whether the build is a shared or static library
 if (WIN32)
@@ -36,20 +24,20 @@ else()
   set(Boost_USE_STATIC_LIBS ON)
 endif()
 
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-add_compile_definitions(BOOST_DATE_TIME_NO_LIB)
-if (WIN32)
-  add_compile_options(/EHsc)
-else()
-  add_compile_options(-Wall -Wextra -pedantic -O3)
-endif()
+#add_compile_definitions(BOOST_DATE_TIME_NO_LIB)
+#if (WIN32)
+#  add_compile_options(/EHsc)
+#else()
+#  add_compile_options(-Wall -Wextra -pedantic -O3)
+#endif()
 
 # Link this 'library' to set the c++ standard / compile-time options requested
 add_library(project_options INTERFACE)
-target_compile_features(project_options INTERFACE cxx_std_17)
+target_compile_features(project_options INTERFACE cxx_std_20)
+set_target_properties(project_options PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
   option(ENABLE_BUILD_WITH_TIME_TRACE "Enable -ftime-trace to generate time tracing .json files on clang" OFF)
@@ -87,30 +75,10 @@ option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
 option(ENABLE_TESTING "Enable Test Builds" ON)
 option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
 
-# Very basic PCH example
-option(ENABLE_PCH "Enable Precompiled Headers" OFF)
-if(ENABLE_PCH)
-  # This sets a global PCH parameter, each project will build its own PCH, which is a good idea if any #define's change
-  #
-  # consider breaking this out per project as necessary
-  target_precompile_headers(
-    project_options
-    INTERFACE
-    <vector>
-    <string>
-    <map>
-    <utility>)
-endif()
-
 if(ENABLE_TESTING)
   enable_testing()
   message("Building Tests. Be sure to check out test/constexpr_tests for constexpr testing")
   add_subdirectory(test)
-endif()
-
-if(ENABLE_FUZZING)
-  message("Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
-  add_subdirectory(fuzz_test)
 endif()
 
 add_subdirectory(src)
@@ -128,10 +96,4 @@ if(ENABLE_R)
   message("Building R module")
   add_subdirectory(R/CPPSAS7BDAT)
   add_subdirectory(R/CPPSAS7BDAT/src)
-endif()
-
-option(ENABLE_UNITY "Enable Unity builds of projects" OFF)
-if(ENABLE_UNITY)
-  # Add for any project you want to apply unity builds for
-  set_target_properties(intro PROPERTIES UNITY_BUILD ON)
 endif()

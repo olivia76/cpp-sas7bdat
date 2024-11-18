@@ -1,7 +1,11 @@
-all: build
+SHELL := /bin/bash
+
 
 TESTS :=
 OPTIONS :=
+
+PACKAGE_NAME := $(shell cat package.txt)
+PACKAGE_VERSION := $(shell cat version.txt)
 
 BUILD_TYPE := Release
 PYTHON := python3.10
@@ -17,10 +21,21 @@ ENABLE_SANITIZER_MEMORY := OFF
 ENABLE_R := OFF
 ENABLE_TESTING := ON
 ENABLE_PYTHON := OFF
-PIP_OPTIONS := --user
-CONAN_OPTIONS := -s:b compiler.cppstd=17 -s:h compiler.cppstd=17 --profile:build=default --build=catch2/3.4.0 --build=missing
 
-SHELL := /bin/bash
+PIP_OPTIONS :=
+#CONAN_OPTIONS := -s:b compiler.cppstd=17 -s:h compiler.cppstd=17 --profile:build=default --build=catch2/3.4.0 --build=missing
+CONAN_OPTIONS := -s:b compiler.cppstd=20 -s:h compiler.cppstd=20 --profile:build=default --profile:host=default --build=missing
+
+.PHONY: all
+all: build
+
+.PHONY: clean
+clean:
+	make -C build/${BUILD_TYPE} clean
+
+.PHONY: very-clean
+very-clean:
+	rm -fr ./build ./test_package/build
 
 .PHONY: conan-package
 conan-package:
@@ -124,7 +139,7 @@ conan-profile:
 
 .PHONY: benchmark
 benchmark:
-	make -C benchmark
+	source build/${BUILD_TYPE}/generators/conanrun.sh; make -C benchmark
 
 .PHONY: clang-tidy
 clang-tidy:

@@ -36,6 +36,9 @@ add_library(cppsas7bdat ${LIBRARY_TYPE}
   stream.hpp
   stream.cpp
     )
+
+target_compile_definitions(cppsas7bdat PRIVATE BOOST_DATE_TIME_NO_LIB)
+
 target_include_directories(cppsas7bdat INTERFACE $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 target_include_directories(cppsas7bdat INTERFACE ${PROJECT_BINARY_DIR} )
 target_include_directories(cppsas7bdat PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)

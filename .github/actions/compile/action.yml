@@ -18,21 +18,23 @@ runs:
       shell: bash
       if: runner.os != 'Windows'
       run: |
-        make conan-install PIP_OPTIONS=
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          echo "Ubuntu - Fix Conan Path"
-          sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
-          sudo update-alternatives --config conan
-        else
-          echo "MacOSX - add coreutils"
-          brew install coreutils
-        fi;
+        python3 -m venv .venv
+        source .venv/bin/activate
+        make pyenv-setup PIP_OPTIONS=
+        #if [ "$RUNNER_OS" == "Linux" ]; then
+        #  echo "Ubuntu - Fix Conan Path"
+        #  sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
+        #  sudo update-alternatives --config conan
+        #else
+        #  echo "MacOSX - add coreutils"
+        #  brew install coreutils
+        #fi;
 
     - name: Install conan and dependencies on windows
       shell: bash
       if: runner.os == 'Windows'
       run: |
-        make conan-install PIP_OPTIONS=--user
+        make pyenv-setup PIP_OPTIONS=
         echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH
         echo "Using chocolatey to install OpenCppCoverage"
         choco install opencppcoverage -y
@@ -45,15 +47,21 @@ runs:
 
     - name: Create conan profile
       shell: bash
-      run: make conan-profile
+      run: |
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate; fi
+        ./setup-conan-github.bash
 
     - name: Configure CMake
       shell: bash
-      run: make configure BUILD_TYPE=$BUILD_TYPE ENABLE_CONAN=ON ENABLE_COVERAGE=$ENABLE_COVERAGE
+      run: |
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate; fi
+        make configure BUILD_TYPE=$BUILD_TYPE ENABLE_COVERAGE=$ENABLE_COVERAGE
 
     - name: Build
       shell: bash
-      run: make build BUILD_TYPE=$BUILD_TYPE ENABLE_CONAN=ON ENABLE_COVERAGE=$ENABLE_COVERAGE
+      run: |
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate; fi
+        make build BUILD_TYPE=$BUILD_TYPE ENABLE_COVERAGE=$ENABLE_COVERAGE
 
     - name: Retrieve data
       shell: bash
@@ -68,13 +76,14 @@ runs:
       if: runner.os != 'Windows'
       working-directory: ./build
       run: |
-          ctest -C $BUILD_TYPE --output-on-failure
-          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            make -C .. build-python
-            make -C .. tests-python
-            gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../tests/'
-          fi;
+        source ../.venv/bin/activate
+        ctest -C $BUILD_TYPE --output-on-failure
+        gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          make -C .. build-python
+          make -C .. tests-python
+          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../tests/'
+        fi;
 
     - name: Windows - Test and coverage
       shell: bash
@@ -103,4 +112,5 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
       run: |
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate; fi
         make conan-package
