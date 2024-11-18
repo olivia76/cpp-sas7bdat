@@ -37,50 +37,30 @@ clean:
 very-clean:
 	rm -fr ./build ./test_package/build
 
-.PHONY: conan-package
-conan-package:
-	export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . ${CONAN_OPTIONS}
-
 .PHONY: configure
 configure:
-	mkdir -p build; cd build; conan install .. ${CONAN_OPTIONS} -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
-	#mkdir -p build; cd build; conan install .. --build=missing -s compiler.cppstd=17 --profile:build=default -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
-	#cmake -S . -B ./build -DENABLE_CONAN:BOOL=${ENABLE_CONAN} -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" \
-	#	-DENABLE_R:BOOL=${ENABLE_R} \
-	#	-DENABLE_COVERAGE:BOOL=${ENABLE_COVERAGE} \
-	#			-DENABLE_SANITIZER_ADDRESS:BOOL=${ENABLE_SANITIZER_ADDRESS} \
-	#			-DENABLE_SANITIZER_LEAK:BOOL=${ENABLE_SANITIZER_LEAK} \
-	#			-DENABLE_SANITIZER_UNDEFINED_BEHAVIOR:BOOL=${ENABLE_SANITIZER_UNDEFINED_BEHAVIOR} \
-	#			-DENABLE_SANITIZER_THREAD:BOOL=${ENABLE_SANITIZER_THREAD} \
-	#			-DENABLE_SANITIZER_MEMORY:BOOL=${ENABLE_SANITIZER_MEMORY} \
-	#			-DENABLE_TESTING:BOOL=${ENABLE_TESTING} \
-	#			-DENABLE_PYTHON:BOOL=${ENABLE_PYTHON}
+	mkdir -p build; cd build; conan install .. ${CONAN_OPTIONS} -o '&:ENABLE_COVERAGE=${ENABLE_COVERAGE}' -o '&:ENABLE_TESTING=${ENABLE_TESTING}'
 
 .PHONY: build
 build: configure
-	cd build; conan build .. ${CONAN_OPTIONS} -o ENABLE_COVERAGE=${ENABLE_COVERAGE} -o ENABLE_R=${ENABLE_R} -o ENABLE_PYTHON=${ENABLE_PYTHON} -o ENABLE_TESTING=${ENABLE_TESTING}
+	cd build; conan build .. ${CONAN_OPTIONS} -o '&:ENABLE_COVERAGE=${ENABLE_COVERAGE}' -o '&:ENABLE_TESTING=${ENABLE_TESTING}' -o '(&:ENABLE_R=${ENABLE_R}' -o '&:ENABLE_PYTHON=${ENABLE_PYTHON}'
 
-.PHONY: build-python
-build-python:
-	make -C . build ENABLE_PYTHON=ON
+.PHONY: tests
+tests:
+	source build/${BUILD_TYPE}/generators/conanrun.sh; cd tests; ../build/${BUILD_TYPE}/tests/tests ${TESTS} --skip-benchmarks
 
-.PHONY: build-R
-build-R:
-	make -C R build
+.PHONY: coverage
+coverage:
+	@gcovr --version
+	@mkdir -p coverage
+	cd build; gcovr --delete --print-summary --merge-mode-functions separate --exclude-unreachable-branches --html --html-details -o ../coverage/index.html --xml-pretty --xml ../coverage/coverage.xml --filter '../src/' --filter '../include/' --exclude '../test/'
 
-.PHONY: build-sanitizer
-build-sanitizer:
-	make -C . build BUILD_TYPE=RelWithDebInfo ENABLE_SANITIZER_ADDRESS=ON
+.PHONY: conan-package
+conan-package:
+	export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . ${CONAN_OPTIONS} --build-require #--format=json
 
-.PHONY: test
-test:
-	source build/${BUILD_TYPE}/generators/conanrun.sh; cd test; ../build/${BUILD_TYPE}/test/tests ${TESTS}
-	#cd ./build; ctest -C ${BUILD_TYPE} --output-on-failure ${TESTS}
-	#make -C build test ARGS='-V'
-
-.PHONY: build-debug
-build-debug:
-	mkdir -p build-debug; cd build-debug; cmake -DCMAKE_BUILD_TYPE=Debug ..; cmake --build .
+clang-format:
+	clang-format --verbose -i $(shell find include src tests test_package -name '*pp' -not -path 'test_package/build/*') --style=LLVM
 
 .PHONY: pyenv pyenv-download pyenv-python pyenv-venv
 pyenv: pyenv-download pyenv-python pyenv-venv
@@ -92,7 +72,36 @@ pyenv-python:
 	export PYTHON_CONFIGURE_OPTS="--enable-shared"; ~/.pyenv/bin/pyenv install --force $(PYTHON_VERSION)
 
 pyenv-venv:
-	~/.pyenv/bin/pyenv virtualenv -f --clear -p $(PYTHON) $(PYTHON_VERSION) $(VENV_NAME)
+	~/.pyenv/bin/pyenv virtualenv $(PYTHON_VERSION) $(VENV_NAME)
+
+.PHONY: pyenv-setup
+pyenv-setup: pyenv-conan pyenv-tests
+
+.PHONY: pyenv-conan
+pyenv-conan:
+	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
+	pip3 install $(PIP_OPTIONS) conan --upgrade
+	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy cmaketools
+
+.PHONY: pyenv-tests
+pyenv-tests:
+	pip3 install $(PIP_OPTIONS) gcovr
+
+.PHONY: codechecker
+codechecker:
+	rm -fr codechecker
+	CodeChecker analyze build/Release/compile_commands.json -o ./codechecker || true
+	CodeChecker parse ./codechecker -e html -o ./codechecker || true
+
+
+.PHONY: build-python
+build-python:
+	make -C . build ENABLE_PYTHON=ON
+
+.PHONY: build-R
+build-R:
+	make -C R build
+
 
 pyenv-activate:
 	source $PYENV_VIRTUAL_ENV/bin/activate
@@ -124,15 +133,6 @@ tests-R: build-R
 lint:
 	yamllint -f colored .github
 
-.PHONY: conan conan-install conan-setup
-conan: conan-install conan-setup
-
-conan-install:
-	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
-	#pip3 install $(PIP_OPTIONS) --upgrade pip
-	pip3 install $(PIP_OPTIONS) wheel setuptools gcovr==5.0 numpy cmaketools
-	pip3 install $(PIP_OPTIONS) conan --upgrade
-
 conan-profile:
 	conan profile detect
 	conan profile path default
@@ -140,15 +140,3 @@ conan-profile:
 .PHONY: benchmark
 benchmark:
 	source build/${BUILD_TYPE}/generators/conanrun.sh; make -C benchmark
-
-.PHONY: clang-tidy
-clang-tidy:
-	clang-tidy -p build $(shell find src -type f -name *.cpp) include/cppsas7bdat/reader.hpp -extra-arg=-std=c++17  -checks=-*,clang-analyzer-*,-clang-analyzer-cplusplus* -- -I include -I build
-
-.PHONY: clean
-clean:
-	make -C build clean
-
-.PHONY: very-clean
-very-clean:
-	rm -fr ./build ./test_package/build

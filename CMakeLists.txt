@@ -24,12 +24,7 @@ else()
   set(Boost_USE_STATIC_LIBS ON)
 endif()
 
-#add_compile_definitions(BOOST_DATE_TIME_NO_LIB)
-#if (WIN32)
-#  add_compile_options(/EHsc)
-#else()
-#  add_compile_options(-Wall -Wextra -pedantic -O3)
-#endif()
+#
 
 # Link this 'library' to set the c++ standard / compile-time options requested
 add_library(project_options INTERFACE)
